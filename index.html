@@ -1,1359 +1,267 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinanzasApp - Gestão Financeira Inteligente</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            accent: '#8b5cf6',
-                            teal: '#10b981',
-                            rose: '#f43f5e',
-                            amber: '#f59e0b',
-                        },
-                        dark: {
-                            bg: '#0b0f19',
-                            card: '#111827',
-                            border: '#1f2937',
-                            muted: '#374151',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #080b11;
-        }
-        /* Device frame setup */
-        .mobile-frame-container {
-            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px rgba(99, 102, 241, 0.15);
-        }
-        .screen-scroll::-webkit-scrollbar {
-            width: 4px;
-        }
-        .screen-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .screen-scroll::-webkit-scrollbar-thumb {
-            background: rgba(156, 163, 175, 0.3);
-            border-radius: 4px;
-        }
-        .glass-card {
-            background: rgba(17, 24, 39, 0.75);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .light .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 0, 0, 0.06);
-        }
-        /* Smooth Tab Transitions */
-        .app-tab-content {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.25s ease-in-out;
-        }
-        .app-tab-content.active {
-            display: block;
-            opacity: 1;
-        }
-        /* Pulse glow animation */
-        @keyframes pulseGlow {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.8; }
-        }
-        .glow-effect {
-            animation: pulseGlow 4s infinite;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Minhas Finanças</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f1c;--ink:#e9eef8;--mute:#8593ad;--line:#1d2842;--blue:#5b8cff;--in:#35d0a0;--out:#ff7a70;--card:#111a30;--grid:var(--grid)}
+[data-theme=light]{--bg:#f4f6fb;--ink:#101828;--mute:#5b6a85;--line:#dbe2ef;--blue:#3b6df0;--in:#0f9d75;--out:#d9483f;--card:#fff;--grid:rgba(59,109,240,.09)}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 'IBM Plex Sans',system-ui,sans-serif;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 70%)}
+.wrap{position:relative;max-width:860px;margin:0 auto;padding:20px 20px 110px}
+header{display:flex;justify-content:space-between;align-items:center;padding-bottom:28px}
+.brand{font:700 18px 'Space Grotesk',sans-serif;letter-spacing:.01em}
+#mic{position:fixed;right:20px;bottom:20px;z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.3);display:flex;align-items:center;gap:10px;border:1px solid var(--blue);background:var(--card);color:var(--ink);font:500 15px 'IBM Plex Sans',sans-serif;padding:14px 22px;border-radius:999px;cursor:pointer;transition:background .2s}
+
+#mic i{width:10px;height:10px;border-radius:50%;background:var(--blue)}
+#mic.on{background:var(--out);border-color:var(--out);color:#160b0a}
+#mic.on i{background:#160b0a;animation:p 1.2s infinite}
+@keyframes p{50%{opacity:.25}}
+button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.hero small,.fig small,h2{color:var(--mute);font-size:14px;font-weight:400}
+.hero b{display:block;font:700 clamp(46px,12vw,92px)/1.05 'Space Grotesk',sans-serif;letter-spacing:-.02em;margin:4px 0 6px}
+#say{min-height:48px;color:var(--mute);font-size:15px;margin:6px 0 30px}
+#say em{color:var(--ink);font-style:normal}
+.figs{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.fig{padding:18px 16px 18px 0}.fig+.fig{padding-left:18px;border-left:1px solid var(--line)}
+.fig b{display:block;font:700 clamp(20px,5vw,30px) 'Space Grotesk',sans-serif;margin-top:2px}
+.fig span{font-size:13px;color:var(--mute)}
+.in{color:var(--in)}.out{color:var(--out)}
+section{margin-top:40px}
+h2{margin-bottom:14px}
+.bar{display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:center;margin:10px 0;font-size:14px}
+.bar div{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.bar div i{display:block;height:100%;background:var(--blue);border-radius:5px;transition:width .5s}
+.bar span{color:var(--mute);min-width:96px;text-align:right}
+li{list-style:none;display:grid;grid-template-columns:1fr auto 32px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+li p{font-size:15px}li p small{display:block;color:var(--mute);font-size:12px}
+li button{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer;border-radius:6px}
+li button:hover{color:var(--out)}
+form{display:flex;gap:10px;margin-top:40px}
+input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:400 15px 'IBM Plex Sans',sans-serif;padding:12px 14px}
+form button{background:var(--blue);border:0;border-radius:10px;color:#07101f;font:500 15px 'IBM Plex Sans',sans-serif;padding:0 20px;cursor:pointer}
+.hint{color:var(--mute);font-size:13px;margin-top:10px}
+.empty{color:var(--mute);font-size:15px}
+#toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,200px);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 16px;font-size:14px;display:flex;gap:14px;align-items:center;transition:transform .25s;max-width:92vw}
+#toast.show{transform:translate(-50%,0)}
+#toast button{background:none;border:0;color:var(--blue);font:500 14px 'IBM Plex Sans',sans-serif;cursor:pointer}
+header{padding-bottom:12px}
+#theme{background:none;border:1px solid var(--line);color:var(--ink);border-radius:999px;width:38px;height:38px;cursor:pointer;font-size:16px}
+nav{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:14px}
+nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);font:500 15px 'IBM Plex Sans',sans-serif;padding:10px 14px;cursor:pointer}
+nav button.on{color:var(--ink);border-color:var(--blue)}
+#say{margin:0 0 22px}
+#tipBtn{margin-top:26px;background:none;border:1px solid var(--blue);color:var(--ink);border-radius:10px;font:500 15px 'IBM Plex Sans',sans-serif;padding:10px 18px;cursor:pointer}
+#tips{margin-top:14px;padding:12px 16px;border-left:3px solid var(--blue);font-size:15px}
+#tips:empty{display:none}#tips p+p{margin-top:8px}
+@media(max-width:560px){.figs{grid-template-columns:1fr}.fig,.fig+.fig{padding:14px 0;border-left:0}.fig+.fig{border-top:1px solid var(--line)}.bar{grid-template-columns:86px 1fr auto}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
-<body class="bg-dark-bg text-slate-100 min-h-screen antialiased flex flex-col justify-between overflow-x-hidden selection:bg-brand-500 selection:text-white">
-    <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3.5">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-accent flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
-                    <i class="fa-solid me-0 fa-wallet text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">FinanzaApp <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-500 border border-brand-500/30 font-medium">Pro Studio</span></h1>
-                    <p class="text-xs text-slate-400">Simulador de aplicativo móvel & gerador de código</p>
-                </div>
-            </div>
-            <!-- Top Header Actions -->
-            <div class="flex items-center gap-3">
-                <button id="themeToggleBtn" onclick="toggleAppTheme()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold transition flex items-center gap-2">
-                    <i class="fa-solid fa-moon text-amber-400" id="themeIcon"></i>
-                    <span id="themeLabel">Modo Escuro</span>
-                </button>
-                <button onclick="switchMainTab('codeTab')" class="px-3.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-md shadow-brand-600/30 transition flex items-center gap-2">
-                    <i class="fa-solid fa-code"></i>
-                    <span>Ver Código React Native / Flutter</span>
-                </button>
-            </div>
-        </div>
-    </header>
-    <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <!-- Left Controls & Insights Panel -->
-        <div class="lg:col-span-4 space-y-6">
-            <!-- Quick Actions Panel -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-brand-500"></i> Painel de Controle da Simulação
-                </h2>
-                <div class="space-y-3">
-                    <button onclick="openModal('transactionModal')" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-95 text-white font-semibold text-sm shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus-circle text-lg"></i> Adicionar Lançamento
-                    </button>
-                    <div class="grid grid-cols-2 gap-2 pt-1">
-                        <button onclick="switchMobileTab('home')" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700/60 text-xs font-medium text-slate-200 transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-house text-brand-500"></i> Ir para Início
-                        </button>
-                        <button onclick="switchMobileTab('ai')" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700/60 text-xs font-medium text-slate-200 transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-brain text-brand-accent"></i> Ver Diagnóstico
-                        </button>
-                    </div>
-                </div>
-                <hr class="border-slate-800 my-4">
-                <!-- Quick Data Preset Injector -->
-                <p class="text-xs font-semibold text-slate-400 mb-2">Simular Perfil Financeiro:</p>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="loadPreset('balanced')" class="py-1.5 px-2.5 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 rounded-lg text-xs text-slate-300 text-left transition">
-                        <span class="block font-semibold text-brand-teal">✓ Equilibrado</span>
-                        <span class="text-[10px] text-slate-400">Dentro da meta 50/30/20</span>
-                    </button>
-                    <button onclick="loadPreset('overspending')" class="py-1.5 px-2.5 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 rounded-lg text-xs text-slate-300 text-left transition">
-                        <span class="block font-semibold text-brand-rose">⚠ Alto em Lazer</span>
-                        <span class="text-[10px] text-slate-400">Gasto > 35% em Desejos</span>
-                    </button>
-                </div>
-            </div>
-            <!-- Real-time AI Assistant Summary -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl pointer-events-none"></div>
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-brand-500/20 text-brand-500 flex items-center justify-center text-xs">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        </div>
-                        <h3 class="text-sm font-bold text-slate-200">Resumo da Inteligência AI</h3>
-                    </div>
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-teal/10 text-brand-teal border border-brand-teal/20">
-                        <span class="w-1.5 h-1.5 rounded-full bg-brand-teal animate-pulse"></span>
-                        Análise Ativa
-                    </span>
-                </div>
-                <div id="sidebarAiSummary" class="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 space-y-2">
-                    <p>Sua saúde financeira deste mês está <strong>Estável</strong>. Você comprometeu 48% com Necessidades e 32% com Lazer.</p>
-                </div>
-                <button onclick="switchMobileTab('ai')" class="w-full mt-3 py-2 text-xs font-semibold text-brand-500 hover:text-brand-400 text-center block transition">
-                    Ver recomendações detalhadas →
-                </button>
-            </div>
-            <!-- Tech Stack Framework Switcher Info -->
-            <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800/80 rounded-2xl p-5 shadow-xl">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Tecnologias Utilizadas na Simulação</h3>
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-slate-800 rounded-lg text-blue-400"><i class="fa-brands fa-react text-xl"></i></div>
-                    <div>
-                        <p class="text-xs font-bold text-slate-200">React Native / Flutter Ready</p>
-                        <p class="text-[11px] text-slate-400">Código nativo pronto para produção</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Right / Middle Area: Interactive Mobile Phone Simulator & Code View Workspace -->
-        <div class="lg:col-span-8 flex justify-center w-full">
-            <!-- MAIN TAB 1: Mobile Phone Mockup -->
-            <div id="appSimulatorTab" class="w-full flex justify-center py-2">
-                <div class="mobile-frame-container w-full max-w-[390px] h-[780px] bg-slate-950 rounded-[48px] border-[10px] border-slate-800/90 relative shadow-2xl flex flex-col overflow-hidden select-none">
-                    <!-- Smartphone Top Dynamic Island / Notch -->
-                    <div class="w-full pt-3 px-6 pb-2 bg-slate-950 flex justify-between items-center z-30 shrink-0 text-slate-300 text-xs font-medium">
-                        <span id="currentTime">09:41</span>
-                        <div class="w-24 h-4 bg-black rounded-full flex items-center justify-center gap-1.5">
-                            <div class="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
-                            <div class="w-2 h-2 rounded-full bg-blue-900/60"></div>
-                        </div>
-                        <div class="flex items-center gap-1.5 text-[11px]">
-                            <i class="fa-solid fa-signal"></i>
-                            <i class="fa-solid fa-wifi"></i>
-                            <i class="fa-solid fa-battery-full text-brand-teal"></i>
-                        </div>
-                    </div>
-                    <!-- Inner Screen Workspace (Scrollable) -->
-                    <div id="mobileScreenContainer" class="flex-1 overflow-y-auto screen-scroll bg-slate-950 text-slate-100 relative pb-16">
-                        <!-- ================= SCREEN 1: HOME DASHBOARD ================= -->
-                        <div id="tab-home" class="app-tab-content active p-4 space-y-4">
-                            <!-- User Header -->
-                            <div class="flex items-center justify-between pt-1">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-500 to-purple-600 p-0.5">
-                                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Avatar" class="w-full h-full object-cover rounded-full">
-                                    </div>
-                                    <div>
-                                        <p class="text-[11px] text-slate-400 font-medium">Olá, Amanda 👋</p>
-                                        <h3 class="text-sm font-bold text-slate-100">Meu Orçamento</h3>
-                                    </div>
-                                </div>
-                                <button onclick="openModal('transactionModal')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-200 transition">
-                                    <i class="fa-solid fa-plus text-xs"></i>
-                                </button>
-                            </div>
-                            <!-- Main Balance Card (Fintech Glassmorphism) -->
-                            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-brand-700 to-purple-800 p-4 text-white shadow-xl shadow-brand-600/20">
-                                <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
-                                <div class="flex items-center justify-between text-xs text-slate-200 mb-1">
-                                    <span>Saldo Total Disponível</span>
-                                    <button onclick="toggleBalanceVisibility()" class="text-slate-300 hover:text-white">
-                                        <i class="fa-solid fa-eye text-xs" id="balanceEyeIcon"></i>
-                                    </button>
-                                </div>
-                                <div class="text-2xl font-extrabold tracking-tight mb-4" id="totalBalanceDisplay">R$ 6.450,00</div>
-                                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/15 text-xs">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300">
-                                            <i class="fa-solid fa-arrow-down text-[10px]"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-[10px] text-slate-300">Receitas</p>
-                                            <p class="font-bold text-emerald-300" id="totalIncomeDisplay">+R$ 8.500,00</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-300">
-                                            <i class="fa-solid fa-arrow-up text-[10px]"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-[10px] text-slate-300">Despesas</p>
-                                            <p class="font-bold text-rose-300" id="totalExpenseDisplay">-R$ 2.050,00</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Category Expense Donut Chart -->
-                            <div class="glass-card rounded-2xl p-4">
-                                <div class="flex items-center justify-between mb-3">
-                                    <h4 class="text-xs font-bold text-slate-200">Gastos por Categoria</h4>
-                                    <span class="text-[10px] font-semibold text-brand-500 bg-brand-500/10 px-2 py-0.5 rounded-full">Este Mês</span>
-                                </div>
-                                <div class="h-44 relative flex items-center justify-center">
-                                    <canvas id="donutChart"></canvas>
-                                </div>
-                            </div>
-                            <!-- Historical Spending Line Chart -->
-                            <div class="glass-card rounded-2xl p-4">
-                                <div class="flex items-center justify-between mb-3">
-                                    <h4 class="text-xs font-bold text-slate-200">Evolução Mensal</h4>
-                                    <span class="text-[10px] text-slate-400">Últimos 6 meses</span>
-                                </div>
-                                <div class="h-36 relative">
-                                    <canvas id="lineChart"></canvas>
-                                </div>
-                            </div>
-                            <!-- Recent Transactions Section -->
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between px-1">
-                                    <h4 class="text-xs font-bold text-slate-300">Últimas Transações</h4>
-                                    <span class="text-[10px] text-brand-500 cursor-pointer font-medium hover:underline">Ver tudo</span>
-                                </div>
-                                <div id="transactionsContainer" class="space-y-2">
-                                    <!-- Dynamic transaction items injected by JS -->
-                                </div>
-                            </div>
-                        </div>
-                        <!-- ================= SCREEN 2: FINANCIAL DIAGNOSTIC & AI INSIGHTS ================= -->
-                        <div id="tab-ai" class="app-tab-content p-4 space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
-                                        <i class="fa-solid fa-brain text-brand-accent"></i> Diagnóstico IA
-                                    </h3>
-                                    <p class="text-[11px] text-slate-400">Análise automática da regra 50/30/20</p>
-                                </div>
-                                <span class="px-2.5 py-1 rounded-full bg-brand-accent/15 text-brand-accent border border-brand-accent/30 text-[10px] font-bold">Análise do Mês</span>
-                            </div>
-                            <!-- 50/30/20 Rule Visual Progress Bars -->
-                            <div class="glass-card rounded-2xl p-4 space-y-3.5">
-                                <h4 class="text-xs font-bold text-slate-200 border-b border-slate-800/80 pb-2">Distribuição Orçamentária</h4>
-                                <!-- Needs (50%) -->
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-1">
-                                        <span class="font-medium text-slate-300">Necessidades (Ideal: 50%)</span>
-                                        <span class="font-bold text-slate-200" id="percNecessidadesVal">48%</span>
-                                    </div>
-                                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                                        <div id="barNecessidades" class="bg-brand-500 h-full rounded-full transition-all duration-500" style="width: 48%"></div>
-                                    </div>
-                                </div>
-                                <!-- Wants (30%) -->
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-1">
-                                        <span class="font-medium text-slate-300">Desejos & Lazer (Ideal: 30%)</span>
-                                        <span class="font-bold text-slate-200" id="percDesejosVal">32%</span>
-                                    </div>
-                                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                                        <div id="barDesejos" class="bg-brand-amber h-full rounded-full transition-all duration-500" style="width: 32%"></div>
-                                    </div>
-                                </div>
-                                <!-- Investments (20%) -->
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-1">
-                                        <span class="font-medium text-slate-300">Investimentos & Reserva (Ideal: 20%)</span>
-                                        <span class="font-bold text-slate-200" id="percInvestimentosVal">20%</span>
-                                    </div>
-                                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                                        <div id="barInvestimentos" class="bg-brand-teal h-full rounded-full transition-all duration-500" style="width: 20%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Actionable Insight Cards Dynamic Box -->
-                            <div class="space-y-2.5">
-                                <h4 class="text-xs font-bold text-slate-300 px-1">O que você precisa melhorar:</h4>
-                                <div id="diagnosticCardsList" class="space-y-2.5">
-                                    <!-- Dynamic Diagnostic Cards Injected Here -->
-                                </div>
-                            </div>
-                            <!-- Ask AI Financial Coach Interactive Drawer -->
-                            <div class="p-4 rounded-2xl bg-gradient-to-br from-purple-900/40 to-slate-900 border border-purple-500/30 text-xs space-y-3">
-                                <div class="flex items-center gap-2">
-                                    <i class="fa-solid fa-sparkles text-brand-accent text-sm"></i>
-                                    <span class="font-bold text-slate-100">Perguntar ao Assistente Financeiro</span>
-                                </div>
-                                <p class="text-[11px] text-slate-300">Receba uma dica rápida sob medida para o seu orçamento deste mês.</p>
-                                <button onclick="generateAiAdvice()" class="w-full py-2 bg-brand-accent hover:bg-purple-600 text-white rounded-xl font-semibold text-xs transition flex items-center justify-center gap-2 shadow-md shadow-purple-600/30">
-                                    <i class="fa-solid fa-robot"></i> Gerar Dica de Economia
-                                </button>
-                                <div id="aiCustomAdviceBox" class="hidden p-3 bg-slate-950/80 rounded-xl border border-purple-500/20 text-[11px] text-purple-200 leading-relaxed italic">
-                                </div>
-                            </div>
-                        </div>
-                        <!-- ================= SCREEN 3: ANALYTICS / CARDS ================= -->
-                        <div id="tab-analytics" class="app-tab-content p-4 space-y-4">
-                            <h3 class="text-base font-bold text-slate-100">Cartões e Limites</h3>
-                            <!-- Virtual Credit Card -->
-                            <div class="w-full h-44 rounded-2xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 border border-slate-700/80 p-4 flex flex-col justify-between shadow-xl relative overflow-hidden">
-                                <div class="absolute -right-12 -top-12 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none"></div>
-                                <div class="flex justify-between items-start">
-                                    <span class="text-xs font-bold text-slate-300">Finanza Platinum</span>
-                                    <i class="fa-brands fa-cc-mastercard text-2xl text-slate-200"></i>
-                                </div>
-                                <div class="space-y-1">
-                                    <p class="text-xs font-mono text-slate-400">•••• •••• •••• 8842</p>
-                                    <p class="text-sm font-bold text-white">R$ 3.820,00 <span class="text-[10px] font-normal text-slate-400">utilizado</span></p>
-                                </div>
-                                <div class="flex justify-between items-end text-[10px] text-slate-400">
-                                    <span>Titular: AMANDA S. SILVA</span>
-                                    <span>Val: 08/29</span>
-                                </div>
-                            </div>
-                            <!-- Card Spending breakdown -->
-                            <div class="glass-card rounded-2xl p-4 space-y-3">
-                                <h4 class="text-xs font-bold text-slate-200">Limite de Crédito Disponível</h4>
-                                <div class="flex justify-between text-xs text-slate-300">
-                                    <span>R$ 3.820,00 usado</span>
-                                    <span class="font-bold text-brand-teal">R$ 6.180,00 livre</span>
-                                </div>
-                                <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                                    <div class="bg-indigo-500 h-full rounded-full" style="width: 38.2%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Smartphone Bottom Navigation Bar -->
-                    <div class="absolute bottom-0 left-0 right-0 h-16 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/80 flex items-center justify-around px-2 z-30">
-                        <button onclick="switchMobileTab('home')" class="mobile-nav-btn text-brand-500 flex flex-col items-center gap-1 transition" data-tab="home">
-                            <i class="fa-solid fa-house text-base"></i>
-                            <span class="text-[9px] font-medium">Início</span>
-                        </button>
-                        <button onclick="switchMobileTab('ai')" class="mobile-nav-btn text-slate-500 hover:text-slate-300 flex flex-col items-center gap-1 transition" data-tab="ai">
-                            <i class="fa-solid fa-chart-pie text-base"></i>
-                            <span class="text-[9px] font-medium">Diagnóstico</span>
-                        </button>
-                        <button onclick="openModal('transactionModal')" class="w-10 h-10 -mt-5 rounded-full bg-gradient-to-tr from-brand-600 to-brand-accent text-white flex items-center justify-center shadow-lg shadow-brand-600/40 hover:scale-105 transition">
-                            <i class="fa-solid fa-plus text-sm"></i>
-                        </button>
-                        <button onclick="switchMobileTab('analytics')" class="mobile-nav-btn text-slate-500 hover:text-slate-300 flex flex-col items-center gap-1 transition" data-tab="analytics">
-                            <i class="fa-solid fa-credit-card text-base"></i>
-                            <span class="text-[9px] font-medium">Cartões</span>
-                        </button>
-                    </div>
-                    <!-- Smartphone Home Indicator Bar -->
-                    <div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-700 rounded-full z-40 pointer-events-none"></div>
-                </div>
-            </div>
-            <!-- MAIN TAB 2: Native Source Code Exporter (React Native & Flutter) -->
-            <div id="codeExporterTab" class="w-full hidden space-y-4">
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-code text-brand-500"></i> Código-Fonte Completo do App
-                        </h3>
-                        <p class="text-xs text-slate-400">Copie o código pronto para implementar este aplicativo no seu projeto mobile.</p>
-                    </div>
-                    <!-- Language Switcher Buttons -->
-                    <div class="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                        <button id="btnCodeRN" onclick="switchCodeLang('rn')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition flex items-center gap-1.5">
-                            <i class="fa-brands fa-react text-cyan-400"></i> React Native
-                        </button>
-                        <button id="btnCodeFlutter" onclick="switchCodeLang('flutter')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-feather text-blue-400"></i> Flutter
-                        </button>
-                    </div>
-                </div>
-                <!-- React Native Code Container -->
-                <div id="codeBoxRN" class="relative bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden">
-                    <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
-                        <span>App.jsx (React Native + Victory Native / Tailwind)</span>
-                        <button onclick="copyCodeSnippet('rnSnippet')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-copy"></i> Copiar Código
-                        </button>
-                    </div>
-                    <pre class="p-4 text-xs font-mono text-emerald-400 overflow-x-auto max-h-[550px] screen-scroll"><code id="rnSnippet">import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { VictoryPie } from 'victory-native';
-export default function FinanceDashboard() {
-  const [balance, setBalance] = useState(6450.00);
-  const categoryData = [
-    { x: "Moradia", y: 45 },
-    { x: "Alimentação", y: 25 },
-    { x: "Lazer", y: 20 },
-    { x: "Investimentos", y: 10 }
-  ];
-  return (
-    &lt;ScrollView style={styles.container}&gt;
-      {/* Balance Card */}
-      &lt;View style={styles.balanceCard}&gt;
-        &lt;Text style={styles.cardLabel}&gt;Saldo Disponível&lt;/Text&gt;
-        &lt;Text style={styles.balanceText}&gt;R$ {balance.toFixed(2)}&lt;/Text&gt;
-      &lt;/View&gt;
-      {/* Expense Chart */}
-      &lt;View style={styles.chartCard}&gt;
-        &lt;Text style={styles.sectionTitle}&gt;Gastos por Categoria&lt;/Text&gt;
-        &lt;VictoryPie
-          data={categoryData}
-          colorScale={["#6366f1", "#10b981", "#f59e0b", "#8b5cf6"]}
-          innerRadius={70}
-          height={220}
-        /&gt;
-      &lt;/View&gt;
-    &lt;/ScrollView&gt;
-  );
+<body>
+<div class="wrap">
+<header>
+  <span class="brand">Minhas Finanças</span>
+  <button id="theme" onclick="flip()" aria-label="Alternar modo claro e escuro"></button>
+</header>
+<nav><button id="t1" class="on" onclick="tab(1)">Resumo</button><button id="t2" onclick="tab(2)">Lançamentos</button></nav>
+<p id="say" aria-live="polite">Toque em <em>Falar</em> e diga, por exemplo: “meu salário foi 4.500”.</p>
+<div id="v1">
+
+<div class="hero">
+  <small>Tenho agora na conta</small>
+  <b id="now">R$ 0,00</b>
+</div>
+<div class="figs">
+  <div class="fig"><small>Caiu na conta</small><b class="in" id="inc">R$ 0,00</b></div>
+  <div class="fig"><small>Gastei</small><b class="out" id="spent">R$ 0,00</b></div>
+  <div class="fig"><small>Crédito disponível</small><b id="cred">—</b><span id="credSub"></span></div>
+</div>
+
+<section>
+  <h2>Para onde foi o dinheiro</h2>
+  <div id="bars"></div>
+</section>
+<button id="tipBtn" onclick="tip()">Gerar dica</button>
+<div id="tips" aria-live="polite"></div>
+</div>
+<div id="v2" hidden>
+
+<section style="margin-top:0">
+  <h2>Lançamentos</h2>
+  <ul id="list"></ul>
+</section>
+
+<form onsubmit="return typed(event)">
+  <input id="cmd" autocomplete="off" placeholder="Ou digite: gastei 30 no mercado" aria-label="Digitar um comando">
+  <button>Enviar</button>
+</form>
+<p class="hint">Comandos: “recebi 5.000”, “gastei 50 em lazer”, “gastei 200 no cartão”, “meu limite é 3.000”, “remover mercado”, “remover o último”, “desfazer”, “modo claro”, “dica”, “ocultar valores”.</p>
+</div>
+</div>
+<button id="mic" onclick="toggleVoice()" aria-label="Ligar ou desligar o microfone"><i></i><span id="micTxt">Falar</span></button>
+<div id="toast"><span id="toastTxt"></span><button id="undoBtn" onclick="undo()">Desfazer</button></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const strip=s=>s.split('').map(c=>c.normalize('NFD').replace(/[\u0300-\u036f]/g,'')).join('').toLowerCase();
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const KEY='financas_v2';
+let S={tx:[],limit:0,hide:false},prev=null,tt;
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.tx))S=s}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function change(fn){prev=JSON.stringify(S);fn();save();render()}
+function undo(){if(!prev)return say('Nada para desfazer.');S=JSON.parse(prev);prev=null;save();render();$('toast').classList.remove('show');say('Desfeito.')}
+function toast(msg){$('toastTxt').textContent=msg;$('toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>$('toast').classList.remove('show'),8000)}
+
+/* ---------- Tela ---------- */
+const CATS=[['Moradia','moradia aluguel condominio luz energia agua internet iptu gas casa'],['Alimentação','alimentacao mercado supermercado comida padaria feira acougue almoco lanche ifood'],['Transporte','transporte uber gasolina combustivel onibus metro estacionamento pedagio'],['Lazer','lazer restaurante cinema bar jantar festa viagem show streaming netflix jogo'],['Investimentos','investimento investimentos investi tesouro reserva poupanca aporte acoes']];
+function totals(){
+  const inc=S.tx.filter(t=>t.type=='in').reduce((a,t)=>a+t.a,0),out=S.tx.filter(t=>t.type=='out');
+  const acc=out.filter(t=>t.pay!='credito').reduce((a,t)=>a+t.a,0),cre=out.filter(t=>t.pay=='credito').reduce((a,t)=>a+t.a,0);
+  return{inc,out,acc,cre}}
+function render(){
+  const m=v=>S.hide?'••••••':brl(v),{inc,out,acc,cre}=totals();
+  $('now').textContent=m(inc-acc);$('inc').textContent=m(inc);$('spent').textContent=m(acc+cre);
+  if(S.limit>0){$('cred').textContent=m(S.limit-cre);$('credSub').textContent=S.hide?'':'limite de '+brl(S.limit)+' · usado '+brl(cre)}
+  else{$('cred').textContent='—';$('credSub').textContent='Diga: “meu limite é 3.000”'}
+  const by={};out.forEach(t=>by[t.cat]=(by[t.cat]||0)+t.a);
+  const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),max=rows.length?rows[0][1]:1;
+  $('bars').innerHTML=rows.length?rows.map(([c,v])=>`<div class="bar"><span style="text-align:left;color:var(--ink)">${esc(c)}</span><div><i style="width:${v/max*100}%"></i></div><span>${m(v)}</span></div>`).join(''):'<p class="empty">Os gastos aparecem aqui.</p>';
+  $('list').innerHTML=S.tx.length?S.tx.slice(0,40).map(t=>`<li><p>${esc(t.t)}<small>${esc(t.cat)}${t.pay=='credito'?' · crédito':''} · ${esc(t.d)}</small></p><span class="${t.type=='in'?'in':'out'}">${t.type=='in'?'+':'−'} ${m(t.a)}</span><button onclick="rem(${t.id})" aria-label="Remover ${esc(t.t)}">×</button></li>`).join(''):'<p class="empty">Nenhum lançamento ainda.</p>';
 }
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b0f19', padding: 16 },
-  balanceCard: { backgroundColor: '#4f46e5', borderRadius: 16, padding: 20, marginBottom: 16 },
-  cardLabel: { color: '#e0e7ff', fontSize: 12 },
-  balanceText: { color: '#fff', fontSize: 28, fontWeight: 'bold' },
-  chartCard: { backgroundColor: '#111827', borderRadius: 16, padding: 16 },
-  sectionTitle: { color: '#fff', fontSize: 14, fontWeight: 'bold' }
-});</code></pre>
-                </div>
-                <!-- Flutter Code Container -->
-                <div id="codeBoxFlutter" class="hidden relative bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden">
-                    <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
-                        <span>main.dart (Flutter + fl_chart)</span>
-                        <button onclick="copyCodeSnippet('flutterSnippet')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-copy"></i> Copiar Código
-                        </button>
-                    </div>
-                    <pre class="p-4 text-xs font-mono text-cyan-300 overflow-x-auto max-h-[550px] screen-scroll"><code id="flutterSnippet">import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-void main() =&gt; runApp(const FinanzaApp());
-class FinanzaApp extends StatelessWidget {
-  const FinanzaApp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: const Color(0xFF0B0F19)),
-      home: const DashboardScreen(),
-    );
-  }
-}
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('FinanzaApp'), backgroundColor: Colors.transparent),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Balance Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF4F46E5),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text('Saldo Total', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                  SizedBox(height: 6),
-                  Text('R$ 6.450,00', style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // FlChart Pie Section
-            Container(
-              height: 240,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: const Color(0xFF111827), borderRadius: BorderRadius.circular(16)),
-              child: PieChart(
-                PieChartData(
-                  sections: [
-                    PieChartSectionData(value: 45, color: const Color(0xFF6366F1), title: 'Moradia'),
-                    PieChartSectionData(value: 25, color: const Color(0xFF10B981), title: 'Alimentação'),
-                    PieChartSectionData(value: 20, color: const Color(0xFFF59E0B), title: 'Lazer'),
-                    PieChartSectionData(value: 10, color: const Color(0xFF8B5CF6), title: 'Invest.'),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}</code></pre>
-                </div>
-            </div>
-        </div>
-    </main>
-    <!-- Modal: Add Transaction -->
-    <div id="transactionModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl relative space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-plus-circle text-brand-500"></i> Nova Transação
-                </h3>
-                <button onclick="closeModal('transactionModal')" class="text-slate-400 hover:text-white transition text-xs">
-                    <i class="fa-solid fa-xmark text-base"></i>
-                </button>
-            </div>
-            <form id="addTransactionForm" onsubmit="handleAddTransaction(event)" class="space-y-3">
-                <div>
-                    <label class="block text-[11px] font-medium text-slate-300 mb-1">Descrição</label>
-                    <input type="text" id="txDescription" required placeholder="Ex: Mercado, Uber, Salário" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-[11px] font-medium text-slate-300 mb-1">Valor (R$)</label>
-                        <input type="number" step="0.01" id="txAmount" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-medium text-slate-300 mb-1">Tipo</label>
-                        <select id="txType" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
-                            <option value="expense">Despesa (-)</option>
-                            <option value="income">Receita (+)</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-medium text-slate-300 mb-1">Categoria (Regra 50/30/20)</label>
-                    <select id="txCategory" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
-                        <option value="Moradia">Moradia (Necessidade 50%)</option>
-                        <option value="Alimentação">Alimentação (Necessidade 50%)</option>
-                        <option value="Lazer">Lazer / Restaurantes (Desejo 30%)</option>
-                        <option value="Investimentos">Investimentos / Reserva (20%)</option>
-                    </select>
-                </div>
-                <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="closeModal('transactionModal')" class="w-1/2 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition">Cancelar</button>
-                    <button type="submit" class="w-1/2 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold transition shadow-md shadow-brand-600/30">Salvar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-        <!-- Botão flutuante de comandos de voz -->
-    <button id="voiceFab" onclick="toggleVoice()" aria-label="Ativar ou desativar comandos de voz" class="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full text-white flex items-center justify-center shadow-xl shadow-brand-600/40 transition bg-gradient-to-tr from-brand-600 to-brand-accent">
-        <i class="fa-solid fa-microphone text-xl" id="voiceFabIcon"></i>
-    </button>
-    <div id="voicePanel" class="fixed bottom-24 left-6 z-50 w-72 max-w-[calc(100vw-3rem)] hidden bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl text-xs space-y-2">
-        <div class="flex items-center justify-between">
-            <span class="font-semibold text-brand-teal flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-teal animate-pulse"></span>
-                <span id="voiceStatus">Ouvindo…</span>
-            </span>
-            <button onclick="toggleVoiceTts()" aria-label="Ligar ou desligar resposta falada" class="text-slate-400 hover:text-white transition">
-                <i class="fa-solid fa-volume-high" id="voiceTtsIcon"></i>
-            </button>
-        </div>
-        <p id="voiceTranscript" class="text-slate-400 italic min-h-[1.25rem]"></p>
-        <p id="voiceReply" class="text-slate-100 leading-snug"></p>
-        <div class="border-t border-slate-800 pt-2 text-[11px] text-slate-400 space-y-1">
-            <p class="font-semibold text-slate-300">Exemplos:</p>
-            <p>“Adicionar despesa de 50 reais em alimentação”</p>
-            <p>“Recebi 500 reais de salário”</p>
-            <p>“Quanto gastei em lazer?” · “Qual meu saldo?”</p>
-            <p>“Ir para diagnóstico” · “Ir para cartões”</p>
-            <p>“Modo claro” · “Ocultar saldo”</p>
-        </div>
-    </div>
-    <!-- Toast Notification Container -->
-    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 bg-slate-900 border border-brand-500/40 text-slate-100 text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none">
-        <i class="fa-solid fa-circle-check text-brand-teal text-base"></i>
-        <span id="toastMessage">Transação adicionada com sucesso!</span>
-    </div>
-    <script>
-        // State Management
-        let appState = {
-            balanceVisible: true,
-            currentMobileTab: 'home',
-            theme: 'dark',
-            income: 8500.00,
-            transactions: [
-                { id: 1, title: 'Supermercado Carrefour', amount: 320.50, type: 'expense', category: 'Alimentação', icon: 'fa-basket-shopping', color: 'text-amber-400', date: 'Hoje' },
-                { id: 2, title: 'Salário Mensal', amount: 8500.00, type: 'income', category: 'Receita', icon: 'fa-money-bill-wave', color: 'text-emerald-400', date: 'Ontem' },
-                { id: 3, title: 'Aluguel & Condomínio', amount: 2100.00, type: 'expense', category: 'Moradia', icon: 'fa-house', color: 'text-indigo-400', date: '05 Set' },
-                { id: 4, title: 'Jantar Restaurante', amount: 280.00, type: 'expense', category: 'Lazer', icon: 'fa-utensils', color: 'text-purple-400', date: '03 Set' },
-                { id: 5, title: 'Aporte Tesouro Direto', amount: 850.00, type: 'expense', category: 'Investimentos', icon: 'fa-chart-line', color: 'text-teal-400', date: '01 Set' }
-            ],
-            categoryTotals: {
-                Moradia: 2100.00,
-                Alimentação: 950.00,
-                Lazer: 1250.00,
-                Investimentos: 850.00
-            }
-        };
-        let donutChartInstance = null;
-        let lineChartInstance = null;
-        // Initialize application on DOM Ready
-        window.addEventListener('DOMContentLoaded', () => {
-            updateClock();
-            setInterval(updateClock, 30000);
-            initCharts();
-            renderTransactions();
-            recalculateFinancials();
-        });
-        function updateClock() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const el = document.getElementById('currentTime');
-            if (el) el.textContent = `${hours}:${minutes}`;
-        }
-        /* Chart initialization using Chart.js */
-        function initCharts() {
-            // Donut Chart Setup
-            const donutCtx = document.getElementById('donutChart').getContext('2d');
-            donutChartInstance = new Chart(donutCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Moradia', 'Alimentação', 'Lazer', 'Investimentos'],
-                    datasets: [{
-                        data: [
-                            appState.categoryTotals.Moradia,
-                            appState.categoryTotals.Alimentação,
-                            appState.categoryTotals.Lazer,
-                            appState.categoryTotals.Investimentos
-                        ],
-                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6'],
-                        borderWidth: 0,
-                        hoverOffset: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#94a3b8',
-                                font: { size: 10, family: 'Plus Jakarta Sans' },
-                                boxWidth: 10,
-                                padding: 12
-                            }
-                        }
-                    },
-                    cutout: '72%'
-                }
-            });
-            // Line Chart Setup
-            const lineCtx = document.getElementById('lineChart').getContext('2d');
-            lineChartInstance = new Chart(lineCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set'],
-                    datasets: [
-                        {
-                            label: 'Receitas',
-                            data: [7800, 8000, 8200, 8200, 8500, 8500],
-                            borderColor: '#10b981',
-                            tension: 0.4,
-                            borderWidth: 2,
-                            pointRadius: 0
-                        },
-                        {
-                            label: 'Despesas',
-                            data: [4200, 4800, 4500, 5100, 4900, 5150],
-                            borderColor: '#f43f5e',
-                            tension: 0.4,
-                            borderWidth: 2,
-                            pointRadius: 0
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } },
-                        y: { display: false }
-                    }
-                }
-            });
-        }
-        function escapeHtml(s) {
-            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
-        /* Dynamic Transactions Renderer */
-        function renderTransactions() {
-            const container = document.getElementById('transactionsContainer');
-            container.innerHTML = '';
-            appState.transactions.slice(0, 5).forEach(tx => {
-                const isExpense = tx.type === 'expense';
-                const sign = isExpense ? '-' : '+';
-                const colorClass = isExpense ? 'text-slate-200' : 'text-emerald-400 font-bold';
-                const itemHTML = `
-                    <div class="glass-card p-3 rounded-xl flex items-center justify-between transition hover:bg-slate-800/50">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center ${tx.color}">
-                                <i class="fa-solid ${tx.icon} text-xs"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs font-semibold text-slate-200 leading-tight">${escapeHtml(tx.title)}</p>
-                                <p class="text-[10px] text-slate-400">${tx.category} • ${tx.date}</p>
-                            </div>
-                        </div>
-                        <span class="text-xs ${colorClass}">${sign}R$ ${tx.amount.toFixed(2)}</span>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', itemHTML);
-            });
-        }
-        /* Recalculates Totals & 50/30/20 Diagnostic Rules */
-        function recalculateFinancials() {
-            let income = appState.income;
-            let totalExpenses = 0;
-            Object.values(appState.categoryTotals).forEach(v => totalExpenses += v);
-            let balance = income - totalExpenses;
-            // Update Header Displays
-            if (appState.balanceVisible) {
-                document.getElementById('totalBalanceDisplay').textContent = `R$ ${balance.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-                document.getElementById('totalIncomeDisplay').textContent = `+R$ ${income.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-                document.getElementById('totalExpenseDisplay').textContent = `-R$ ${totalExpenses.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-            }
-            // Calculate 50/30/20 Metrics
-            const necessidades = appState.categoryTotals.Moradia + appState.categoryTotals.Alimentação;
-            const desejos = appState.categoryTotals.Lazer;
-            const investimentos = appState.categoryTotals.Investimentos;
-            const percNecessidades = Math.round((necessidades / income) * 100);
-            const percDesejos = Math.round((desejos / income) * 100);
-            const percInvestimentos = Math.round((investimentos / income) * 100);
-            // Update Progress Bars
-            document.getElementById('percNecessidadesVal').textContent = `${percNecessidades}%`;
-            document.getElementById('barNecessidades').style.width = `${Math.min(percNecessidades, 100)}%`;
-            document.getElementById('percDesejosVal').textContent = `${percDesejos}%`;
-            document.getElementById('barDesejos').style.width = `${Math.min(percDesejos, 100)}%`;
-            document.getElementById('percInvestimentosVal').textContent = `${percInvestimentos}%`;
-            document.getElementById('barInvestimentos').style.width = `${Math.min(percInvestimentos, 100)}%`;
-            // Update Diagnostic Cards
-            updateDiagnosticCards(percNecessidades, percDesejos, percInvestimentos, desejos, income);
-        }
-        /* Generate Diagnostic Cards */
-        function updateDiagnosticCards(percNec, percDes, percInv, valorLazer, renda) {
-            const cardsContainer = document.getElementById('diagnosticCardsList');
-            const summaryBox = document.getElementById('sidebarAiSummary');
-            cardsContainer.innerHTML = '';
-            let diagnosticHTML = '';
-            let summaryText = '';
-            if (percDes > 30) {
-                const excesso = valorLazer - (renda * 0.3);
-                diagnosticHTML += `
-                    <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 space-y-1">
-                        <div class="flex items-center gap-2 text-rose-400 font-bold text-xs">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Lazer Excedeu o Limite (30%)
-                        </div>
-                        <p class="text-[11px] text-slate-300 leading-snug">
-                            Você gastou <strong>${percDes}%</strong> em lazer este mês. Recomendado reduzir <strong>R$ ${excesso.toFixed(2)}</strong> no próximo mês para reequilibrar.
-                        </p>
-                    </div>
-                `;
-                summaryText = `⚠ <strong>Atenção:</strong> Seus gastos com lazer estão em <strong>${percDes}%</strong> (limite recomendado: 30%).`;
-            } else {
-                diagnosticHTML += `
-                    <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-1">
-                        <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs">
-                            <i class="fa-solid fa-circle-check"></i> Gastos de Lazer Sob Controle
-                        </div>
-                        <p class="text-[11px] text-slate-300 leading-snug">
-                            Seus gastos não essenciais estão dentro dos 30% recomendados. Ótimo trabalho!
-                        </p>
-                    </div>
-                `;
-                summaryText = `✓ <strong>Saudável:</strong> Seus gastos essenciais e de lazer estão equilibrados.`;
-            }
-            if (percInv < 20) {
-                diagnosticHTML += `
-                    <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-1">
-                        <div class="flex items-center gap-2 text-amber-400 font-bold text-xs">
-                            <i class="fa-solid fa-piggy-bank"></i> Aumentar Reserva Financeira
-                        </div>
-                        <p class="text-[11px] text-slate-300 leading-snug">
-                            Apenas <strong>${percInv}%</strong> foi destinado para investimentos. Tente poupar pelo menos 20% da sua renda mensal.
-                        </p>
-                    </div>
-                `;
-            }
-            cardsContainer.innerHTML = diagnosticHTML;
-            summaryBox.innerHTML = `<p>${summaryText}</p>`;
-        }
-        /* Add New Transaction (usado pelo formulário e pela voz) */
-        function addTransaction({ desc, amount, type, category }) {
-            if (!desc || isNaN(amount) || amount <= 0) return false;
-            if (type === 'income') category = 'Receita';
-            const newTx = {
-                id: Date.now(),
-                title: desc,
-                amount: amount,
-                type: type,
-                category: category,
-                icon: type === 'income' ? 'fa-money-bill-wave' : category === 'Lazer' ? 'fa-utensils' : category === 'Investimentos' ? 'fa-chart-line' : 'fa-basket-shopping',
-                color: type === 'income' ? 'text-emerald-400' : 'text-amber-400',
-                date: 'Hoje'
-            };
-            appState.transactions.unshift(newTx);
-            if (type === 'income') {
-                appState.income += amount;
-            } else if (appState.categoryTotals[category] !== undefined) {
-                appState.categoryTotals[category] += amount;
-            }
-            donutChartInstance.data.datasets[0].data = [
-                appState.categoryTotals.Moradia,
-                appState.categoryTotals.Alimentação,
-                appState.categoryTotals.Lazer,
-                appState.categoryTotals.Investimentos
-            ];
-            donutChartInstance.update();
-            renderTransactions();
-            recalculateFinancials();
-            return true;
-        }
-        function handleAddTransaction(e) {
-            e.preventDefault();
-            const desc = document.getElementById('txDescription').value.trim();
-            const amount = parseFloat(document.getElementById('txAmount').value);
-            const type = document.getElementById('txType').value;
-            const category = document.getElementById('txCategory').value;
-            if (!addTransaction({ desc, amount, type, category })) return;
-            closeModal('transactionModal');
-            showToast(`Transação "${desc}" adicionada!`);
-            document.getElementById('addTransactionForm').reset();
-        }
-        /* Preset Loader */
-        function loadPreset(presetName) {
-            if (presetName === 'balanced') {
-                appState.categoryTotals = { Moradia: 2100, Alimentação: 1800, Lazer: 1200, Investimentos: 1700 };
-                showToast("Preset 'Equilibrado' carregado.");
-            } else if (presetName === 'overspending') {
-                appState.categoryTotals = { Moradia: 2100, Alimentação: 1400, Lazer: 3200, Investimentos: 400 };
-                showToast("Preset 'Alto em Lazer' carregado.");
-            }
-            donutChartInstance.data.datasets[0].data = Object.values(appState.categoryTotals);
-            donutChartInstance.update();
-            recalculateFinancials();
-        }
-        /* Toggle Hide/Show Balance */
-        function toggleBalanceVisibility() {
-            appState.balanceVisible = !appState.balanceVisible;
-            const eyeIcon = document.getElementById('balanceEyeIcon');
-            if (appState.balanceVisible) {
-                eyeIcon.className = "fa-solid fa-eye text-xs";
-                recalculateFinancials();
-            } else {
-                eyeIcon.className = "fa-solid fa-eye-slash text-xs";
-                document.getElementById('totalBalanceDisplay').textContent = '••••••••';
-                document.getElementById('totalIncomeDisplay').textContent = '••••••';
-                document.getElementById('totalExpenseDisplay').textContent = '••••••';
-            }
-        }
-        /* Navigation Switcher inside Phone Screen */
-        function switchMobileTab(tabName) {
-            appState.currentMobileTab = tabName;
-            // Hide all tabs
-            document.querySelectorAll('.app-tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            // Update bottom bar active styles
-            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-                if (btn.dataset.tab === tabName) {
-                    btn.classList.add('text-brand-500');
-                    btn.classList.remove('text-slate-500');
-                } else {
-                    btn.classList.remove('text-brand-500');
-                    btn.classList.add('text-slate-500');
-                }
-            });
-        }
-        /* Top Workspace Switcher (Simulator vs Code View) */
-        function switchMainTab(target) {
-            const simTab = document.getElementById('appSimulatorTab');
-            const codeTab = document.getElementById('codeExporterTab');
-            if (target === 'codeTab') {
-                simTab.classList.add('hidden');
-                codeTab.classList.remove('hidden');
-            } else {
-                simTab.classList.remove('hidden');
-                codeTab.classList.add('hidden');
-            }
-        }
-        /* Code Exporter Language Toggle */
-        function switchCodeLang(lang) {
-            const boxRN = document.getElementById('codeBoxRN');
-            const boxFlutter = document.getElementById('codeBoxFlutter');
-            const btnRN = document.getElementById('btnCodeRN');
-            const btnFlutter = document.getElementById('btnCodeFlutter');
-            if (lang === 'rn') {
-                boxRN.classList.remove('hidden');
-                boxFlutter.classList.add('hidden');
-                btnRN.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition flex items-center gap-1.5";
-                btnFlutter.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5";
-            } else {
-                boxRN.classList.add('hidden');
-                boxFlutter.classList.remove('hidden');
-                btnFlutter.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition flex items-center gap-1.5";
-                btnRN.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5";
-            }
-        }
-        /* AI Financial Advice Generator */
-        function generateAiAdvice() {
-            const adviceBox = document.getElementById('aiCustomAdviceBox');
-            adviceBox.classList.remove('hidden');
-            adviceBox.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Analisando perfil e gerando conselho personalizado...`;
-            setTimeout(() => {
-                const percLazer = Math.round((appState.categoryTotals.Lazer / appState.income) * 100);
-                let message = "";
-                if (percLazer > 30) {
-                    message = `💡 <strong>Dica da IA:</strong> Identifiquei que seus gastos em Lazer e Restaurantes atingiram <strong>${percLazer}%</strong> da renda. Reduzindo apenas 2 saídas no mês, você conseguirá guardar R$ 350,00 adicionais no Tesouro Selic.`;
-                } else {
-                    message = `💡 <strong>Dica da IA:</strong> Excelente disciplina! Com seus gastos sob controle, sugiro transferir seu excedente de saldo para uma carteira automatizada de investimentos de renda fixa.`;
-                }
-                adviceBox.innerHTML = message;
-            }, 800);
-        }
-        /* UI Helpers: Modals & Toasts */
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-            if (id === 'transactionModal') voiceState.pending = null;
-        }
-        function showToast(msg) {
-            const toast = document.getElementById('toastNotification');
-            document.getElementById('toastMessage').textContent = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
-            }, 3000);
-        }
-        function copyCodeSnippet(elementId) {
-            const codeText = document.getElementById(elementId).innerText;
-            navigator.clipboard.writeText(codeText).then(() => {
-                showToast("Código copiado para a área de transferência!");
-            });
-        }
-        function toggleAppTheme() {
-            const html = document.documentElement;
-            const themeLabel = document.getElementById('themeLabel');
-            const themeIcon = document.getElementById('themeIcon');
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                html.classList.add('light');
-                themeLabel.textContent = "Modo Claro";
-                themeIcon.className = "fa-solid fa-sun text-amber-500";
-            } else {
-                html.classList.remove('light');
-                html.classList.add('dark');
-                themeLabel.textContent = "Modo Escuro";
-                themeIcon.className = "fa-solid fa-moon text-amber-400";
-            }
-        }
-        /* =====================================================
-           COMANDOS DE VOZ (Web Speech API, pt-BR)
-           Funciona melhor no Chrome/Edge/Safari, via HTTPS.
-           ===================================================== */
-        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const voiceState = { active: false, speaking: false, tts: true, rec: null, pending: null, idleTimer: null };
+function rem(id){const t=S.tx.find(x=>x.id==id);if(!t)return;change(()=>S.tx=S.tx.filter(x=>x.id!=id));toast('Removido: '+t.t+' ('+brl(t.a)+')')}
 
-        const PT_NUM = {
-            zero: 0, dois: 2, duas: 2, tres: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9,
-            dez: 10, onze: 11, doze: 12, treze: 13, quatorze: 14, catorze: 14, quinze: 15, dezesseis: 16,
-            dezessete: 17, dezoito: 18, dezenove: 19, vinte: 20, trinta: 30, quarenta: 40, cinquenta: 50,
-            sessenta: 60, setenta: 70, oitenta: 80, noventa: 90, cem: 100, cento: 100, duzentos: 200,
-            trezentos: 300, quatrocentos: 400, quinhentos: 500, seiscentos: 600, setecentos: 700,
-            oitocentos: 800, novecentos: 900
-        };
-        const isNumWord = t => Object.prototype.hasOwnProperty.call(PT_NUM, t);
+/* ---------- Interpretação da fala ---------- */
+const NUM={dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,catorze:14,quatorze:14,quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,cem:100,cento:100,duzentos:200,trezentos:300,quatrocentos:400,quinhentos:500,seiscentos:600,setecentos:700,oitocentos:800,novecentos:900};
+const isN=t=>Object.prototype.hasOwnProperty.call(NUM,t);
+function digits(text){
+  const tk=text.split(/\s+/).filter(Boolean),o=[];let i=0;
+  while(i<tk.length){const w=strip(tk[i]);
+    if(w=='mil'&&o.length&&/^\d+$/.test(o[o.length-1])){o[o.length-1]=String(o[o.length-1]*1000);i++;continue}
+    if(isN(w)||w=='mil'){let tot=0,cur=0,j=i,last=i;
+      while(j<tk.length){const t=strip(tk[j]);
+        if(isN(t)){cur+=NUM[t];last=j;j++}
+        else if(t=='mil'){tot+=(cur||1)*1000;cur=0;last=j;j++}
+        else if(t=='e'&&j+1<tk.length&&(isN(strip(tk[j+1]))||strip(tk[j+1])=='mil'))j++;
+        else break}
+      o.push(String(tot+cur));i=last+1}
+    else{o.push(tk[i]);i++}}
+  return o.join(' ')}
+function amount(text){const n=strip(text);
+  let m=n.match(/(\d+)\s*(?:reais|real)\s*e\s*(\d{1,2})\s*centavos?/);
+  if(m)return{v:parseFloat(m[1]+'.'+m[2].padStart(2,'0')),start:m.index,end:m.index+m[0].length};
+  m=n.match(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?(?:\s*mil\b)?/);
+  if(!m)return null;
+  let v=parseFloat(m[1].replace(/\./g,'')+(m[2]?'.'+m[2]:''));if(/mil$/.test(m[0]))v*=1000;
+  return v>0?{v,start:m.index,end:m.index+m[0].length}:null}
+function category(n){let best='Outros',bi=1e9;
+  CATS.forEach(([c,ws])=>ws.split(' ').forEach(w=>{const m=n.match(new RegExp('\\b'+w+'\\b'));if(m&&m.index<bi){best=c;bi=m.index}}));return best}
+const STOP=new Set('adicionar adiciona adicione lancar lance registrar registre anotar uma um despesa receita gasto gastei paguei comprei recebi ganhei entrada saida meu minha foi caiu de do da por com em no na r$ reais real'.split(' '));
+function describe(text,n,am,fb){
+  let a=text.slice(am.end),b=n.slice(am.end);
+  const c=b.search(/\b(categoria|no cartao|no credito|no debito|na conta|porque)\b/);if(c>=0){a=a.slice(0,c);b=b.slice(0,c)}
+  b=b.replace(/^\s*(r\$|reais|real)?\s*/,x=>{a=a.slice(x.length);return''});
+  let m;while((m=b.match(/^(em|com|de|do|da|no|na|nos|nas|para|pra|por|num)\s+/))){a=a.slice(m[0].length);b=b.slice(m[0].length)}
+  a=a.replace(/^[\s,.]+|[\s,.]+$/g,'');
+  if(a.length<2)a=text.slice(0,am.start).split(/\s+/).filter(t=>t&&!STOP.has(strip(t))).join(' ');
+  if(a.length<2)a=fb;return a[0].toUpperCase()+a.slice(1)}
 
-        const CATEGORY_KEYWORDS = {
-            Moradia: ['moradia', 'aluguel', 'condominio', 'casa', 'luz', 'energia', 'agua', 'internet', 'iptu', 'gas'],
-            Alimentacao: ['alimentacao', 'mercado', 'supermercado', 'comida', 'padaria', 'feira', 'acougue', 'almoco', 'hortifruti'],
-            Lazer: ['lazer', 'restaurante', 'cinema', 'bar', 'jantar', 'festa', 'viagem', 'show', 'streaming', 'netflix', 'jogo', 'jogos'],
-            Investimentos: ['investimento', 'investimentos', 'investi', 'tesouro', 'reserva', 'poupanca', 'aporte', 'acoes']
-        };
+function add(type,am,text,n){
+  const isSal=/\bsalario\b/.test(n);
+  const title=type=='in'&&isSal?'Salário':describe(text,n,am,type=='in'?'Entrada':'Gasto');
+  const cat=type=='in'?'Entrada':category(strip(title)+' '+n);
+  const pay=/\b(cartao|credito)\b/.test(n)?'credito':'conta';
+  const old=type=='in'&&isSal?S.tx.find(t=>t.type=='in'&&t.t=='Salário'):null;
+  if(old){change(()=>old.a=am.v);const msg='Salário atualizado para '+brl(am.v)+'.';say(msg);toast(msg);return}
+  change(()=>S.tx.unshift({id:Date.now(),t:title,a:am.v,type,cat,pay:type=='out'?pay:'conta',d:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}));
+  const msg=type=='in'?`Entrada de ${brl(am.v)} registrada: ${title}.`:`Gasto de ${brl(am.v)} em ${title} (${cat}${pay=='credito'?', crédito':''}).`;
+  say(msg+' Diga desfazer se estiver errado.');toast(msg)}
 
-        const DESC_STOPWORDS = new Set(['adicionar', 'adiciona', 'adicione', 'lancar', 'lanca', 'lance', 'registrar', 'registra',
-            'registre', 'anotar', 'anota', 'uma', 'um', 'despesa', 'receita', 'gasto', 'gastei', 'paguei', 'comprei', 'recebi',
-            'ganhei', 'entrada', 'saida', 'lancamento', 'transacao', 'nova', 'novo', 'de', 'do', 'da', 'por', 'com', 'em', 'no',
-            'na', 'r$', 'reais', 'real']);
+const RSTOP=new Set('remover remova remove apagar apague apaga excluir exclua tirar tira o a os as um uma esse essa gasto gastos lancamento despesa receita entrada de do da no na em por porque pois foi colocado colocada incorretamente errado errada errei lancei ultimo ultima recente que'.split(' '));
+function removeCmd(text,n){
+  const cut=n.search(/\b(porque|pois|foi colocad|foi lancad)/);
+  const nn=cut>0?n.slice(0,cut):n,tx=cut>0?text.slice(0,cut):text;
+  if(/\b(ultimo|ultima|recente)\b/.test(nn)){const t=S.tx[0];if(!t)return say('Não há lançamentos.');rem(t.id);return say(`Removi o último lançamento: ${t.t}, ${brl(t.a)}.`)}
+  const am=amount(tx),words=nn.split(/[^a-z0-9$]+/).filter(w=>w.length>2&&!RSTOP.has(w)&&!/^\d+$/.test(w));
+  if(!am&&!words.length)return say('Qual lançamento remover? Diga o nome ou o valor, ou “remover o último”.');
+  const hit=S.tx.filter(t=>(!am||Math.abs(t.a-am.v)<.005)&&words.every(w=>strip(t.t+' '+t.cat).includes(w)));
+  if(!hit.length)return say('Não encontrei esse lançamento. Veja a lista e diga o nome ou o valor.');
+  if(hit.length>1)return say(`Achei ${hit.length} lançamentos parecidos. Diga também o valor para eu remover o certo.`);
+  rem(hit[0].id);say(`Removi ${hit[0].t}, ${brl(hit[0].a)}. Diga desfazer para voltar.`)}
 
-        /* Remove acentos mantendo o mesmo tamanho do texto (índices alinhados) */
-        function stripAccents(s) {
-            return s.split('').map(c => c.normalize('NFD').replace(/[\u0300-\u036f]/g, '')).join('').toLowerCase();
-        }
+function theme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t=='light'?'☾':'☀';try{localStorage.setItem('fin_theme',t)}catch(e){}}
+function flip(){theme(document.documentElement.dataset.theme=='light'?'dark':'light')}
+function tab(n){$('v1').hidden=n!=1;$('v2').hidden=n!=2;$('t1').classList.toggle('on',n==1);$('t2').classList.toggle('on',n==2)}
+function tipText(){
+  const{inc,out,acc,cre}=totals();
+  if(inc<=0)return['Registre quanto caiu na conta, por exemplo “meu salário foi 4.500”, para eu analisar seus gastos.'];
+  if(!out.length)return['Ainda não há gastos registrados. Registre alguns e eu faço a análise.'];
+  const by=c=>out.filter(t=>t.cat==c).reduce((a,t)=>a+t.a,0),p=v=>Math.round(v/inc*100);
+  const need=by('Moradia')+by('Alimentação')+by('Transporte'),want=by('Lazer'),inv=by('Investimentos'),r=[];
+  if(inc-acc<0)r.push(`Atenção: seus gastos passaram do que caiu na conta em ${brl(acc-inc)}.`);
+  if(p(want)>30)r.push(`Lazer está em ${p(want)}% da renda (o ideal é até 30%). Cortar ${brl(want-inc*.3)} equilibra o mês.`);
+  if(p(need)>50)r.push(`Moradia, alimentação e transporte somam ${p(need)}%, acima dos 50% recomendados.`);
+  if(p(inv)<20)r.push(`Você investiu ${p(inv)}% da renda. Tente chegar a 20%, cerca de ${brl(inc*.2)} por mês.`);
+  if(S.limit>0&&cre/S.limit>.7)r.push(`Você já usou ${Math.round(cre/S.limit*100)}% do limite de crédito. Vale segurar as compras no cartão.`);
+  if(!r.length)r.push('Seus gastos estão dentro da regra 50/30/20. Continue assim e mantenha o aporte mensal.');
+  return r}
+function tip(){const r=tipText();tab(1);$('tips').innerHTML=r.map(x=>'<p>'+esc(x)+'</p>').join('');say(r.join(' '))}
+function handle(raw){
+  const text=digits(raw.trim()),n=strip(text),am=amount(text);
+  if(/\b(desfazer|desfaz|voltar atras)\b/.test(n))return undo();
+  if(/\b(dica|dicas|conselho)\b/.test(n))return tip();
+  if(/\bmodo (claro|dia)\b|\btema claro\b/.test(n)){theme('light');return say('Modo claro ativado.')}
+  if(/\bmodo (escuro|noite)\b|\btema escuro\b/.test(n)){theme('dark');return say('Modo escuro ativado.')}
+  if(/\b(resumo|inicio|grafico)\b/.test(n)){tab(1);return say('Mostrando o resumo.')}
+  if(/\blancamentos\b/.test(n)&&!/\b(remov\w*|apag\w*|exclu\w*)\b/.test(n)){tab(2);return say('Mostrando os lançamentos.')}
+  if(/\b(ajuda|comandos)\b/.test(n))return say('Diga: meu salário foi 4.500; gastei 50 em lazer; gastei 200 no cartão; meu limite é 3.000; remover mercado; remover o último; quanto eu tenho; dica; modo claro; desfazer.');
+  if(/\b(remov\w*|apag\w*|exclu\w*|tira|tirar)\b/.test(n))return removeCmd(text,n);
+  if(/\b(ocultar|esconder|esconde)\b/.test(n)){change(()=>S.hide=true);return say('Valores ocultos.')}
+  if(/\b(mostrar|exibir|mostra)\b/.test(n)){change(()=>S.hide=false);return say('Valores visíveis.')}
+  if(/\blimite\b/.test(n)&&am){change(()=>S.limit=am.v);return say('Limite de crédito definido em '+brl(am.v)+'.')}
+  const{inc,acc,cre}=totals();
+  if(/\b(quanto|qual)\b/.test(n)&&!am){
+    if(/\bcredito\b|\blimite\b/.test(n))return say(S.limit>0?`Você ainda tem ${brl(S.limit-cre)} de crédito.`:'Você ainda não definiu o limite. Diga: meu limite é 3.000.');
+    if(/\b(gastei|gasto|gastou)\b/.test(n))return say(`Você gastou ${brl(acc+cre)} no total.`);
+    if(/\b(recebi|caiu|salario|entrou)\b/.test(n))return say(`Caíram ${brl(inc)} na sua conta.`);
+    if(/\b(tenho|saldo|sobrou|conta)\b/.test(n))return say(`Você tem ${brl(inc-acc)} na conta.`)}
+  if(am&&/\b(recebi|caiu|cai|entrou|ganhei|deposit\w*|salario|entrada|receita)\b/.test(n)&&!/\b(gastei|paguei|comprei)\b/.test(n))return add('in',am,text,n);
+  if(am)return add('out',am,text,n);
+  say('Não entendi. Diga “ajuda” para ver os comandos.')}
+function typed(e){e.preventDefault();const v=$('cmd').value.trim();if(v){handle(v);$('cmd').value=''}return false}
 
-        function fmtBRL(v) {
-            return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        /* "cinquenta e cinco" -> "55", "dois mil" -> "2000" */
-        function wordsToDigits(text) {
-            const tokens = text.split(/\s+/).filter(Boolean);
-            const out = [];
-            let i = 0;
-            while (i < tokens.length) {
-                const w = stripAccents(tokens[i]);
-                if (w === 'mil' && out.length && /^\d+$/.test(out[out.length - 1])) {
-                    out[out.length - 1] = String(parseInt(out[out.length - 1], 10) * 1000);
-                    i++;
-                    continue;
-                }
-                if (isNumWord(w) || w === 'mil') {
-                    let total = 0, current = 0, j = i, last = i;
-                    while (j < tokens.length) {
-                        const t = stripAccents(tokens[j]);
-                        if (isNumWord(t)) { current += PT_NUM[t]; last = j; j++; }
-                        else if (t === 'mil') { total += (current || 1) * 1000; current = 0; last = j; j++; }
-                        else if (t === 'e' && j + 1 < tokens.length && (isNumWord(stripAccents(tokens[j + 1])) || stripAccents(tokens[j + 1]) === 'mil')) { j++; }
-                        else break;
-                    }
-                    out.push(String(total + current));
-                    i = last + 1;
-                } else {
-                    out.push(tokens[i]);
-                    i++;
-                }
-            }
-            return out.join(' ');
-        }
-
-        /* Encontra o valor em reais no texto (já com dígitos) */
-        function extractAmount(text) {
-            const n = stripAccents(text);
-            let m = n.match(/(\d+)\s*(?:reais|real)\s*e\s*(\d{1,2})\s*centavos?/);
-            if (m) {
-                return { value: parseFloat(m[1] + '.' + m[2].padStart(2, '0')), start: m.index, end: m.index + m[0].length };
-            }
-            m = n.match(/(\d{1,3}(?:\.\d{3})+|\d+)(?:[,.](\d{1,2}))?(?:\s*(mil)\b)?/);
-            if (!m) return null;
-            let value = parseFloat(m[1].replace(/\./g, '') + (m[2] ? '.' + m[2] : ''));
-            if (m[3]) value *= 1000;
-            if (!(value > 0)) return null;
-            return { value, start: m.index, end: m.index + m[0].length };
-        }
-
-        function findCategory(n) {
-            const explicit = n.match(/categoria\s+([a-z]+)/);
-            const pool = explicit ? explicit[1] : n;
-            let best = null, bestIdx = Infinity;
-            Object.entries(CATEGORY_KEYWORDS).forEach(([key, words]) => {
-                words.forEach(w => {
-                    const m = pool.match(new RegExp('\\b' + w + '\\b'));
-                    if (m && m.index < bestIdx) { best = key; bestIdx = m.index; }
-                });
-            });
-            return best;
-        }
-
-        /* Converte a chave interna (sem acento) no valor real da lista de categorias */
-        function resolveCategory(key) {
-            const opt = [...document.getElementById('txCategory').options].find(o => stripAccents(o.value) === stripAccents(key));
-            return opt ? opt.value : null;
-        }
-
-        function buildDescription(text, n, amt, categoryLabel, isIncome) {
-            let nAfter = n.slice(amt.end);
-            let tAfter = text.slice(amt.end);
-            const catIdx = nAfter.indexOf('categoria');
-            if (catIdx >= 0) { nAfter = nAfter.slice(0, catIdx); tAfter = tAfter.slice(0, catIdx); }
-            const head = nAfter.match(/^\s*(?:r\$|reais|real)?\s*/)[0].length;
-            nAfter = nAfter.slice(head); tAfter = tAfter.slice(head);
-            let m;
-            while ((m = nAfter.match(/^(?:em|com|de|do|da|no|na|nos|nas|para|pra|pro|por|num|numa)\s+/))) {
-                nAfter = nAfter.slice(m[0].length); tAfter = tAfter.slice(m[0].length);
-            }
-            let desc = tAfter.replace(/^[\s,.]+|[\s,.]+$/g, '');
-            if (desc.length < 2) {
-                desc = text.slice(0, amt.start).split(/\s+/)
-                    .filter(t => t && !DESC_STOPWORDS.has(stripAccents(t)))
-                    .join(' ').trim();
-            }
-            if (desc.length < 2) desc = categoryLabel || (isIncome ? 'Receita por voz' : 'Despesa por voz');
-            return desc.charAt(0).toUpperCase() + desc.slice(1);
-        }
-
-        /* Preenche o formulário e pede confirmação por voz antes de salvar */
-        function startVoiceTransaction(text, n, amt) {
-            const expenseVerb = /\b(gastei|paguei|comprei|despesa|gasto|saida)\b/.test(n);
-            const incomeVerb = /\b(recebi|ganhei|receita|entrada|deposito)\b/.test(n);
-            const isIncome = !expenseVerb && (incomeVerb || /\bsalario\b/.test(n));
-            const catKey = isIncome ? null : findCategory(n);
-            const catLabel = catKey ? resolveCategory(catKey) : null;
-            const desc = buildDescription(text, n, amt, catLabel, isIncome);
-
-            document.getElementById('txDescription').value = desc;
-            document.getElementById('txAmount').value = amt.value.toFixed(2);
-            document.getElementById('txType').value = isIncome ? 'income' : 'expense';
-            if (catLabel) document.getElementById('txCategory').value = catLabel;
-            openModal('transactionModal');
-            voiceState.pending = { needsCategory: !isIncome && !catLabel };
-
-            const base = isIncome ? `Receita de ${fmtBRL(amt.value)}: ${desc}.` : `Despesa de ${fmtBRL(amt.value)}: ${desc}.`;
-            if (voiceState.pending.needsCategory) {
-                voiceSay(`${base} Não identifiquei a categoria. Escolha na tela e diga confirmar.`);
-            } else if (catLabel) {
-                voiceSay(`${base} Categoria ${catLabel}. Diga confirmar para salvar ou cancelar.`);
-            } else {
-                voiceSay(`${base} Diga confirmar para salvar ou cancelar.`);
-            }
-        }
-
-        function confirmVoiceTransaction() {
-            if (voiceState.pending && voiceState.pending.needsCategory) {
-                voiceSay('Escolha a categoria na tela antes de confirmar.');
-                return;
-            }
-            document.getElementById('addTransactionForm').requestSubmit();
-            voiceSay('Lançamento salvo.');
-        }
-
-        function goTab(tab) {
-            switchMainTab('sim');
-            switchMobileTab(tab);
-        }
-
-        function setThemeTo(mode) {
-            const isDark = document.documentElement.classList.contains('dark');
-            if ((mode === 'dark') !== isDark) toggleAppTheme();
-        }
-
-        function currentFinancials() {
-            const totalExpenses = Object.values(appState.categoryTotals).reduce((a, b) => a + b, 0);
-            return { income: appState.income, totalExpenses, balance: appState.income - totalExpenses };
-        }
-
-        /* Interpreta o que foi falado */
-        function handleVoiceCommand(raw) {
-            const text = wordsToDigits(raw.trim());
-            const n = stripAccents(text);
-            const modalOpen = !document.getElementById('transactionModal').classList.contains('hidden');
-
-            if (modalOpen) {
-                if (/\b(confirmar|confirma|confirmo|salvar|salva|sim)\b/.test(n)) { confirmVoiceTransaction(); return; }
-                if (/\b(cancelar|cancela|fechar|fecha|nao)\b/.test(n)) { closeModal('transactionModal'); voiceSay('Cancelado.'); return; }
-            }
-
-            if (/\b(ajuda|comandos)\b|o que (eu )?posso (falar|dizer)/.test(n)) {
-                voiceSay('Você pode dizer: adicionar despesa de 50 reais em alimentação, quanto gastei em lazer, qual meu saldo, ir para diagnóstico, modo claro ou ocultar saldo.');
-                return;
-            }
-            if (/\bmodo (claro|dia)\b|\btema claro\b/.test(n)) { setThemeTo('light'); voiceSay('Modo claro ativado.'); return; }
-            if (/\bmodo (escuro|noite)\b|\btema escuro\b/.test(n)) { setThemeTo('dark'); voiceSay('Modo escuro ativado.'); return; }
-            if (/\b(ocultar|oculta|esconder|esconde)\b.*\bsaldo\b/.test(n)) {
-                if (appState.balanceVisible) toggleBalanceVisibility();
-                voiceSay('Saldo oculto.');
-                return;
-            }
-            if (/\b(mostrar|mostra|exibir|exibe)\b.*\bsaldo\b/.test(n)) {
-                if (!appState.balanceVisible) toggleBalanceVisibility();
-                voiceSay('Saldo visível.');
-                return;
-            }
-            if (/\bquanto\b.*\b(gastei|gasto|gastamos)\b/.test(n)) {
-                const key = findCategory(n);
-                const label = key ? resolveCategory(key) : null;
-                const value = label ? appState.categoryTotals[label] : currentFinancials().totalExpenses;
-                voiceSay(label ? `Você gastou ${fmtBRL(value)} em ${label} este mês.` : `Você gastou ${fmtBRL(value)} no total este mês.`);
-                return;
-            }
-            if (/\b(qual|quanto)\b.*\b(saldo|tenho|sobrou)\b/.test(n)) {
-                if (!appState.balanceVisible) { voiceSay('O saldo está oculto. Diga mostrar saldo primeiro.'); return; }
-                voiceSay(`Seu saldo disponível é ${fmtBRL(currentFinancials().balance)}.`);
-                return;
-            }
-
-            const amt = extractAmount(text);
-            if (amt && /\b(adicionar|adiciona|adicione|lancar|lanca|lance|registrar|registra|registre|anotar|anota|gastei|paguei|comprei|recebi|ganhei|despesa|receita|gasto|entrada|saida)\b/.test(n)) {
-                startVoiceTransaction(text, n, amt);
-                return;
-            }
-
-            if (/\b(codigo|codigos|react|flutter)\b/.test(n)) { switchMainTab('codeTab'); voiceSay('Mostrando o código.'); return; }
-            if (/\bsimulador\b/.test(n)) { switchMainTab('sim'); voiceSay('Voltando ao simulador.'); return; }
-            if (/\b(cartoes|cartao|limite)\b/.test(n)) { goTab('analytics'); voiceSay('Abrindo cartões.'); return; }
-            if (/\b(diagnostico|recomendacoes|analise)\b/.test(n)) { goTab('ai'); voiceSay('Abrindo o diagnóstico.'); return; }
-            if (/\b(inicio|home|painel)\b/.test(n)) { goTab('home'); voiceSay('Voltando ao início.'); return; }
-            if (/\bequilibrado\b/.test(n)) { loadPreset('balanced'); voiceSay('Perfil equilibrado carregado.'); return; }
-            if (/\balto em lazer\b|\bgastando muito\b/.test(n)) { loadPreset('overspending'); voiceSay('Perfil alto em lazer carregado.'); return; }
-            if (/\b(dica|conselho)\b/.test(n)) { goTab('ai'); generateAiAdvice(); voiceSay('Gerando uma dica de economia.'); return; }
-
-            voiceSay('Não entendi. Diga ajuda para ver os comandos.');
-        }
-
-        /* ---------- Feedback (painel + fala) ---------- */
-        function voiceSay(msg) {
-            document.getElementById('voiceReply').textContent = msg;
-            speak(msg);
-        }
-
-        function speak(msg) {
-            if (!voiceState.tts || !('speechSynthesis' in window)) return;
-            speechSynthesis.cancel();
-            voiceState.speaking = true;
-            try { voiceState.rec && voiceState.rec.stop(); } catch (e) {}
-            const u = new SpeechSynthesisUtterance(msg);
-            u.lang = 'pt-BR';
-            const done = () => {
-                voiceState.speaking = false;
-                if (voiceState.active) startRecognition();
-            };
-            u.onend = done;
-            u.onerror = done;
-            speechSynthesis.speak(u);
-        }
-
-        function toggleVoiceTts() {
-            voiceState.tts = !voiceState.tts;
-            document.getElementById('voiceTtsIcon').className = voiceState.tts ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
-            if (!voiceState.tts && 'speechSynthesis' in window) speechSynthesis.cancel();
-        }
-
-        /* ---------- Reconhecimento ---------- */
-        function startRecognition() {
-            if (!voiceState.rec) return;
-            try { voiceState.rec.start(); } catch (e) { /* já estava ouvindo */ }
-        }
-
-        function resetIdleTimer() {
-            clearTimeout(voiceState.idleTimer);
-            voiceState.idleTimer = setTimeout(() => {
-                stopVoice();
-                showToast('Microfone desligado por inatividade.');
-            }, 60000);
-        }
-
-        function initRecognition() {
-            const rec = new SpeechRec();
-            rec.lang = 'pt-BR';
-            rec.continuous = false;
-            rec.interimResults = true;
-            rec.maxAlternatives = 1;
-            rec.onresult = (ev) => {
-                let interim = '', final = '';
-                for (let i = ev.resultIndex; i < ev.results.length; i++) {
-                    const t = ev.results[i][0].transcript;
-                    if (ev.results[i].isFinal) final += t; else interim += t;
-                }
-                document.getElementById('voiceTranscript').textContent = '“' + (final || interim).trim() + '”';
-                if (final.trim()) {
-                    resetIdleTimer();
-                    handleVoiceCommand(final);
-                }
-            };
-            rec.onerror = (ev) => {
-                if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') {
-                    stopVoice();
-                    showToast('Permissão do microfone negada. Libere o microfone nas configurações do navegador.');
-                } else if (ev.error === 'audio-capture') {
-                    stopVoice();
-                    showToast('Não encontrei um microfone.');
-                } else if (ev.error === 'network') {
-                    stopVoice();
-                    showToast('Sem conexão com o serviço de reconhecimento de voz.');
-                }
-                /* no-speech / aborted: o onend reinicia sozinho */
-            };
-            rec.onend = () => {
-                if (voiceState.active && !voiceState.speaking) setTimeout(startRecognition, 250);
-            };
-            return rec;
-        }
-
-        function setVoiceUI(active) {
-            const fab = document.getElementById('voiceFab');
-            const base = 'fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full text-white flex items-center justify-center shadow-xl transition ';
-            fab.className = base + (active ? 'bg-brand-rose shadow-brand-rose/40 animate-pulse' : 'bg-gradient-to-tr from-brand-600 to-brand-accent shadow-brand-600/40');
-            document.getElementById('voiceFabIcon').className = active ? 'fa-solid fa-microphone-slash text-xl' : 'fa-solid fa-microphone text-xl';
-            document.getElementById('voicePanel').classList.toggle('hidden', !active);
-        }
-
-        function startVoice() {
-            if (!SpeechRec) {
-                showToast('Seu navegador não suporta comandos de voz. Use Chrome, Edge ou Safari.');
-                return;
-            }
-            voiceState.active = true;
-            if (!voiceState.rec) voiceState.rec = initRecognition();
-            document.getElementById('voiceTranscript').textContent = '';
-            document.getElementById('voiceReply').textContent = 'Pode falar. Diga “ajuda” para ver os comandos.';
-            setVoiceUI(true);
-            startRecognition();
-            resetIdleTimer();
-        }
-
-        function stopVoice() {
-            voiceState.active = false;
-            voiceState.speaking = false;
-            clearTimeout(voiceState.idleTimer);
-            try { voiceState.rec && voiceState.rec.stop(); } catch (e) {}
-            if ('speechSynthesis' in window) speechSynthesis.cancel();
-            setVoiceUI(false);
-        }
-
-        function toggleVoice() {
-            if (voiceState.active) stopVoice(); else startVoice();
-        }
-
-        /* Se o usuário escolher a categoria na tela, o comando "confirmar" passa a funcionar */
-        document.getElementById('txCategory').addEventListener('change', () => {
-            if (voiceState.pending) voiceState.pending.needsCategory = false;
-        });
-    </script>
+/* ---------- Voz ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null,active=false,speaking=false,idle;
+function say(msg){$('say').innerHTML='<em>'+esc(msg)+'</em>';speak(msg)}
+function speak(msg){
+  if(!active||!('speechSynthesis'in window))return;
+  speechSynthesis.cancel();speaking=true;try{rec.stop()}catch(e){}
+  const u=new SpeechSynthesisUtterance(msg);u.lang='pt-BR';
+  const done=()=>{speaking=false;if(active)go()};u.onend=done;u.onerror=done;speechSynthesis.speak(u)}
+function go(){try{rec.start()}catch(e){}}
+function bump(){clearTimeout(idle);idle=setTimeout(()=>{stopVoice();toast('Microfone desligado por inatividade.')},60000)}
+function toggleVoice(){active?stopVoice():startVoice()}
+function startVoice(){
+  if(!SR)return say('Este navegador não tem reconhecimento de voz. Use Chrome, Edge ou Safari, ou digite abaixo.');
+  active=true;$('mic').classList.add('on');$('micTxt').textContent='Ouvindo…';
+  if(!rec){rec=new SR();rec.lang='pt-BR';rec.interimResults=true;rec.continuous=false;
+    rec.onresult=ev=>{let f='',p='';for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)f+=r[0].transcript;else p+=r[0].transcript}
+      $('say').textContent='“'+(f||p).trim()+'”';if(f.trim()){bump();handle(f)}};
+    rec.onerror=ev=>{if(/not-allowed|service-not-allowed/.test(ev.error)){stopVoice();say('Microfone bloqueado. Libere o acesso nas configurações do navegador.')}else if(ev.error=='audio-capture'){stopVoice();say('Não encontrei um microfone.')}else if(ev.error=='network'){stopVoice();say('Sem conexão com o serviço de voz.')}};
+    rec.onend=()=>{if(active&&!speaking)setTimeout(go,250)}}
+  $('say').textContent='Pode falar…';go();bump()}
+function stopVoice(){active=false;speaking=false;clearTimeout(idle);try{rec&&rec.stop()}catch(e){}
+  if('speechSynthesis'in window)speechSynthesis.cancel();$('mic').classList.remove('on');$('micTxt').textContent='Falar'}
+let th='dark';try{th=localStorage.getItem('fin_theme')||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}catch(e){}
+theme(th);render();
+</script>
 </body>
 </html>
