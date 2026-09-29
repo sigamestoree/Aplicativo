@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanzasApp - Gestão Financeira Inteligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            accent: '#8b5cf6',
+                            teal: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b',
+                        },
+                        dark: {
+                            bg: '#0b0f19',
+                            card: '#111827',
+                            border: '#1f2937',
+                            muted: '#374151',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #080b11;
+        }
+        
+        /* Device frame setup */
+        .mobile-frame-container {
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px rgba(99, 102, 241, 0.15);
+        }
+
+        .screen-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .screen-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .screen-scroll::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.3);
+            border-radius: 4px;
+        }
+
+        .glass-card {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .light .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        /* Smooth Tab Transitions */
+        .app-tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease-in-out;
+        }
+        .app-tab-content.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Pulse glow animation */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+        .glow-effect {
+            animation: pulseGlow 4s infinite;
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-slate-100 min-h-screen antialiased flex flex-col justify-between overflow-x-hidden selection:bg-brand-500 selection:text-white">
+
+    <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3.5">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-accent flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid me-0 fa-wallet text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">FinanzaApp <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-500 border border-brand-500/30 font-medium">Pro Studio</span></h1>
+                    <p class="text-xs text-slate-400">Simulador de aplicativo móvel & gerador de código</p>
+                </div>
+            </div>
+
+            <!-- Top Header Actions -->
+            <div class="flex items-center gap-3">
+                <button id="themeToggleBtn" onclick="toggleAppTheme()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold transition flex items-center gap-2">
+                    <i class="fa-solid fa-moon text-amber-400" id="themeIcon"></i>
+                    <span id="themeLabel">Modo Escuro</span>
+                </button>
+                <button onclick="switchMainTab('codeTab')" class="px-3.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-md shadow-brand-600/30 transition flex items-center gap-2">
+                    <i class="fa-solid fa-code"></i>
+                    <span>Ver Código React Native / Flutter</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+        <!-- Left Controls & Insights Panel -->
+        <div class="lg:col-span-4 space-y-6">
+            
+            <!-- Quick Actions Panel -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-brand-500"></i> Painel de Controle da Simulação
+                </h2>
+                
+                <div class="space-y-3">
+                    <button onclick="openModal('transactionModal')" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-brand-accent hover:opacity-95 text-white font-semibold text-sm shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus-circle text-lg"></i> Adicionar Lançamento
+                    </button>
+                    
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <button onclick="switchMobileTab('home')" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700/60 text-xs font-medium text-slate-200 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-house text-brand-500"></i> Ir para Início
+                        </button>
+                        <button onclick="switchMobileTab('ai')" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700/60 text-xs font-medium text-slate-200 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-brain text-brand-accent"></i> Ver Diagnóstico
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-slate-800 my-4">
+
+                <!-- Quick Data Preset Injector -->
+                <p class="text-xs font-semibold text-slate-400 mb-2">Simular Perfil Financeiro:</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="loadPreset('balanced')" class="py-1.5 px-2.5 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 rounded-lg text-xs text-slate-300 text-left transition">
+                        <span class="block font-semibold text-brand-teal">✓ Equilibrado</span>
+                        <span class="text-[10px] text-slate-400">Dentro da meta 50/30/20</span>
+                    </button>
+                    <button onclick="loadPreset('overspending')" class="py-1.5 px-2.5 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 rounded-lg text-xs text-slate-300 text-left transition">
+                        <span class="block font-semibold text-brand-rose">⚠ Alto em Lazer</span>
+                        <span class="text-[10px] text-slate-400">Gasto > 35% em Desejos</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Real-time AI Assistant Summary -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-brand-500/20 text-brand-500 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-200">Resumo da Inteligência AI</h3>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-teal/10 text-brand-teal border border-brand-teal/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-brand-teal animate-pulse"></span>
+                        Análise Ativa
+                    </span>
+                </div>
+
+                <div id="sidebarAiSummary" class="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 space-y-2">
+                    <p>Sua saúde financeira deste mês está **Estável**. Você comprometeu 48% com Necessidades e 32% com Lazer.</p>
+                </div>
+
+                <button onclick="switchMobileTab('ai')" class="w-full mt-3 py-2 text-xs font-semibold text-brand-500 hover:text-brand-400 text-center block transition">
+                    Ver recomendações detalhadas →
+                </button>
+            </div>
+
+            <!-- Tech Stack Framework Switcher Info -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800/80 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Tecnologias Utilizadas na Simulação</h3>
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-slate-800 rounded-lg text-blue-400"><i class="fa-brands fa-react text-xl"></i></div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-200">React Native / Flutter Ready</p>
+                        <p class="text-[11px] text-slate-400">Código nativo pronto para produção</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right / Middle Area: Interactive Mobile Phone Simulator & Code View Workspace -->
+        <div class="lg:col-span-8 flex justify-center w-full">
+
+            <!-- MAIN TAB 1: Mobile Phone Mockup -->
+            <div id="appSimulatorTab" class="w-full flex justify-center py-2">
+                
+                <div class="mobile-frame-container w-full max-w-[390px] h-[780px] bg-slate-950 rounded-[48px] border-[10px] border-slate-800/90 relative shadow-2xl flex flex-col overflow-hidden select-none">
+                    
+                    <!-- Smartphone Top Dynamic Island / Notch -->
+                    <div class="w-full pt-3 px-6 pb-2 bg-slate-950 flex justify-between items-center z-30 shrink-0 text-slate-300 text-xs font-medium">
+                        <span id="currentTime">09:41</span>
+                        <div class="w-24 h-4 bg-black rounded-full flex items-center justify-center gap-1.5">
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
+                            <div class="w-2 h-2 rounded-full bg-blue-900/60"></div>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[11px]">
+                            <i class="fa-solid fa-signal"></i>
+                            <i class="fa-solid fa-wifi"></i>
+                            <i class="fa-solid fa-battery-full text-brand-teal"></i>
+                        </div>
+                    </div>
+
+                    <!-- Inner Screen Workspace (Scrollable) -->
+                    <div id="mobileScreenContainer" class="flex-1 overflow-y-auto screen-scroll bg-slate-950 text-slate-100 relative pb-16">
+
+                        <!-- ================= SCREEN 1: HOME DASHBOARD ================= -->
+                        <div id="tab-home" class="app-tab-content active p-4 space-y-4">
+                            
+                            <!-- User Header -->
+                            <div class="flex items-center justify-between pt-1">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-500 to-purple-600 p-0.5">
+                                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Avatar" class="w-full h-full object-cover rounded-full">
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] text-slate-400 font-medium">Olá, Amanda 👋</p>
+                                        <h3 class="text-sm font-bold text-slate-100">Meu Orçamento</h3>
+                                    </div>
+                                </div>
+                                <button onclick="openModal('transactionModal')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-200 transition">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                </button>
+                            </div>
+
+                            <!-- Main Balance Card (Fintech Glassmorphism) -->
+                            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-brand-700 to-purple-800 p-4 text-white shadow-xl shadow-brand-600/20">
+                                <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+                                
+                                <div class="flex items-center justify-between text-xs text-slate-200 mb-1">
+                                    <span>Saldo Total Disponível</span>
+                                    <button onclick="toggleBalanceVisibility()" class="text-slate-300 hover:text-white">
+                                        <i class="fa-solid fa-eye text-xs" id="balanceEyeIcon"></i>
+                                    </button>
+                                </div>
+                                <div class="text-2xl font-extrabold tracking-tight mb-4" id="totalBalanceDisplay">R$ 6.450,00</div>
+
+                                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/15 text-xs">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300">
+                                            <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] text-slate-300">Receitas</p>
+                                            <p class="font-bold text-emerald-300" id="totalIncomeDisplay">+R$ 8.500,00</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-300">
+                                            <i class="fa-solid fa-arrow-up text-[10px]"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] text-slate-300">Despesas</p>
+                                            <p class="font-bold text-rose-300" id="totalExpenseDisplay">-R$ 2.050,00</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category Expense Donut Chart -->
+                            <div class="glass-card rounded-2xl p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-xs font-bold text-slate-200">Gastos por Categoria</h4>
+                                    <span class="text-[10px] font-semibold text-brand-500 bg-brand-500/10 px-2 py-0.5 rounded-full">Este Mês</span>
+                                </div>
+                                <div class="h-44 relative flex items-center justify-center">
+                                    <canvas id="donutChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Historical Spending Line Chart -->
+                            <div class="glass-card rounded-2xl p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-xs font-bold text-slate-200">Evolução Mensal</h4>
+                                    <span class="text-[10px] text-slate-400">Últimos 6 meses</span>
+                                </div>
+                                <div class="h-36 relative">
+                                    <canvas id="lineChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Recent Transactions Section -->
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between px-1">
+                                    <h4 class="text-xs font-bold text-slate-300">Últimas Transações</h4>
+                                    <span class="text-[10px] text-brand-500 cursor-pointer font-medium hover:underline">Ver tudo</span>
+                                </div>
+
+                                <div id="transactionsContainer" class="space-y-2">
+                                    <!-- Dynamic transaction items injected by JS -->
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ================= SCREEN 2: FINANCIAL DIAGNOSTIC & AI INSIGHTS ================= -->
+                        <div id="tab-ai" class="app-tab-content p-4 space-y-4">
+                            
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                                        <i class="fa-solid fa-brain text-brand-accent"></i> Diagnóstico IA
+                                    </h3>
+                                    <p class="text-[11px] text-slate-400">Análise automática da regra 50/30/20</p>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-full bg-brand-accent/15 text-brand-accent border border-brand-accent/30 text-[10px] font-bold">Análise do Mês</span>
+                            </div>
+
+                            <!-- 50/30/20 Rule Visual Progress Bars -->
+                            <div class="glass-card rounded-2xl p-4 space-y-3.5">
+                                <h4 class="text-xs font-bold text-slate-200 border-b border-slate-800/80 pb-2">Distribuição Orçamentária</h4>
+
+                                <!-- Needs (50%) -->
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1">
+                                        <span class="font-medium text-slate-300">Necessidades (Ideal: 50%)</span>
+                                        <span class="font-bold text-slate-200" id="percNecessidadesVal">48%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                        <div id="barNecessidades" class="bg-brand-500 h-full rounded-full transition-all duration-500" style="width: 48%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Wants (30%) -->
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1">
+                                        <span class="font-medium text-slate-300">Desejos & Lazer (Ideal: 30%)</span>
+                                        <span class="font-bold text-slate-200" id="percDesejosVal">32%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                        <div id="barDesejos" class="bg-brand-amber h-full rounded-full transition-all duration-500" style="width: 32%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Investments (20%) -->
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1">
+                                        <span class="font-medium text-slate-300">Investimentos & Reserva (Ideal: 20%)</span>
+                                        <span class="font-bold text-slate-200" id="percInvestimentosVal">20%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                        <div id="barInvestimentos" class="bg-brand-teal h-full rounded-full transition-all duration-500" style="width: 20%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actionable Insight Cards Dynamic Box -->
+                            <div class="space-y-2.5">
+                                <h4 class="text-xs font-bold text-slate-300 px-1">O que você precisa melhorar:</h4>
+                                <div id="diagnosticCardsList" class="space-y-2.5">
+                                    <!-- Dynamic Diagnostic Cards Injected Here -->
+                                </div>
+                            </div>
+
+                            <!-- Ask AI Financial Coach Interactive Drawer -->
+                            <div class="p-4 rounded-2xl bg-gradient-to-br from-purple-900/40 to-slate-900 border border-purple-500/30 text-xs space-y-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-sparkles text-brand-accent text-sm"></i>
+                                    <span class="font-bold text-slate-100">Perguntar ao Assistente Financeiro</span>
+                                </div>
+                                <p class="text-[11px] text-slate-300">Receba uma dica rápida sob medida para o seu orçamento deste mês.</p>
+                                <button onclick="generateAiAdvice()" class="w-full py-2 bg-brand-accent hover:bg-purple-600 text-white rounded-xl font-semibold text-xs transition flex items-center justify-center gap-2 shadow-md shadow-purple-600/30">
+                                    <i class="fa-solid fa-robot"></i> Gerar Dica de Economia
+                                </button>
+                                <div id="aiCustomAdviceBox" class="hidden p-3 bg-slate-950/80 rounded-xl border border-purple-500/20 text-[11px] text-purple-200 leading-relaxed italic">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ================= SCREEN 3: ANALYTICS / CARDS ================= -->
+                        <div id="tab-analytics" class="app-tab-content p-4 space-y-4">
+                            <h3 class="text-base font-bold text-slate-100">Cartões e Limites</h3>
+                            
+                            <!-- Virtual Credit Card -->
+                            <div class="w-full h-44 rounded-2xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 border border-slate-700/80 p-4 flex flex-col justify-between shadow-xl relative overflow-hidden">
+                                <div class="absolute -right-12 -top-12 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none"></div>
+                                <div class="flex justify-between items-start">
+                                    <span class="text-xs font-bold text-slate-300">Finanza Platinum</span>
+                                    <i class="fa-brands fa-cc-mastercard text-2xl text-slate-200"></i>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="text-xs font-mono text-slate-400">•••• •••• •••• 8842</p>
+                                    <p class="text-sm font-bold text-white">R$ 3.820,00 <span class="text-[10px] font-normal text-slate-400">utilizado</span></p>
+                                </div>
+                                <div class="flex justify-between items-end text-[10px] text-slate-400">
+                                    <span>Titular: AMANDA S. SILVA</span>
+                                    <span>Val: 08/29</span>
+                                </div>
+                            </div>
+
+                            <!-- Card Spending breakdown -->
+                            <div class="glass-card rounded-2xl p-4 space-y-3">
+                                <h4 class="text-xs font-bold text-slate-200">Limite de Crédito Disponível</h4>
+                                <div class="flex justify-between text-xs text-slate-300">
+                                    <span>R$ 3.820,00 usado</span>
+                                    <span class="font-bold text-brand-teal">R$ 6.180,00 livre</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-indigo-500 h-full rounded-full" style="width: 38.2%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Smartphone Bottom Navigation Bar -->
+                    <div class="absolute bottom-0 left-0 right-0 h-16 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/80 flex items-center justify-around px-2 z-30">
+                        <button onclick="switchMobileTab('home')" class="mobile-nav-btn text-brand-500 flex flex-col items-center gap-1 transition" data-tab="home">
+                            <i class="fa-solid fa-house text-base"></i>
+                            <span class="text-[9px] font-medium">Início</span>
+                        </button>
+                        <button onclick="switchMobileTab('ai')" class="mobile-nav-btn text-slate-500 hover:text-slate-300 flex flex-col items-center gap-1 transition" data-tab="ai">
+                            <i class="fa-solid fa-chart-pie text-base"></i>
+                            <span class="text-[9px] font-medium">Diagnóstico</span>
+                        </button>
+                        <button onclick="openModal('transactionModal')" class="w-10 h-10 -mt-5 rounded-full bg-gradient-to-tr from-brand-600 to-brand-accent text-white flex items-center justify-center shadow-lg shadow-brand-600/40 hover:scale-105 transition">
+                            <i class="fa-solid fa-plus text-sm"></i>
+                        </button>
+                        <button onclick="switchMobileTab('analytics')" class="mobile-nav-btn text-slate-500 hover:text-slate-300 flex flex-col items-center gap-1 transition" data-tab="analytics">
+                            <i class="fa-solid fa-credit-card text-base"></i>
+                            <span class="text-[9px] font-medium">Cartões</span>
+                        </button>
+                    </div>
+
+                    <!-- Smartphone Home Indicator Bar -->
+                    <div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-700 rounded-full z-40 pointer-events-none"></div>
+                </div>
+
+            </div>
+
+            <!-- MAIN TAB 2: Native Source Code Exporter (React Native & Flutter) -->
+            <div id="codeExporterTab" class="w-full hidden space-y-4">
+                
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-code text-brand-500"></i> Código-Fonte Completo do App
+                        </h3>
+                        <p class="text-xs text-slate-400">Copie o código pronto para implementar este aplicativo no seu projeto mobile.</p>
+                    </div>
+
+                    <!-- Language Switcher Buttons -->
+                    <div class="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                        <button id="btnCodeRN" onclick="switchCodeLang('rn')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition flex items-center gap-1.5">
+                            <i class="fa-brands fa-react text-cyan-400"></i> React Native
+                        </button>
+                        <button id="btnCodeFlutter" onclick="switchCodeLang('flutter')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-feather text-blue-400"></i> Flutter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- React Native Code Container -->
+                <div id="codeBoxRN" class="relative bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden">
+                    <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
+                        <span>App.jsx (React Native + Victory Native / Tailwind)</span>
+                        <button onclick="copyCodeSnippet('rnSnippet')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-copy"></i> Copiar Código
+                        </button>
+                    </div>
+                    <pre class="p-4 text-xs font-mono text-emerald-400 overflow-x-auto max-h-[550px] screen-scroll"><code id="rnSnippet">import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { VictoryPie } from 'victory-native';
+
+export default function FinanceDashboard() {
+  const [balance, setBalance] = useState(6450.00);
+
+  const categoryData = [
+    { x: "Moradia", y: 45 },
+    { x: "Alimentação", y: 25 },
+    { x: "Lazer", y: 20 },
+    { x: "Investimentos", y: 10 }
+  ];
+
+  return (
+    <ScrollView style={styles.container}>
+      {/* Balance Card */}
+      <View style={styles.balanceCard}>
+        <Text style={styles.cardLabel}>Saldo Disponível</Text>
+        <Text style={styles.balanceText}>R$ {balance.toFixed(2)}</Text>
+      </View>
+
+      {/* Expense Chart */}
+      <View style={styles.chartCard}>
+        <Text style={styles.sectionTitle}>Gastos por Categoria</Text>
+        <VictoryPie
+          data={categoryData}
+          colorScale={["#6366f1", "#10b981", "#f59e0b", "#8b5cf6"]}
+          innerRadius={70}
+          height={220}
+        />
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#0b0f19', padding: 16 },
+  balanceCard: { backgroundColor: '#4f46e5', borderRadius: 16, padding: 20, marginBottom: 16 },
+  cardLabel: { color: '#e0e7ff', fontSize: 12 },
+  balanceText: { color: '#fff', fontSize: 28, fontWeight: 'bold' },
+  chartCard: { backgroundColor: '#111827', borderRadius: 16, padding: 16 },
+  sectionTitle: { color: '#fff', fontSize: 14, fontWeight: 'bold' }
+});</code></pre>
+                </div>
+
+                <!-- Flutter Code Container -->
+                <div id="codeBoxFlutter" class="hidden relative bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden">
+                    <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900/80 border-b border-slate-800 text-xs text-slate-400">
+                        <span>main.dart (Flutter + fl_chart)</span>
+                        <button onclick="copyCodeSnippet('flutterSnippet')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-copy"></i> Copiar Código
+                        </button>
+                    </div>
+                    <pre class="p-4 text-xs font-mono text-cyan-300 overflow-x-auto max-h-[550px] screen-scroll"><code id="flutterSnippet">import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+
+void main() => runApp(const FinanzaApp());
+
+class FinanzaApp extends StatelessWidget {
+  const FinanzaApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: const Color(0xFF0B0F19)),
+      home: const DashboardScreen(),
+    );
+  }
+}
+
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('FinanzaApp'), backgroundColor: Colors.transparent),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Balance Card
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4F46E5),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text('Saldo Total', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  SizedBox(height: 6),
+                  Text('R$ 6.450,00', style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // FlChart Pie Section
+            Container(
+              height: 240,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(color: const Color(0xFF111827), borderRadius: BorderRadius.circular(16)),
+              child: PieChart(
+                PieChartData(
+                  sections: [
+                    PieChartSectionData(value: 45, color: const Color(0xFF6366F1), title: 'Moradia'),
+                    PieChartSectionData(value: 25, color: const Color(0xFF10B981), title: 'Alimentação'),
+                    PieChartSectionData(value: 20, color: const Color(0xFFF59E0B), title: 'Lazer'),
+                    PieChartSectionData(value: 10, color: const Color(0xFF8B5CF6), title: 'Invest.'),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}</code></pre>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: Add Transaction -->
+    <div id="transactionModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl relative space-y-4">
+            
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-brand-500"></i> Nova Transação
+                </h3>
+                <button onclick="closeModal('transactionModal')" class="text-slate-400 hover:text-white transition text-xs">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <form id="addTransactionForm" onsubmit="handleAddTransaction(event)" class="space-y-3">
+                <div>
+                    <label class="block text-[11px] font-medium text-slate-300 mb-1">Descrição</label>
+                    <input type="text" id="txDescription" required placeholder="Ex: Mercado, Uber, Salário" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-300 mb-1">Valor (R$)</label>
+                        <input type="number" step="0.01" id="txAmount" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-300 mb-1">Tipo</label>
+                        <select id="txType" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <option value="expense">Despesa (-)</option>
+                            <option value="income">Receita (+)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-medium text-slate-300 mb-1">Categoria (Regra 50/30/20)</label>
+                    <select id="txCategory" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                        <option value="Moradia">Moradia (Necessidade 50%)</option>
+                        <option value="Alimentação">Alimentação (Necessidade 50%)</option>
+                        <option value="Lazer">Lazer / Restaurantes (Desejo 30%)</option>
+                        <option value="Investimentos">Investimentos / Reserva (20%)</option>
+                    </select>
+                </div>
+
+                <div class="pt-2 flex gap-2">
+                    <button type="button" onclick="closeModal('transactionModal')" class="w-1/2 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition">Cancelar</button>
+                    <button type="submit" class="w-1/2 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold transition shadow-md shadow-brand-600/30">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 bg-slate-900 border border-brand-500/40 text-slate-100 text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none">
+        <i class="fa-solid fa-circle-check text-brand-teal text-base"></i>
+        <span id="toastMessage">Transação adicionada com sucesso!</span>
+    </div>
+
+    <script>
+        // State Management
+        let appState = {
+            balanceVisible: true,
+            currentMobileTab: 'home',
+            theme: 'dark',
+            transactions: [
+                { id: 1, title: 'Supermercado Carrefour', amount: 320.50, type: 'expense', category: 'Alimentação', icon: 'fa-basket-shopping', color: 'text-amber-400', date: 'Hoje' },
+                { id: 2, title: 'Salário Mensal', amount: 8500.00, type: 'income', category: 'Receita', icon: 'fa-money-bill-wave', color: 'text-emerald-400', date: 'Ontem' },
+                { id: 3, title: 'Aluguel & Condomínio', amount: 2100.00, type: 'expense', category: 'Moradia', icon: 'fa-house', color: 'text-indigo-400', date: '05 Set' },
+                { id: 4, title: 'Jantar Restaurante', amount: 280.00, type: 'expense', category: 'Lazer', icon: 'fa-utensils', color: 'text-purple-400', date: '03 Set' },
+                { id: 5, title: 'Aporte Tesouro Direto', amount: 850.00, type: 'expense', category: 'Investimentos', icon: 'fa-chart-line', color: 'text-teal-400', date: '01 Set' }
+            ],
+            categoryTotals: {
+                Moradia: 2100.00,
+                Alimentação: 950.00,
+                Lazer: 1250.00,
+                Investimentos: 850.00
+            }
+        };
+
+        let donutChartInstance = null;
+        let lineChartInstance = null;
+
+        // Initialize application on DOM Ready
+        window.addEventListener('DOMContentLoaded', () => {
+            updateClock();
+            setInterval(updateClock, 30000);
+            
+            initCharts();
+            renderTransactions();
+            recalculateFinancials();
+        });
+
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const el = document.getElementById('currentTime');
+            if (el) el.textContent = `${hours}:${minutes}`;
+        }
+
+        /* Chart initialization using Chart.js */
+        function initCharts() {
+            // Donut Chart Setup
+            const donutCtx = document.getElementById('donutChart').getContext('2d');
+            donutChartInstance = new Chart(donutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Moradia', 'Alimentação', 'Lazer', 'Investimentos'],
+                    datasets: [{
+                        data: [
+                            appState.categoryTotals.Moradia,
+                            appState.categoryTotals.Alimentação,
+                            appState.categoryTotals.Lazer,
+                            appState.categoryTotals.Investimentos
+                        ],
+                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6'],
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#94a3b8',
+                                font: { size: 10, family: 'Plus Jakarta Sans' },
+                                boxWidth: 10,
+                                padding: 12
+                            }
+                        }
+                    },
+                    cutout: '72%'
+                }
+            });
+
+            // Line Chart Setup
+            const lineCtx = document.getElementById('lineChart').getContext('2d');
+            lineChartInstance = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set'],
+                    datasets: [
+                        {
+                            label: 'Receitas',
+                            data: [7800, 8000, 8200, 8200, 8500, 8500],
+                            borderColor: '#10b981',
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Despesas',
+                            data: [4200, 4800, 4500, 5100, 4900, 5150],
+                            borderColor: '#f43f5e',
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } },
+                        y: { display: false }
+                    }
+                }
+            });
+        }
+
+        /* Dynamic Transactions Renderer */
+        function renderTransactions() {
+            const container = document.getElementById('transactionsContainer');
+            container.innerHTML = '';
+
+            appState.transactions.slice(0, 5).forEach(tx => {
+                const isExpense = tx.type === 'expense';
+                const sign = isExpense ? '-' : '+';
+                const colorClass = isExpense ? 'text-slate-200' : 'text-emerald-400 font-bold';
+
+                const itemHTML = `
+                    <div class="glass-card p-3 rounded-xl flex items-center justify-between transition hover:bg-slate-800/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center ${tx.color}">
+                                <i class="fa-solid ${tx.icon} text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-slate-200 leading-tight">${tx.title}</p>
+                                <p class="text-[10px] text-slate-400">${tx.category} • ${tx.date}</p>
+                            </div>
+                        </div>
+                        <span class="text-xs ${colorClass}">${sign}R$ ${tx.amount.toFixed(2)}</span>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', itemHTML);
+            });
+        }
+
+        /* Recalculates Totals & 50/30/20 Diagnostic Rules */
+        function recalculateFinancials() {
+            let income = 8500.00;
+            let totalExpenses = 0;
+
+            Object.values(appState.categoryTotals).forEach(v => totalExpenses += v);
+            let balance = income - totalExpenses;
+
+            // Update Header Displays
+            if (appState.balanceVisible) {
+                document.getElementById('totalBalanceDisplay').textContent = `R$ ${balance.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+                document.getElementById('totalIncomeDisplay').textContent = `+R$ ${income.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+                document.getElementById('totalExpenseDisplay').textContent = `-R$ ${totalExpenses.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            }
+
+            // Calculate 50/30/20 Metrics
+            const necessidades = appState.categoryTotals.Moradia + appState.categoryTotals.Alimentação;
+            const desejos = appState.categoryTotals.Lazer;
+            const investimentos = appState.categoryTotals.Investimentos;
+
+            const percNecessidades = Math.round((necessidades / income) * 100);
+            const percDesejos = Math.round((desejos / income) * 100);
+            const percInvestimentos = Math.round((investimentos / income) * 100);
+
+            // Update Progress Bars
+            document.getElementById('percNecessidadesVal').textContent = `${percNecessidades}%`;
+            document.getElementById('barNecessidades').style.width = `${Math.min(percNecessidades, 100)}%`;
+
+            document.getElementById('percDesejosVal').textContent = `${percDesejos}%`;
+            document.getElementById('barDesejos').style.width = `${Math.min(percDesejos, 100)}%`;
+
+            document.getElementById('percInvestimentosVal').textContent = `${percInvestimentos}%`;
+            document.getElementById('barInvestimentos').style.width = `${Math.min(percInvestimentos, 100)}%`;
+
+            // Update Diagnostic Cards
+            updateDiagnosticCards(percNecessidades, percDesejos, percInvestimentos, desejos, income);
+        }
+
+        /* Generate Diagnostic Cards */
+        function updateDiagnosticCards(percNec, percDes, percInv, valorLazer, renda) {
+            const cardsContainer = document.getElementById('diagnosticCardsList');
+            const summaryBox = document.getElementById('sidebarAiSummary');
+            cardsContainer.innerHTML = '';
+
+            let diagnosticHTML = '';
+            let summaryText = '';
+
+            if (percDes > 30) {
+                const excesso = valorLazer - (renda * 0.3);
+                diagnosticHTML += `
+                    <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 space-y-1">
+                        <div class="flex items-center gap-2 text-rose-400 font-bold text-xs">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Lazer Excedeu o Limite (30%)
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-snug">
+                            Você gastou **${percDes}%** em lazer este mês. Recomendado reduzir **R$ ${excesso.toFixed(2)}** no próximo mês para reequilibrar.
+                        </p>
+                    </div>
+                `;
+                summaryText = `⚠ **Atenção:** Seus gastos com lazer estão em **${percDes}%** (limite recomendado: 30%).`;
+            } else {
+                diagnosticHTML += `
+                    <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-1">
+                        <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+                            <i class="fa-solid fa-circle-check"></i> Gastos de Lazer Sob Controle
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-snug">
+                            Seus gastos não essenciais estão dentro dos 30% recomendados. Ótimo trabalho!
+                        </p>
+                    </div>
+                `;
+                summaryText = `✓ **Saudável:** Seus gastos essenciais e de lazer estão equilibrados.`;
+            }
+
+            if (percInv < 20) {
+                diagnosticHTML += `
+                    <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-1">
+                        <div class="flex items-center gap-2 text-amber-400 font-bold text-xs">
+                            <i class="fa-solid fa-piggy-bank"></i> Aumentar Reserva Financeira
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-snug">
+                            Apenas **${percInv}%** foi destinado para investimentos. Tente poupar pelo menos 20% da sua renda mensal.
+                        </p>
+                    </div>
+                `;
+            }
+
+            cardsContainer.innerHTML = diagnosticHTML;
+            summaryBox.innerHTML = `<p>${summaryText}</p>`;
+        }
+
+        /* Add New Transaction Handler */
+        function handleAddTransaction(e) {
+            e.preventDefault();
+            const desc = document.getElementById('txDescription').value;
+            const amount = parseFloat(document.getElementById('txAmount').value);
+            const type = document.getElementById('txType').value;
+            const category = document.getElementById('txCategory').value;
+
+            if (!desc || isNaN(amount)) return;
+
+            // Append to local state
+            const newTx = {
+                id: Date.now(),
+                title: desc,
+                amount: amount,
+                type: type,
+                category: category,
+                icon: category === 'Lazer' ? 'fa-utensils' : category === 'Investimentos' ? 'fa-chart-line' : 'fa-basket-shopping',
+                color: type === 'income' ? 'text-emerald-400' : 'text-amber-400',
+                date: 'Hoje'
+            };
+
+            appState.transactions.unshift(newTx);
+            if (type === 'expense' && appState.categoryTotals[category] !== undefined) {
+                appState.categoryTotals[category] += amount;
+            }
+
+            // Refresh Donut Chart
+            donutChartInstance.data.datasets[0].data = [
+                appState.categoryTotals.Moradia,
+                appState.categoryTotals.Alimentação,
+                appState.categoryTotals.Lazer,
+                appState.categoryTotals.Investimentos
+            ];
+            donutChartInstance.update();
+
+            renderTransactions();
+            recalculateFinancials();
+            closeModal('transactionModal');
+            showToast(`Transação "${desc}" adicionada!`);
+
+            // Reset form
+            document.getElementById('addTransactionForm').reset();
+        }
+
+        /* Preset Loader */
+        function loadPreset(presetName) {
+            if (presetName === 'balanced') {
+                appState.categoryTotals = { Moradia: 2100, Alimentação: 1800, Lazer: 1200, Investimentos: 1700 };
+                showToast("Preset 'Equilibrado' carregado.");
+            } else if (presetName === 'overspending') {
+                appState.categoryTotals = { Moradia: 2100, Alimentação: 1400, Lazer: 3200, Investimentos: 400 };
+                showToast("Preset 'Alto em Lazer' carregado.");
+            }
+
+            donutChartInstance.data.datasets[0].data = Object.values(appState.categoryTotals);
+            donutChartInstance.update();
+            recalculateFinancials();
+        }
+
+        /* Toggle Hide/Show Balance */
+        function toggleBalanceVisibility() {
+            appState.balanceVisible = !appState.balanceVisible;
+            const eyeIcon = document.getElementById('balanceEyeIcon');
+
+            if (appState.balanceVisible) {
+                eyeIcon.className = "fa-solid fa-eye text-xs";
+                recalculateFinancials();
+            } else {
+                eyeIcon.className = "fa-solid fa-eye-slash text-xs";
+                document.getElementById('totalBalanceDisplay').textContent = '••••••••';
+                document.getElementById('totalIncomeDisplay').textContent = '••••••';
+                document.getElementById('totalExpenseDisplay').textContent = '••••••';
+            }
+        }
+
+        /* Navigation Switcher inside Phone Screen */
+        function switchMobileTab(tabName) {
+            appState.currentMobileTab = tabName;
+            
+            // Hide all tabs
+            document.querySelectorAll('.app-tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            // Update bottom bar active styles
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('text-brand-500');
+                    btn.classList.remove('text-slate-500');
+                } else {
+                    btn.classList.remove('text-brand-500');
+                    btn.classList.add('text-slate-500');
+                }
+            });
+        }
+
+        /* Top Workspace Switcher (Simulator vs Code View) */
+        function switchMainTab(target) {
+            const simTab = document.getElementById('appSimulatorTab');
+            const codeTab = document.getElementById('codeExporterTab');
+
+            if (target === 'codeTab') {
+                simTab.classList.add('hidden');
+                codeTab.classList.remove('hidden');
+            } else {
+                simTab.classList.remove('hidden');
+                codeTab.classList.add('hidden');
+            }
+        }
+
+        /* Code Exporter Language Toggle */
+        function switchCodeLang(lang) {
+            const boxRN = document.getElementById('codeBoxRN');
+            const boxFlutter = document.getElementById('codeBoxFlutter');
+            const btnRN = document.getElementById('btnCodeRN');
+            const btnFlutter = document.getElementById('btnCodeFlutter');
+
+            if (lang === 'rn') {
+                boxRN.classList.remove('hidden');
+                boxFlutter.classList.add('hidden');
+                btnRN.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition flex items-center gap-1.5";
+                btnFlutter.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5";
+            } else {
+                boxRN.classList.add('hidden');
+                boxFlutter.classList.remove('hidden');
+                btnFlutter.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition flex items-center gap-1.5";
+                btnRN.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5";
+            }
+        }
+
+        /* AI Financial Advice Generator */
+        function generateAiAdvice() {
+            const adviceBox = document.getElementById('aiCustomAdviceBox');
+            adviceBox.classList.remove('hidden');
+            adviceBox.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Analisando perfil e gerando conselho personalizado...`;
+
+            setTimeout(() => {
+                const percLazer = Math.round((appState.categoryTotals.Lazer / 8500) * 100);
+                let message = "";
+                if (percLazer > 30) {
+                    message = `💡 **Dica da IA:** Identifiquei que seus gastos em Lazer e Restaurantes atingiram **${percLazer}%** da renda. Reduzindo apenas 2 saídas no mês, você conseguirá guardar R$ 350,00 adicionais no Tesouro Selic.`;
+                } else {
+                    message = `💡 **Dica da IA:** Excelente disciplina! Com seus gastos sob controle, sugiro transferir seu excedente de saldo para uma carteira automatizada de investimentos de renda fixa.`;
+                }
+                adviceBox.innerHTML = message;
+            }, 800);
+        }
+
+        /* UI Helpers: Modals & Toasts */
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function copyCodeSnippet(elementId) {
+            const codeText = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(codeText).then(() => {
+                showToast("Código copiado para a área de transferência!");
+            });
+        }
+
+        function toggleAppTheme() {
+            const html = document.documentElement;
+            const themeLabel = document.getElementById('themeLabel');
+            const themeIcon = document.getElementById('themeIcon');
+
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                themeLabel.textContent = "Modo Claro";
+                themeIcon.className = "fa-solid fa-sun text-amber-500";
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                themeLabel.textContent = "Modo Escuro";
+                themeIcon.className = "fa-solid fa-moon text-amber-400";
+            }
+        }
+    </script>
+</body>
+</html>
