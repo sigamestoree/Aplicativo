@@ -12,6 +12,7 @@
 :root{--bg:#050912;--ink:#e6f3ff;--mute:#7d93b2;--line:#16284a;--blue:#00e5ff;--vio:#8a5cff;--in:#2cf5b0;--out:#ff5c7a;--card:rgba(11,20,38,.82);--glow:0 0 18px rgba(0,229,255,.4);--onacc:#04101c}
 [data-theme=light]{--bg:#eef3fb;--ink:#0d1b33;--mute:#51627f;--line:#cfdaee;--in:#0a9b6f;--out:#d6334f;--card:rgba(255,255,255,.88)}
 *{box-sizing:border-box;margin:0}
+ul{padding:0}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.5 'Chakra Petch',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
 #fx{position:fixed;inset:0;z-index:0;pointer-events:none}
 #scan{position:fixed;left:0;right:0;height:120px;z-index:0;pointer-events:none;background:linear-gradient(transparent,var(--blue),transparent);opacity:.05;animation:sc 9s linear infinite}
@@ -61,20 +62,21 @@ li .r{white-space:nowrap}
 li button{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer}li button:hover{color:var(--out)}
 .cb{display:flex;gap:6px;align-items:center}.cb .btn{min-height:34px;padding:0 12px;font-size:13px}
 form{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
-input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:400 15px 'Chakra Petch',sans-serif;padding:12px 14px}
+input,select{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:400 15px 'Chakra Petch',sans-serif;padding:12px 14px}
 .btn,form button{background:var(--blue);border:0;border-radius:10px;color:var(--onacc);font:600 14px 'Chakra Petch',sans-serif;padding:0 18px;cursor:pointer;min-height:42px}
 .ghost{background:none;border:1px solid var(--blue);color:var(--ink)}
 #tipBtn{margin-top:24px}
 #tips{margin-top:14px;padding:12px 16px;border-left:3px solid var(--vio);font-size:15px}
 #tips:empty{display:none}#tips p+p{margin-top:8px}
 .hint{color:var(--mute);font-size:13px;margin-top:10px}
+.vrow{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
 #mic{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;align-items:center;gap:10px;border:1px solid var(--blue);background:var(--card);backdrop-filter:blur(6px);color:var(--ink);font:600 13px 'Chakra Petch';letter-spacing:.1em;padding:14px 20px;border-radius:999px;cursor:pointer;box-shadow:var(--glow)}
 #mic i{width:10px;height:10px;border-radius:50%;background:var(--mute)}
 #mic.on i{background:var(--in);animation:br 1.2s infinite}
 #toast{position:fixed;left:50%;bottom:90px;z-index:20;transform:translate(-50%,200px);background:var(--card);border:1px solid var(--blue);border-radius:12px;padding:10px 16px;font-size:14px;display:flex;gap:14px;align-items:center;transition:transform .25s;max-width:92vw}
 #toast.show{transform:translate(-50%,0)}
 #toast button{background:none;border:0;color:var(--blue);font:600 14px 'Chakra Petch';cursor:pointer}
-button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 @media(max-width:620px){.charts{grid-template-columns:1fr}.figs{grid-template-columns:1fr}.fig+.fig{border-left:0;border-top:1px solid var(--line)}li{grid-template-columns:1fr auto}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ln{stroke-dashoffset:0}}
 </style>
@@ -96,6 +98,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-o
     <div class="fig"><small>Gastos</small><b class="out" id="spent">R$ 0,00</b></div>
     <div class="fig"><small>Crédito livre</small><b id="cred">—</b><span id="credSub"></span></div>
   </div>
+  <section class="panel" style="margin-top:14px"><h2>Onde está o dinheiro</h2><ul id="wl"></ul><p class="hint" id="wsum"></p></section>
   <section class="charts">
     <div class="panel"><h2>Pizza · por área</h2><div id="pie"></div><div class="leg" id="leg"></div></div>
     <div class="panel"><h2>Colunas · por área</h2><div id="cols"></div></div>
@@ -103,6 +106,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-o
   </section>
   <button id="tipBtn" class="btn ghost" onclick="tip()">Gerar dica</button>
   <div id="tips" aria-live="polite"></div>
+  <div class="vrow"><select id="vsel" onchange="pickVoice(this.value)" aria-label="Escolher voz"></select><button class="btn ghost" onclick="testVoice()">Testar voz</button></div>
+  <p class="hint">Para a voz mais natural, use o Microsoft Edge (vozes “Natural”, como Francisca e Antonio) ou o Chrome no Android, e escolha acima a voz com “Natural” no nome.</p>
 </div>
 
 <div id="v2" hidden>
@@ -112,7 +117,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-o
     <button>Enviar</button>
   </form>
   <button class="btn ghost" style="margin-top:14px" onclick="sheet()">Gerar planilha (.xlsx)</button>
-  <p class="hint">Toda saída pede onde, quando e por quê. Exemplos: “recebi 5.000”, “torrei 200 em projetos”, “meu limite é 3.000”, “tira o mercado”, “muda para vermelho”, “modo claro”, “liga pra Maria”, “manda a planilha”, “troca a voz”.</p>
+  <p class="hint">Toda saída pede onde, quando e por quê. Exemplos: “recebi 5.000”, “torrei 200 em projetos”, “meu limite é 3.000”, “do saldo, 100 está no Nubank e 200 em espécie”, “onde está meu dinheiro”, “quanto é 15% de 200”, “aprenda que minha meta é viajar”, “o que você sabe sobre mim”, “o que é CDB”, “tira o mercado”, “muda para vermelho”, “liga pra Maria”, “manda a planilha”, “troca a voz”.</p>
 </div>
 
 <div id="v3" hidden>
@@ -134,16 +139,18 @@ const strip=s=>s.split('').map(c=>c.normalize('NFD').replace(/[\u0300-\u036f]/g,
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const br=d=>d?d.split('-').reverse().join('/'):'';
 const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
 /* ====== CONFIGURAÇÃO ====== */
 const EMAIL='dossantosmatiasjoaopaulo0@gmail.com',KEY='financas_v3';
-/* Envio automático de e-mail (opcional): crie conta no EmailJS e preencha. Deixe vazio para usar compartilhar/baixar. */
 const MAILJS={service:'',template:'',key:''};
-let S={tx:[],limit:0,hide:false,contacts:[]},prev=null,tt,P=null,awake=0,FILE=null;
+const newMem=()=>({name:'',facts:[],qa:[],cat:{},alias:{}});
+let S={tx:[],limit:0,hide:false,contacts:[],wallets:[],mem:newMem()},prev=null,tt,P=null,awake=0,FILE=null;
 try{let s=JSON.parse(ls(KEY)||ls('financas_v2'));
  if(s&&Array.isArray(s.tx)){s.tx.forEach(t=>{if(t.cat=='Moradia')t.cat='Gastos fixos';if(!t.dt)t.dt=iso(new Date(t.id))});S=Object.assign(S,s);S.contacts=S.contacts||[]}}catch(e){}
+S.wallets=S.wallets||[];S.mem=Object.assign(newMem(),S.mem||{});
 function save(){ls(KEY,JSON.stringify(S))}
 function change(fn){prev=JSON.stringify(S);fn();save();render()}
 function undo(){if(!prev)return say('Nada para desfazer, chef.');S=JSON.parse(prev);prev=null;save();render();$('toast').classList.remove('show');say('Desfeito, chef.')}
@@ -158,7 +165,7 @@ function accent(name){curAcc=ACC[name]?name:'neon';const a=ACC[curAcc],L=documen
 function theme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t=='light'?'☾':'☀';ls('fin_theme',t);accent(curAcc)}
 function flip(){theme(document.documentElement.dataset.theme=='light'?'dark':'light')}
 
-/* ====== Áreas ====== */
+/* ====== Áreas (com aprendizado) ====== */
 const CATS=[['Gastos fixos','fixo fixos moradia aluguel condominio luz energia agua internet iptu gas casa plano mensalidade'],['Alimentação','alimentacao mercado supermercado comida padaria feira acougue almoco lanche ifood'],['Transporte','transporte uber gasolina combustivel onibus metro estacionamento pedagio'],['Lazer','lazer restaurante cinema bar jantar festa viagem show streaming netflix jogo'],['Investimentos','investimento investimentos investi tesouro reserva poupanca aporte acoes'],['Projetos','projeto projetos startup negocio curso equipamento ferramenta']];
 const COL={'Gastos fixos':'#ff9f43','Alimentação':'#2cf5b0','Transporte':'#5b8cff','Lazer':'#ff5c7a','Investimentos':'#00e5ff','Projetos':'#a66bff','Outros':'#7d93b2'};
 function totals(){
@@ -198,9 +205,31 @@ function render(){
   const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=rows.reduce((a,r)=>a+r[1],0);
   $('pie').innerHTML=pie(rows,tot,m);$('cols').innerHTML=cols(rows);$('line').innerHTML=lineChart();
   $('leg').innerHTML=rows.map(([c,v])=>`<span><i style="background:${COL[c]||COL.Outros}"></i>${esc(c)} ${Math.round(v/tot*100)}%</span>`).join('');
+  $('wl').innerHTML=S.wallets.length?S.wallets.map((w,i)=>`<li><p>${esc(w.n)}</p><span class="r">${m(w.a)}</span><button onclick="delW(${i})" aria-label="Remover ${esc(w.n)}">×</button></li>`).join(''):'<p class="empty">Diga: do meu saldo, 100 está no Nubank e 450 no Mercado Pago.</p>';
+  const wt=S.wallets.reduce((a,w)=>a+w.a,0);$('wsum').textContent=S.wallets.length&&!S.hide?`Somando ${brl(wt)}. Saldo no app: ${brl(inc-acc)}.`:'';
   $('list').innerHTML=S.tx.length?S.tx.slice(0,50).map(t=>`<li><p>${esc(t.t)}<small>${esc(t.cat)}${t.pay=='credito'?' · crédito':''} · ${br(t.dt)}${t.where?'<br>Onde: '+esc(t.where):''}${t.why?'<br>Por quê: '+esc(t.why):''}</small></p><span class="r ${t.type=='in'?'in':'out'}">${t.type=='in'?'+':'−'} ${m(t.a)}</span><button onclick="rem(${t.id})" aria-label="Remover ${esc(t.t)}">×</button></li>`).join(''):'<p class="empty">Nenhum lançamento ainda.</p>';
   $('clist').innerHTML=S.contacts.length?S.contacts.map((c,i)=>`<li><p>${esc(c.n)}<small>+${esc(c.p)}</small></p><span class="cb"><button class="btn" onclick="dial(${i},1)">WhatsApp</button><button class="btn ghost" onclick="dial(${i},0)">Ligar</button></span><button onclick="delContact(${i})" aria-label="Remover ${esc(c.n)}">×</button></li>`).join(''):'<p class="empty">Nenhum contato salvo ainda.</p>'}
 function rem(id){const t=S.tx.find(x=>x.id==id);if(!t)return;change(()=>S.tx=S.tx.filter(x=>x.id!=id));toast('Removido: '+t.t+' ('+brl(t.a)+')')}
+function delW(i){const w=S.wallets[i];change(()=>S.wallets.splice(i,1));toast('Removido: '+w.n)}
+
+/* ====== Onde está o dinheiro ====== */
+function parseWallets(text,n){
+  const ms=[...n.matchAll(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?/g)];
+  return ms.map((m,i)=>{
+    const v=parseFloat(m[1].replace(/\./g,'')+(m[2]?'.'+m[2]:'')),end=m.index+m[0].length,nx=ms[i+1]?ms[i+1].index:n.length;
+    let a=text.slice(end,nx),b=n.slice(end,nx),k;
+    while((k=b.match(/^[\s,.;:]*(reais|real|esta|estao|ficou|ficam|fica|guardados?|na minha|no meu|na|no|em|de|do|da|conta|meu|minha|banco|aplicado|investido|depositado|sendo|tem|e)\b/))&&k[0].length){a=a.slice(k[0].length);b=b.slice(k[0].length)}
+    a=a.replace(/[\s,.;:]+$/,'');while(/\s+(e|mais)$/i.test(a))a=a.replace(/\s+(e|mais)$/i,'');
+    a=a.trim().split(/\s+/).map(cap).join(' ')||'Conta';
+    return{n:a,a:v}})}
+function diffTxt(){const t=totals(),bal=t.inc-t.acc,w=S.wallets.reduce((a,x)=>a+x.a,0);return Math.abs(bal-w)>.005?` O saldo do app é ${brl(bal)}, uma diferença de ${brl(Math.abs(bal-w))}.`:' Bate certinho com o saldo, chef.'}
+function walletSay(){
+  if(!S.wallets.length)return'Você ainda não me disse onde está o dinheiro, chef. Diga, por exemplo: do meu saldo, 100 está no Nubank e 200 em espécie.';
+  return'Seu dinheiro está assim, chef: '+S.wallets.map(w=>`${brl(w.a)} em ${w.n}`).join(', ')+`. Total de ${brl(S.wallets.reduce((a,w)=>a+w.a,0))}.`+diffTxt()}
+function setWallets(text,n){
+  const p=parseWallets(text,n);if(!p.length)return say('Não peguei os valores, chef. Diga: 100 no Nubank e 200 em espécie.');
+  change(()=>p.forEach(x=>{const w=S.wallets.find(y=>strip(y.n)==strip(x.n));w?w.a=x.a:S.wallets.push(x)}));
+  say('Anotado, chef: '+p.map(w=>`${brl(w.a)} em ${w.n}`).join(', ')+`. Somando ${brl(S.wallets.reduce((a,w)=>a+w.a,0))}.`+diffTxt())}
 
 /* ====== Contatos / WhatsApp ====== */
 const normPhone=s=>{let p=s.replace(/\D/g,'');if(p.length<=11)p='55'+p;return p};
@@ -239,8 +268,12 @@ function amount(text){const n=strip(text);
   if(!m)return null;
   let v=parseFloat(m[1].replace(/\./g,'')+(m[2]?'.'+m[2]:''));if(/mil$/.test(m[0]))v*=1000;
   return v>0?{v,start:m.index,end:m.index+m[0].length}:null}
-function category(n){let best='Outros',bi=1e9;
+const catOf=s=>{s=strip(s);for(const[c]of CATS){if(s.includes(strip(c).split(' ')[0].slice(0,5)))return c}return/\bfixos?\b/.test(s)?'Gastos fixos':null};
+function category(n){
+  for(const w of n.split(/[^a-z0-9]+/))if(w&&Object.prototype.hasOwnProperty.call(S.mem.cat,w))return S.mem.cat[w];
+  let best='Outros',bi=1e9;
   CATS.forEach(([c,ws])=>ws.split(' ').forEach(w=>{const m=n.match(new RegExp('\\b'+w+'\\b'));if(m&&m.index<bi){best=c;bi=m.index}}));return best}
+function learnCat(title,c){strip(title).split(/[^a-z0-9]+/).filter(w=>w.length>=3&&!STW.has(w)).forEach(w=>S.mem.cat[w]=c);save()}
 const STOP=new Set('adicionar adiciona adicione lancar lance registrar registre anotar uma um despesa receita gasto gastei paguei comprei recebi ganhei entrada saida meu minha foi caiu de do da por com em no na r$ reais real omega torrei'.split(' '));
 function describe(text,n,am,fb){
   let a=text.slice(am.end),b=n.slice(am.end);
@@ -262,10 +295,26 @@ function parseWhen(n){const d=new Date();
   m=n.match(/\bdia\s+(\d{1,2})(?:\s+de\s+([a-z]+))?/);
   if(m){const mi=m[2]?MES.indexOf(m[2]):d.getMonth();if(mi>=0)return iso(new Date(d.getFullYear(),mi,m[1]))}
   return null}
-function ask(){say(P.step=='w'?'Onde foi esse gasto, chef?':P.step=='d'?'E quando foi? Diga hoje, ontem ou a data.':'Por que você fez esse gasto, chef? Preciso da justificativa.')}
+function ask(p=''){say(p+(P.step=='w'?'Onde foi esse gasto, chef?':P.step=='d'?'E quando foi? Diga hoje, ontem ou a data.':'Por que você fez esse gasto, chef? Preciso da justificativa.'))}
 function answer(text,n){
+  if(P.until&&Date.now()>P.until){P=null;return handle(text)}
   if(/\b(cancelar|cancela|esquece|deixa pra la)\b/.test(n)){P=null;return say('Cancelado, chef.')}
-  if(P.step=='v'){const am=amount(text);if(!am)return say('Qual o valor, chef?');const o=P.text;P=null;return handle(o+' '+text)}
+  if(P.step=='t'){
+    if(/^(nao|deixa|nada)\b/.test(n)){P=null;return say('Sem problema, chef.')}
+    S.mem.qa.push({q:P.q,a:text.trim()});S.mem.qa=S.mem.qa.slice(-80);save();P=null;
+    return say(pick(['Aprendi, chef. Da próxima vez eu respondo sozinho.','Guardei essa resposta. Pode me perguntar de novo quando quiser.']))}
+  if(P.step=='v'){
+    const am=amount(text);
+    if(!am){if(++P.tries>=2){P=null;return say('Tudo bem, deixei para lá. Quando quiser, é só pedir de novo.')}return say('Não peguei o número. Diga só o valor, por exemplo: três mil.')}
+    const o=P;P=null;
+    if(o.kind=='limit'){change(()=>S.limit=am.v);return say('Limite de crédito definido em '+brl(am.v)+', chef.')}
+    return handle(o.text+' '+text,1)}
+  if(P.step=='c'){
+    const c=catOf(text)||(/\boutr/.test(n)?'Outros':null);
+    if(!c)return say('Qual área, chef? Gastos fixos, alimentação, transporte, lazer, investimentos, projetos ou outros.');
+    P.d.cat=c;P.step='w';
+    if(c!='Outros'){learnCat(P.d.t,c);return ask(`Aprendi, chef: ${P.d.t} é ${c}. `)}
+    return ask()}
   const d=P.d;
   if(P.step=='w'){if(text.trim().length<2)return ask();d.where=cap(text.trim());P.step=d.dt?'y':'d';return ask()}
   if(P.step=='d'){const w=parseWhen(n);if(!w)return say('Não entendi a data, chef. Diga hoje, ontem, dia 15 ou 15/09.');d.dt=w;P.step='y';return ask()}
@@ -278,9 +327,10 @@ function add(type,am,text,n){
   const isSal=/\bsalario\b/.test(n);
   const title=type=='in'&&isSal?'Salário':describe(text,n,am,type=='in'?'Entrada':'Gasto');
   if(type=='out'){
-    const dt=/\b(hoje|ontem|anteontem)\b/.test(n)?parseWhen(n):null;
-    P={step:'w',d:{t:title,a:am.v,dt,cat:category(strip(title)+' '+n),pay:/\b(cartao|credito)\b/.test(n)?'credito':'conta'}};
-    say(`Gasto de ${brl(am.v)} em ${title}, área ${P.d.cat}. Para registrar preciso da justificativa. Onde foi esse gasto, chef?`);return}
+    const dt=/\b(hoje|ontem|anteontem)\b/.test(n)?parseWhen(n):null,cat=category(strip(title)+' '+n);
+    P={step:cat=='Outros'?'c':'w',d:{t:title,a:am.v,dt,cat,pay:/\b(cartao|credito)\b/.test(n)?'credito':'conta'}};
+    if(P.step=='c')return say(`Gasto de ${brl(am.v)} em ${title}. Ainda não sei em qual área isso entra. Qual é: gastos fixos, alimentação, transporte, lazer, investimentos ou projetos?`);
+    say(`Gasto de ${brl(am.v)} em ${title}, área ${cat}. Para registrar preciso da justificativa. Onde foi esse gasto, chef?`);return}
   const old=isSal?S.tx.find(t=>t.type=='in'&&t.t=='Salário'):null;
   if(old){change(()=>old.a=am.v);const m='Salário atualizado para '+brl(am.v)+', chef.';say(m);toast(m);return}
   change(()=>S.tx.unshift({id:Date.now(),t:title,a:am.v,type:'in',cat:'Entrada',pay:'conta',dt:iso(new Date())}));
@@ -309,6 +359,8 @@ function tipText(){
   if(p(inv)<20)r.push(`Você investiu ${p(inv)}% da renda. Tente chegar a 20%, cerca de ${brl(inc*.2)} por mês.`);
   if(pj>0)r.push(`Projetos já consumiram ${p(pj)}% da renda. Confira se cada um tem retorno esperado.`);
   if(S.limit>0&&cre/S.limit>.7)r.push(`Você já usou ${Math.round(cre/S.limit*100)}% do limite de crédito. Segure as compras no cartão.`);
+  const cnt={};out.forEach(t=>cnt[t.cat]=(cnt[t.cat]||0)+1);const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
+  if(out.length>=4&&fav)r.push(`Pelo seu hábito, o que mais aparece é ${fav[0]}, com ${fav[1]} lançamentos. Vale olhar esse ponto primeiro.`);
   if(!r.length)r.push('Seus gastos estão dentro da regra 50/30/20, chef. Continue assim e mantenha o aporte mensal.');
   return r}
 function tip(){const r=tipText();tab(1);$('tips').innerHTML=r.map(x=>'<p>'+esc(x)+'</p>').join('');say(r.join(' '))}
@@ -342,6 +394,8 @@ async function sheet(){
   const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=rows.reduce((a,r)=>a+r[1],0),e=11+rows.length;
   rows.forEach(([c,v],i)=>{const r=12+i;ws.getCell('A'+r).value=c;ws.getCell('B'+r).value={formula:`-SUMIFS(${R('H')},${R('D')},A${r},${R('B')},"Saída")`,result:v};ws.getCell('B'+r).numFmt=money;ws.getCell('C'+r).value={formula:`B${r}/SUM(B$12:B$${e})`,result:v/tot};ws.getCell('C'+r).numFmt='0%'});
   if(rows.length)try{ws.addConditionalFormatting({ref:`C12:C${e}`,rules:[{type:'dataBar',gradient:true,cfvo:[{type:'num',value:0},{type:'num',value:1}],color:{argb:'FF00B4D8'}}]})}catch(x){}
+  if(S.wallets.length){const s=e+3;ws.getCell('A'+s).value='ONDE ESTÁ O DINHEIRO';ws.getCell('A'+s).font={bold:true,size:13,color:{argb:navy}};
+    S.wallets.forEach((w,i)=>{ws.getCell('A'+(s+1+i)).value=w.n;ws.getCell('B'+(s+1+i)).value=w.a;ws.getCell('B'+(s+1+i)).numFmt=money})}
   const name='Financas_Omega_'+iso(new Date())+'.xlsx',buf=await wb.xlsx.writeBuffer();
   FILE=new File([buf],name,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});download(FILE);
   if(MAILJS.key){try{if(await mailjs(FILE))return say('Planilha enviada para o seu e-mail, chef.')}catch(x){}say('Não consegui enviar automaticamente, chef. A planilha foi baixada.')}
@@ -353,7 +407,7 @@ async function sendFile(){const f=FILE;if(!f)return sheet();
   try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Relatório de finanças',text:'Enviar para '+EMAIL});return}}catch(e){if(e.name=='AbortError')return}
   location.href='mailto:'+EMAIL+'?subject='+encodeURIComponent('Relatório de finanças · '+br(iso(new Date())))+'&body='+encodeURIComponent('Chef, segue o relatório. Anexe o arquivo '+f.name+' que foi baixado.')}
 
-/* ====== CÉREBRO DO ÔMEGA: entendimento flexível ====== */
+/* ====== CÉREBRO DO ÔMEGA: 100% local, aprende com você ====== */
 const lev=(a,b)=>{const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]==b[j-1]?0:1));p=t}}return d[b.length]};
 const hit=(w,k)=>k.endsWith('=')?w==k.slice(0,-1):w.startsWith(k)||(k.length>=5&&w.length>=4&&lev(w.slice(0,k.length),k)<=1);
 const INT={
@@ -375,37 +429,116 @@ const INT={
 const NAMES={undo:'desfazer',sheet:'gerar a planilha',tip:'dar uma dica',remove:'remover um lançamento',limit:'definir o limite',hide:'ocultar valores',showv:'mostrar valores',voice:'trocar a voz',income:'registrar uma entrada',expense:'registrar um gasto',call:'ligar para um contato',saveC:'salvar um contato'};
 const CN={vermelh:'vermelho',rubro:'vermelho',verde:'verde',amarel:'amarelo',dourad:'amarelo',roxo:'roxo',roxa:'roxo',violet:'roxo',lilas:'roxo',neon:'neon',azul:'neon',cian:'neon',cyan:'neon'};
 const findColor=tk=>{for(const w of tk)for(const k in CN)if(w.startsWith(k)||(k.length>=5&&w.length>=4&&lev(w.slice(0,k.length),k)<=1))return CN[k]};
-const greet=()=>{const h=new Date().getHours();return(h<12?'Bom dia':h<18?'Boa tarde':'Boa noite')+', chef! Em que posso ajudar?'};
+const greet=()=>{const h=new Date().getHours();return pick([(h<12?'Bom dia':h<18?'Boa tarde':'Boa noite')+', '+(S.mem.name||'chef')+'! Em que posso ajudar?','Oi, '+(S.mem.name||'chef')+'! Do que você precisa?','Estou aqui, '+(S.mem.name||'chef')+'. Pode falar.'])};
 const PIADAS=['Por que o investidor foi ao médico, chef? Porque estava com os juros altos.','O que o zero disse para o oito? Belo cinto, chef!','Chef, meu cofrinho disse que a única coisa que ele guarda melhor que dinheiro é segredo.'];
 const CHAT=[
- [/\b(quem e voce|seu nome|quem te criou|quem e vc|o que voce e)\b/,()=>'Eu sou o Ômega, seu assistente financeiro, chef. Organizo seus gastos, analiso seu dinheiro e converso com você.'],
- [/\b(como voce esta|tudo bem|como vai|como esta)\b/,()=>'Tudo em ordem por aqui, chef. Sistemas online e pronto para cuidar das suas finanças.'],
- [/\b(obrigad\w*|valeu|brigadao)\b/,()=>'Sempre às ordens, chef.'],
- [/\b(piada|engracad\w*)\b/,()=>PIADAS[Math.floor(Math.random()*PIADAS.length)]],
+ [/\b(quem e voce|seu nome|quem te criou|quem e vc|o que voce e)\b/,()=>'Eu sou o Ômega, seu assistente financeiro, chef. Organizo seus gastos, analiso seu dinheiro, aprendo com você e converso, tudo aqui no seu aparelho.'],
+ [/\b(como voce esta|tudo bem|como vai|como esta)\b/,()=>pick(['Tudo em ordem por aqui, chef. E com você?','Sistemas online e pronto para cuidar das suas finanças.'])],
+ [/\b(obrigad\w*|valeu|brigadao)\b/,()=>pick(['Sempre às ordens, chef.','Imagina, é um prazer ajudar.'])],
+ [/\b(piada|engracad\w*)\b/,()=>pick(PIADAS)],
+ [/\b(te amo|voce e demais|voce e o melhor|gosto de voce)\b/,()=>pick(['Fico feliz em ajudar, chef. Vamos cuidar desse dinheiro juntos.','Que bom ouvir isso. Vou continuar aprendendo para ajudar ainda mais.'])],
+ [/\b(burro|idiota|inutil|voce e ruim)\b/,()=>'Estou aprendendo com você, chef. Me ensine dizendo “aprenda que...” ou me corrija, que eu guardo.'],
+ [/\b(estou|to|tou|me sinto)\s+(triste|cansad\w*|estressad\w*|ansios\w*|preocupad\w*)/,()=>'Sinto muito, chef. Se for por causa do dinheiro, eu analiso seus gastos e montamos um plano simples. E se quiser só conversar, estou aqui.'],
  [/\bque horas\b|\bhoras sao\b/,()=>'Agora são '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+', chef.'],
  [/\bque dia\b|\bdata de hoje\b/,()=>'Hoje é '+new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})+', chef.'],
- [/\b(ajuda|comandos|o que voce faz|o que voce sabe)\b/,()=>'Chef, eu entendo conversa normal. Posso registrar entradas e gastos, pedir onde, quando e por quê, mostrar gráficos, dar dicas, trocar cores e tema, ligar para contatos, gerar a planilha e conversar com você.'],
+ [/\b(ajuda|comandos|o que voce faz|o que voce sabe fazer)\b/,()=>'Chef, eu entendo conversa normal. Registro entradas e gastos, peço onde, quando e por quê, anoto onde está o dinheiro, faço contas e simulações, explico termos de finanças, mostro gráficos, dou dicas, ligo para contatos, gero a planilha e aprendo o que você me ensinar.'],
  [/\b(tchau|ate logo|desligar microfone|parar de ouvir|dormir)\b/,()=>{setTimeout(stopVoice,3000);return'Até logo, chef. Me chame quando precisar.'}],
  [/^(oi|ola|opa|salve|e ai|fala|bom dia|boa tarde|boa noite)\b/,greet,1]];
+/* Base de conhecimento interna (funciona sem internet e sem IA externa) */
+const KB=[
+ [/reserva de emergencia/,'Reserva de emergência, chef: é um dinheiro separado para imprevistos. O comum é juntar de 3 a 6 meses do seu custo de vida e deixar em algo seguro com resgate no mesmo dia, como Tesouro Selic ou CDB de liquidez diária.'],
+ [/juros compostos/,'Juros compostos são juros sobre juros: a cada período o rendimento entra no valor e passa a render também. Por isso o tempo pesa tanto. Me peça uma simulação, por exemplo: investir 500 por mês a 1% ao mês por 12 meses.'],
+ [/\bselic\b/,'A Selic é a taxa básica de juros do país, definida pelo Banco Central. Ela influencia os financiamentos, o crédito e o rendimento da renda fixa. Quando sobe, a renda fixa rende mais e o crédito fica mais caro.'],
+ [/\bcdi\b/,'O CDI é uma taxa que acompanha de perto a Selic. Muitos CDBs e fundos dizem render um percentual do CDI, por exemplo 100% do CDI.'],
+ [/\bcdb\b/,'CDB é um empréstimo que você faz ao banco em troca de juros. É protegido pelo FGC até o limite vigente, e o rendimento costuma ser um percentual do CDI. Há imposto de renda regressivo sobre o ganho.'],
+ [/tesouro (direto|selic|ipca|prefixado)|\btesouro\b/,'O Tesouro Direto é você emprestando dinheiro ao governo. O Tesouro Selic é o mais indicado para reserva de emergência. O IPCA protege da inflação no longo prazo. O prefixado trava uma taxa, mas oscila se você vender antes.'],
+ [/inflacao|\bipca\b/,'Inflação é a alta geral dos preços, que faz o dinheiro comprar menos com o tempo. O IPCA é o índice oficial. Seu investimento precisa render acima dela para você realmente ganhar poder de compra.'],
+ [/50.?30.?20/,'A regra 50/30/20 divide a renda assim: 50% para necessidades, 30% para desejos e 20% para investir e quitar dívidas. É um ponto de partida, e eu uso essa régua nas minhas dicas.'],
+ [/rotativo|cartao de credito|fatura/,'O rotativo do cartão é uma das dívidas mais caras que existem. Pague sempre a fatura inteira. Se não der, negocie parcelamento em vez de entrar no rotativo, e use o limite com folga.'],
+ [/diversific/,'Diversificar é não colocar tudo no mesmo lugar: renda fixa, ações, fundos imobiliários, reserva. Assim, um tombo em um ativo não derruba todo o seu patrimônio.'],
+ [/\b(acoes|bolsa)\b/,'Ações são pequenas partes de empresas. Podem render mais no longo prazo, mas oscilam bastante. Só invista nelas dinheiro que você não vai precisar no curto prazo, e depois de ter a reserva de emergência.'],
+ [/fundos? imobiliario|\bfiis?\b/,'Fundos imobiliários compram imóveis ou papéis ligados a eles e distribuem rendimentos mensais. O valor da cota oscila, então também têm risco.'],
+ [/poupanca/,'A poupança é simples e segura, mas costuma render menos que Tesouro Selic ou CDB de liquidez diária. Para reserva de emergência, essas opções geralmente compensam mais.'],
+ [/divida|dividas|quitar|endividad/,'Para sair das dívidas, chef: liste todas com juros e valor, pare de criar novas, pague primeiro a de maior juro, negocie descontos à vista e só depois volte a investir.'],
+ [/como economizar|economizar dinheiro|gastar menos/,'Para economizar: acompanhe todo gasto, corte primeiro as assinaturas esquecidas, planeje o mercado, pague você primeiro separando o aporte assim que o dinheiro cair e dê um teto mensal para lazer.']];
+const QW=/\b(o que|que e|como|qual|quais|porque|por que|explica\w*|significa|funciona|vale a pena|devo|posso|me fala|fala sobre)\b/;
+const STW=new Set('o a os as um uma de do da dos das em no na nos nas que e eu voce vc me meu minha seu sua qual quais como pra para por com sobre foi ser tem ter esta sao isso esse essa'.split(' '));
+const toks=s=>strip(s).split(/[^a-z0-9]+/).filter(w=>w.length>2&&!STW.has(w)).map(w=>w.slice(0,5));
+const cov=(a,b)=>{const A=[...new Set(toks(a))],B=new Set(toks(b));return A.length?A.filter(w=>B.has(w)).length/A.length:0};
+function qaFind(n,th){let best=null,bs=0;S.mem.qa.forEach(x=>{const s=Math.min(cov(n,x.q),cov(x.q,n));if(s>bs){bs=s;best=x.a}});return bs>=th?best:null}
+function recall(n){
+  const q=qaFind(n,.6);if(q)return q;
+  let bf='',bs=0;S.mem.facts.forEach(f=>{const s=cov(n,f);if(s>bs){bs=s;bf=f}});
+  if(bs>=.5)return'Você me contou isto, chef: '+bf;
+  for(const[re,a]of KB)if(re.test(n))return a;return null}
+function memSummary(){
+  const m=S.mem,p=[];
+  if(m.name)p.push('Seu nome é '+m.name);
+  if(m.facts.length)p.push('Guardei '+m.facts.length+' coisa'+(m.facts.length>1?'s':'')+' sobre você, como: '+m.facts.slice(-3).join('; '));
+  const nc=Object.keys(m.cat).length,na=Object.keys(m.alias).length;
+  if(nc)p.push('aprendi a classificar '+nc+' palavra'+(nc>1?'s':'')+' em áreas');
+  if(m.qa.length)p.push('você me ensinou '+m.qa.length+' resposta'+(m.qa.length>1?'s':''));
+  if(na)p.push('conheço '+na+' atalho'+(na>1?'s':'')+' seu'+(na>1?'s':''));
+  return p.length?p.join('. ')+'.':'Ainda sei pouco sobre você, chef. Me conte coisas como “aprenda que minha meta é juntar 10 mil” ou “meu nome é João”.'}
+function teachFact(f){change(()=>{if(!S.mem.facts.includes(f))S.mem.facts.push(f);S.mem.facts=S.mem.facts.slice(-60)});say(pick(['Anotado, vou lembrar disso.','Aprendi, chef. Guardei essa.','Certo, isso fica na minha memória.']))}
+function learnCmd(text,n,am){let m;
+ if(m=n.match(/\b(?:meu nome e|me chama de|me chame de|pode me chamar de)\s+([a-z]+)/)){const i=m.index+m[0].length-m[1].length,nm=cap(text.slice(i,i+m[1].length));change(()=>S.mem.name=nm);say(`Prazer, ${nm}! Vou te chamar assim.`);return 1}
+ if(m=n.match(/^(?:aprenda|aprende|lembra|lembre|anota|anote|guarda|guarde|memoriza|memorize)(?: que| disso| isso)?[\s:,]+(.{4,})$/)){teachFact(text.slice(text.length-m[1].length).trim());return 1}
+ if(m=n.match(/^quando eu (?:disser|falar|digo|falo) (.+?),? (?:quero dizer|significa|e para|faca|execute|voce faz) (.+)$/)){const a=m[1].trim(),b=text.slice(text.length-m[2].length);change(()=>S.mem.alias[a]=b);say(`Combinado, chef. Quando você disser ${a}, eu entendo como ${b}.`);return 1}
+ if(/\b(esquece|apaga|limpa|zera)\b.*\b(memoria|aprendeu|sabe sobre mim)\b/.test(n)){change(()=>S.mem=newMem());say('Memória de aprendizado apagada, chef. Diga desfazer se foi sem querer.');return 1}
+ if(/\b(o que (voce )?(sabe|lembra|aprendeu|guardou)|me conhece)\b/.test(n)&&!/\bfazer\b/.test(n)){say(memSummary());return 1}
+ if(!am&&(m=n.match(/^(.{2,30}?) (?:e|sao|conta como|fica em) (gastos? fixos?|fixos?|alimentacao|transporte|lazer|investimentos?|projetos?)$/))){const c=catOf(m[2]);if(c&&!/\b(modo|tema|cor)\b/.test(m[1])){change(()=>learnCat(m[1],c));say(`Aprendido, chef: ${m[1]} entra em ${c}.`);return 1}}
+ if(!am&&/^(eu|minha|meu|a minha|o meu)\s+(gosto|amo|odeio|moro|trabalho|sou|tenho|quero|sonho|meta|objetivo|profissao|estudo|prefiro|adoro|nao gosto|planejo)/.test(n)){teachFact(text);return 1}
+ return 0}
+/* Contas e simulações */
+const num=s=>parseFloat(s.replace(/\.(?=\d{3}\b)/g,'').replace(',','.')),fmt=x=>x.toLocaleString('pt-BR',{maximumFractionDigits:2});
+function think(n){
+  const N='(\\d{1,3}(?:\\.\\d{3})+(?:,\\d+)?|\\d+(?:,\\d+)?)',t=n.match(/(\d+)\s*(mes|meses|ano|anos)\b/),r=n.match(/(\d+(?:,\d+)?)\s*(?:%|por cento)/);
+  const all=[...n.matchAll(new RegExp(N,'g'))].map(x=>x[0]),ex=[t&&t[1],r&&r[1]],vs=all.filter(s=>{const i=ex.indexOf(s);if(i>=0){ex[i]=null;return false}return true});
+  const v=vs.length?num(vs[0]):0;
+  if(r&&t&&v&&/\b(juros|rend\w*|invest\w*|aplic\w*|simul\w*)\b/.test(n)){
+    let i=num(r[1])/100;const k=+t[1]*(/ano/.test(t[2])?12:1),anual=/\b(ao ano|anual|a a)\b/.test(n);if(anual)i=Math.pow(1+i,1/12)-1;
+    const mon=/\b(por mes|todo mes|mensal|mensalmente|cada mes)\b/.test(n.replace(/ao mes/g,'')),fv=mon?v*((Math.pow(1+i,k)-1)/(i||1e-9)):v*Math.pow(1+i,k),put=mon?v*k:v;
+    return`Com ${brl(v)}${mon?' por mês':''} a ${r[1]}% ${anual?'ao ano':'ao mês'} durante ${k} meses, você chega a cerca de ${brl(fv)}, sendo ${brl(put)} seus e ${brl(fv-put)} de juros, chef. É uma simulação, sem imposto e sem oscilação.`}
+  if(t&&v&&/\b(juntar|guardar|poupar|economizar|alcancar)\b/.test(n)&&/\b(preciso|quanto|quero|devo)\b/.test(n)){
+    const k=+t[1]*(/ano/.test(t[2])?12:1);return`Para juntar ${brl(v)} em ${k} meses, guarde cerca de ${brl(v/k)} por mês, chef, sem contar rendimento. Com investimento rendendo, dá para guardar um pouco menos.`}
+  if(/\b(quanto (e|da|fica|vale)|calcul\w*|resultado|conta de)\b/.test(n)){
+    let m=n.match(new RegExp(N+'\\s*(?:%|por cento)\\s*de\\s*'+N));
+    if(m)return`${m[1]}% de ${m[2]} é ${fmt(num(m[1])*num(m[2])/100)}, chef.`;
+    m=n.match(new RegExp(N+'\\s*(mais|\\+|menos|-|vezes|x|multiplicado por|dividido por|\\/)\\s*'+N));
+    if(m){const a=num(m[1]),b=num(m[3]),o=m[2];if(/dividido|\//.test(o)&&b==0)return'Não dá para dividir por zero, chef.';
+      const x=o=='mais'||o=='+'?a+b:o=='menos'||o=='-'?a-b:/dividido|\//.test(o)?a/b:a*b;return`${fmt(a)} ${o} ${fmt(b)} dá ${fmt(x)}, chef.`}}
+  return null}
 function query(n){
   const{inc,acc,cre}=totals();
   if(/\b(credito|limite)\b/.test(n))return S.limit>0?`Você ainda tem ${brl(S.limit-cre)} de crédito, chef.`:'Você ainda não definiu o limite, chef. Diga: meu limite é 3.000.';
   if(/\b(gast\w*)\b/.test(n))return `Você gastou ${brl(acc+cre)} no total, chef.`;
   if(/\b(receb\w*|caiu|salario|entrou|entradas)\b/.test(n))return `Caíram ${brl(inc)} na sua conta, chef.`;
   return `Você tem ${brl(inc-acc)} na conta, chef.`}
-function handle(raw){
+const WLR=/\b(nubank|mercadopago|picpay|inter|itau|bradesco|santander|caixa|c6|banco|especie|dinheiro vivo|carteira|cofrinho|poupanca)\b/;
+function handle(raw,na){
   const text=digits(raw.trim()),n=strip(text),am=amount(text),tk=n.split(/[^a-z0-9$]+/).filter(Boolean);
   if(P)return answer(text,n);
+  if(!na)for(const k in S.mem.alias)if(k&&n.includes(k))return handle(S.mem.alias[k],1);
   for(const[re,fn,noAm]of CHAT)if(re.test(n)&&!(noAm&&am))return say(fn());
+  if(learnCmd(text,n,am))return;
+  if(!am){const q=qaFind(n,.75);if(q)return say(q)}
   const col=findColor(tk),dk=/\b(escuro|noite|preto)\b/.test(n),lt=/\b(claro|dia|branco)\b/.test(n);
   if(!am&&(col||dk||lt)&&/\b(cor|tema|modo|fundo|mud\w*|troc\w*|colo\w*|deix\w*|visual|estilo|ativ\w*|quero)\b/.test(n)){
     if(dk)theme('dark');else if(lt)theme('light');if(col)accent(col);
     return say(`Pronto, chef.${col?' Cor '+col+'.':''}${dk?' Modo escuro.':lt?' Modo claro.':''}`)}
-  if(!am&&tk.some(w=>/^(quanto|quantos|qual|saldo|sobrou|sobra)/.test(w)))return say(query(n));
+  const nw=n.replace(/mercado ?pago/g,'mercadopago');
+  if(am&&!/\b(gast|pagu|compr|torr|receb|ganh|salar|caiu|investi|limite|remov|tir|apag|custou|saiu)/.test(nw)&&(WLR.test(nw)||/\b(esta|estao|ficam|fica)\s+(no|na|em)\b/.test(nw)))return setWallets(text,n);
+  if(!am&&/\b(onde|aonde)\b.*\b(dinheiro|saldo|grana)\b/.test(n))return say(walletSay());
+  const wi=S.wallets.findIndex(w=>nw.includes(strip(w.n).replace(/ /g,'')));
+  if(!am&&wi>=0&&/\b(remov|tir|apag|exclu|delet)\w*/.test(nw)){const w=S.wallets[wi];change(()=>S.wallets.splice(wi,1));return say(`Removi ${w.n} da lista, chef.`)}
+  if(am){const th=think(n);if(th)return say(th)}
+  if(!am&&QW.test(n)){const a=recall(n);if(a)return say(a)}
+  if(!am&&(tk.some(w=>/^(saldo|sobrou|sobra)/.test(w))||(tk.some(w=>/^(quanto|quantos|qual)/.test(w))&&/\b(tenho|conta|gast\w*|receb\w*|credito|limite|entrad\w*|caiu|saldo)\b/.test(n))))return say(query(n));
   const sc={};let top='',ts=0;
   for(const k in INT){let s=0;for(const w in INT[k])if(tk.some(t=>hit(t,w)))s+=INT[k][w];sc[k]=s;if(s>ts){ts=s;top=k}}
   if(ts>=2){
-    if(['income','expense','limit'].includes(top)&&!am){P={step:'v',text:raw};return say(`Entendi, chef: ${NAMES[top]}. Qual é o valor?`)}
+    if(['income','expense','limit'].includes(top)&&!am){P={step:'v',kind:top,text:raw,tries:0};return say(`Entendi, chef: ${NAMES[top]}. Qual é o valor?`)}
     switch(top){
       case'undo':return undo();
       case'sheet':return sheet();
@@ -423,33 +556,47 @@ function handle(raw){
       case'saveC':return saveContactCmd(raw);
       case'call':{const i=findContact(tk);if(i<0)return say(S.contacts.length?'Não achei esse contato, chef. Qual o nome?':'Você ainda não tem contatos salvos, chef. Cadastre na aba Contatos.');return dial(i,!/\b(telefone|celular|normal|comum)\b/.test(n))}}}
   if(am)return add('out',am,text,n);
+  const r=recall(n);if(r)return say(r);
   const alt=Object.entries(sc).sort((a,b)=>b[1]-a[1])[0];
-  say(alt&&alt[1]>0?`Não tenho certeza, chef. Você quis ${NAMES[alt[0]]}? Me diga de outro jeito.`:'Não entendi, chef. Fale do seu jeito, por exemplo: gastei 50 em lazer, ou diga ajuda.')}
+  if(alt&&alt[1]>0)return say(`Não tenho certeza, chef. Você quis ${NAMES[alt[0]]}? Me diga de outro jeito.`);
+  if(tk.length>=3){P={step:'t',q:raw,until:Date.now()+25000};return say('Ainda não sei responder isso, chef. Se quiser me ensinar, me diga a resposta agora. Ou diga deixa pra lá.')}
+  say('Não entendi, chef. Fale do seu jeito, por exemplo: gastei 50 em lazer, ou diga ajuda.')}
 function typed(e){e.preventDefault();const v=$('cmd').value.trim();if(v){handle(v);$('cmd').value=''}return false}
 
 /* ====== Voz: fala natural e palavra de ativação ====== */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let rec=null,active=false,speaking=false,spk=0,VN=ls('fin_voice')||'',tw;
-const vscore=v=>(/natural|neural|online/i.test(v.name)?5:0)+(/google/i.test(v.name)?3:0)+(/francisca|antonio|thalita|luciana|felipe|fernanda|vitoria|camila|microsoft/i.test(v.name)?2:0)+(v.localService?0:1);
+let rec=null,active=false,speaking=false,spk=0,VN=ls('fin_voice')||'',tw,quiet=0,lastH='',lastT=0;
+const vscore=v=>{const n=v.name;return(/natural|neural/i.test(n)?20:0)+(/online/i.test(n)?8:0)+(/premium|enhanced|aprimorad/i.test(n)?10:0)+(/francisca|thalita|antonio|brenda|donato|elza|giovanna|humberto|julio|leila|leticia|manuela|nicolau|valerio/i.test(n)?5:0)+(/google/i.test(n)?6:0)+(/luciana|felipe|fernanda|joana/i.test(n)?3:0)+(v.localService?0:2)-(/compact|espeak|robot/i.test(n)?10:0)};
 const voices=()=>('speechSynthesis'in window?speechSynthesis.getVoices():[]).filter(v=>/^pt[-_]BR/i.test(v.lang)).sort((a,b)=>vscore(b)-vscore(a));
 const curVoice=()=>{const l=voices();return l.find(v=>v.name==VN)||l[0]||null};
+function fillVoices(){const s=$('vsel'),l=voices(),c=curVoice();if(!s)return;s.innerHTML=l.length?l.map(v=>`<option value="${esc(v.name)}"${c&&v.name==c.name?' selected':''}>${esc(v.name)}</option>`).join(''):'<option>Nenhuma voz em português encontrada</option>'}
+function pickVoice(n){VN=n;ls('fin_voice',n);testVoice()}
+function testVoice(){speak('Olá, chef! Esta é a minha voz. Soou natural para você?',1)}
 function nextVoice(){const l=voices();if(!l.length)return say('Não encontrei outras vozes em português neste aparelho, chef.');
-  const i=l.indexOf(curVoice()),v=l[(i+1)%l.length];VN=v.name;ls('fin_voice',VN);say('Esta é a minha nova voz, chef. Gostou?')}
-if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=()=>{};
-const clean=s=>s.replace(/R\$\s?([\d.]+),(\d\d)/g,(_,a,b)=>a+(a=='1'?' real':' reais')+(b=='00'?'':' e '+(+b)+' centavos')).replace(/[•“”"]/g,'').replace(/\s+/g,' ');
+  const i=l.indexOf(curVoice()),v=l[(i+1)%l.length];VN=v.name;ls('fin_voice',VN);fillVoices();say('Esta é a minha nova voz, chef. Gostou?')}
+if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=fillVoices;
+const clean=s=>s.replace(/R\$\s?([\d.]+)(?:,(\d\d))?/g,(_,a,b)=>{const v=a.replace(/\./g,'');return v+(v=='1'?' real':' reais')+(b&&b!='00'?' e '+(+b)+' centavos':'')}).replace(/(\d+(?:,\d+)?)\s?%/g,'$1 por cento').replace(/[•“”"]/g,'').replace(/\s+/g,' ');
 function say(msg){clearInterval(tw);const e=document.createElement('em');$('say').replaceChildren(e);let i=0;
   tw=setInterval(()=>{e.textContent=msg.slice(0,++i);if(i>=msg.length)clearInterval(tw)},14);speak(msg)}
-function speak(msg){
-  if(!active||!('speechSynthesis'in window))return;
-  const id=++spk;speechSynthesis.cancel();speaking=true;try{rec.stop()}catch(e){}
-  const done=()=>{if(id!=spk)return;speaking=false;if(active)go()},v=curVoice(),parts=clean(msg).match(/[^.!?]+[.!?]*/g)||[msg];
-  parts.forEach((t,i)=>{const u=new SpeechSynthesisUtterance(t.trim());u.lang='pt-BR';if(v)u.voice=v;u.rate=1.03;u.pitch=1;if(i==parts.length-1){u.onend=done;u.onerror=done}speechSynthesis.speak(u)})}
+function speak(msg,force){
+  if((!active&&!force)||!('speechSynthesis'in window))return;
+  const id=++spk;speechSynthesis.cancel();speaking=true;try{rec&&rec.stop()}catch(e){}
+  const done=()=>{if(id!=spk)return;speaking=false;quiet=Date.now()+700;if(active)go()},v=curVoice(),nat=v&&/natural|neural|online|enhanced|premium/i.test(v.name);
+  const parts=(clean(msg).match(/[^.!?;:]+[.!?]*/g)||[msg]).flatMap(s=>s.length>70?(s.match(/[^,]+,?/g)||[s]).reduce((a,c)=>{const l=a[a.length-1];if(l&&l.length<40)a[a.length-1]=l+c;else a.push(c);return a},[]):[s]);
+  parts.forEach((t,i)=>{t=t.trim();if(!t)return;const u=new SpeechSynthesisUtterance(t);u.lang='pt-BR';if(v)u.voice=v;
+    const q=/\?$/.test(t),ex=/!$/.test(t),last=/[.!?]$/.test(t);
+    u.rate=(nat?1:.94)+(Math.random()*.05-.02)+(ex?.03:0);u.pitch=(q?1.08:last?.97:1.02)+(Math.random()*.04-.02);u.volume=1;
+    if(i==parts.length-1){u.onend=done;u.onerror=done}speechSynthesis.speak(u)})}
 function go(){try{rec.start()}catch(e){}}
 function heard(raw){
-  const n=strip(raw),m=n.match(/(^|\s)(h?o\s)?(omega|mega|omeca|omeja)\b/);
-  if(m){awake=Date.now()+30000;const i=m.index+(m[1]?1:0),rest=(raw.slice(0,i)+' '+raw.slice(m.index+m[0].length)).replace(/^[\s,.!?]+/,'').trim();
+  const n=strip(raw),now=Date.now();
+  if(speaking||now<quiet)return;
+  if(raw==lastH&&now-lastT<3000)return;lastH=raw;lastT=now;
+  if(/qual e o valor|onde foi esse gasto|por que voce fez esse gasto|nao peguei o numero/.test(n))return;
+  const m=n.match(/(^|\s)(h?o\s)?(omega|mega|omeca|omeja)\b/);
+  if(m){awake=now+30000;const i=m.index+(m[1]?1:0),rest=(raw.slice(0,i)+' '+raw.slice(m.index+m[0].length)).replace(/^[\s,.!?]+/,'').trim();
     return rest?handle(rest):say('Pois não, chef? Estou ouvindo.')}
-  if(P||Date.now()<awake){awake=Date.now()+30000;return handle(raw)}
+  if(P||now<awake){awake=now+30000;return handle(raw)}
   $('say').innerHTML='Em espera. Diga <em>“Ômega”</em> e o comando.'}
 function toggleVoice(){active?stopVoice():startVoice()}
 function startVoice(){
@@ -474,7 +621,7 @@ addEventListener('resize',size);size();
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)loop();
 
 let th=ls('fin_theme');if(!th){try{th=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}catch(e){th='dark'}}
-theme(th);render();
+theme(th);render();fillVoices();setTimeout(fillVoices,800);
 if(SR)try{startVoice()}catch(e){}
 </script>
 </body>
