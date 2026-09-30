@@ -1,481 +1,184 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050912"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <title>Ômega · Finanças</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js" defer></script>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#050912;--ink:#e6f3ff;--mute:#7d93b2;--line:#16284a;--blue:#00e5ff;--vio:#8a5cff;--in:#2cf5b0;--out:#ff5c7a;--card:rgba(11,20,38,.82);--glow:0 0 18px rgba(0,229,255,.4);--onacc:#04101c}
-[data-theme=light]{--bg:#eef3fb;--ink:#0d1b33;--mute:#51627f;--line:#cfdaee;--in:#0a9b6f;--out:#d6334f;--card:rgba(255,255,255,.88)}
-*{box-sizing:border-box;margin:0}
+:root{--bg:#050912;--ink:#e6f3ff;--mute:#7d93b2;--line:#16284a;--blue:#00e5ff;--vio:#8a5cff;--in:#2cf5b0;--out:#ff5c7a;--card:rgba(11,20,38,.85);--onacc:#04101c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme=dark]){--bg:#eef3fb;--ink:#0d1b33;--mute:#51627f;--line:#cfdaee;--in:#0a9b6f;--out:#d6334f;--card:rgba(255,255,255,.9);--onacc:#fff}}
+:root[data-theme=light]{--bg:#eef3fb;--ink:#0d1b33;--mute:#51627f;--line:#cfdaee;--in:#0a9b6f;--out:#d6334f;--card:rgba(255,255,255,.9);--onacc:#fff}
+*{box-sizing:border-box;margin:0}html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.5 'Chakra Petch',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
-#fx{position:fixed;inset:0;z-index:0;pointer-events:none}
-#scan{position:fixed;left:0;right:0;height:120px;z-index:0;pointer-events:none;background:linear-gradient(transparent,var(--blue),transparent);opacity:.05;animation:sc 9s linear infinite}
-@keyframes sc{from{top:-120px}to{top:100%}}
-.wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:18px 18px 120px}
-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px}
-.brand{display:flex;align-items:center;gap:12px}
-.brand b{font:700 20px 'Chakra Petch';letter-spacing:.3em;position:relative;animation:gl 7s infinite}
-.brand small{display:block;font:400 11px 'Share Tech Mono';letter-spacing:.14em;color:var(--mute)}
-@keyframes gl{0%,93%,100%{text-shadow:none;transform:none}94%{text-shadow:-2px 0 var(--out),2px 0 var(--blue);transform:translateX(2px)}96%{text-shadow:2px 0 var(--out),-2px 0 var(--blue);transform:translateX(-2px)}}
-#orb{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--blue) 35%,var(--vio) 85%);box-shadow:var(--glow);animation:br 3s infinite;position:relative}
-#orb::after{content:"";position:absolute;inset:-6px;border:1px dashed var(--blue);border-radius:50%;animation:rot 8s linear infinite;opacity:.7}
-#orb.on{animation:br 1s infinite;box-shadow:0 0 30px var(--blue)}
-@keyframes br{50%{transform:scale(.88);opacity:.8}}@keyframes rot{to{transform:rotate(360deg)}}
-#theme{background:none;border:1px solid var(--line);color:var(--ink);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:16px}
-nav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto}
-nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);font:600 13px 'Chakra Petch';letter-spacing:.14em;padding:10px 14px;cursor:pointer;text-transform:uppercase;white-space:nowrap}
-nav button.on{color:var(--blue);border-color:var(--blue);text-shadow:var(--glow)}
-#say{min-height:52px;color:var(--mute);font-size:15px;margin:0 0 20px;padding:10px 14px;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:8px;background:var(--card);backdrop-filter:blur(6px)}
-#say em{color:var(--ink);font-style:normal}
-#say em::after{content:"▍";color:var(--blue);animation:bl 1s steps(2) infinite}
-@keyframes bl{50%{opacity:0}}
-.hero small,.fig small,h2{color:var(--mute);font:400 12px 'Share Tech Mono';letter-spacing:.18em;text-transform:uppercase}
-.hero b{display:block;font:700 clamp(40px,11vw,80px)/1.05 'Share Tech Mono',monospace;margin:4px 0 8px;color:var(--blue);text-shadow:var(--glow)}
-.figs{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:12px;background:var(--card)}
-.fig{padding:16px}.fig+.fig{border-left:1px solid var(--line)}
-.fig b{display:block;font:400 clamp(18px,4.6vw,27px) 'Share Tech Mono',monospace;margin-top:4px}
-.fig span{font-size:12px;color:var(--mute)}
-.in{color:var(--in)}.out{color:var(--out)}
-section{margin-top:26px}h2{margin-bottom:12px}
-.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}.wide{grid-column:1/-1}
-.panel{border:1px solid var(--line);border-radius:12px;background:var(--card);backdrop-filter:blur(6px);padding:16px;position:relative}
-.panel::before,.panel::after{content:"";position:absolute;width:12px;height:12px;border:2px solid var(--blue);opacity:.8}
-.panel::before{top:-1px;left:-1px;border-right:0;border-bottom:0;border-radius:12px 0 0 0}
-.panel::after{bottom:-1px;right:-1px;border-left:0;border-top:0;border-radius:0 0 12px 0}
-.leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:13px;color:var(--mute)}
-.leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
-svg text{fill:var(--mute);font:11px 'Share Tech Mono'}
-.col{transform-box:fill-box;transform-origin:bottom;animation:grow .8s both}
-@keyframes grow{from{transform:scaleY(0)}}
-.ln{stroke-dasharray:1;stroke-dashoffset:1;animation:dr 1.5s forwards}
-@keyframes dr{to{stroke-dashoffset:0}}
-.empty{color:var(--mute);font-size:14px}
-li{list-style:none;display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
-li p{font-size:15px}li p small{display:block;color:var(--mute);font-size:12px;line-height:1.45}
-li .r{white-space:nowrap}
-li button{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer}li button:hover{color:var(--out)}
-.cb{display:flex;gap:6px;align-items:center}.cb .btn{min-height:34px;padding:0 12px;font-size:13px}
-form{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
-input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:400 15px 'Chakra Petch',sans-serif;padding:12px 14px}
+.wrap{max-width:860px;margin:0 auto;padding:16px 16px 110px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:12px}
+.brand{display:flex;align-items:center;gap:12px}.brand b{font:700 20px 'Chakra Petch';letter-spacing:.3em}
+#orb{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--blue) 35%,var(--vio) 85%);box-shadow:0 0 18px var(--blue);animation:br 3s infinite}
+#orb.on{animation-duration:.9s}@keyframes br{50%{transform:scale(.88);opacity:.8}}
+.ib{background:none;border:1px solid var(--line);color:var(--ink);border-radius:10px;min-width:38px;height:38px;cursor:pointer;font:600 13px 'Chakra Petch';padding:0 10px}
+nav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:12px}
+nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);font:600 13px 'Chakra Petch';letter-spacing:.14em;padding:10px 14px;cursor:pointer;text-transform:uppercase}
+nav button.on{color:var(--blue);border-color:var(--blue)}
+#say{min-height:52px;color:var(--ink);font-size:15px;padding:10px 14px;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:8px;background:var(--card)}
+form{display:flex;gap:8px;margin:12px 0 18px}
+input,select{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:400 15px 'Chakra Petch',sans-serif;padding:11px 13px}
 .btn,form button{background:var(--blue);border:0;border-radius:10px;color:var(--onacc);font:600 14px 'Chakra Petch',sans-serif;padding:0 18px;cursor:pointer;min-height:42px}
 .ghost{background:none;border:1px solid var(--blue);color:var(--ink)}
-#tipBtn{margin-top:24px}
-#tips{margin-top:14px;padding:12px 16px;border-left:3px solid var(--vio);font-size:15px}
-#tips:empty{display:none}#tips p+p{margin-top:8px}
-.hint{color:var(--mute);font-size:13px;margin-top:10px}
-#mic{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;align-items:center;gap:10px;border:1px solid var(--blue);background:var(--card);backdrop-filter:blur(6px);color:var(--ink);font:600 13px 'Chakra Petch';letter-spacing:.1em;padding:14px 20px;border-radius:999px;cursor:pointer;box-shadow:var(--glow)}
-#mic i{width:10px;height:10px;border-radius:50%;background:var(--mute)}
-#mic.on i{background:var(--in);animation:br 1.2s infinite}
-#toast{position:fixed;left:50%;bottom:90px;z-index:20;transform:translate(-50%,200px);background:var(--card);border:1px solid var(--blue);border-radius:12px;padding:10px 16px;font-size:14px;display:flex;gap:14px;align-items:center;transition:transform .25s;max-width:92vw}
-#toast.show{transform:translate(-50%,0)}
+small,h2{color:var(--mute);font:400 12px 'Share Tech Mono';letter-spacing:.16em;text-transform:uppercase}
+.hero b{display:block;font:700 clamp(38px,11vw,72px)/1.05 'Share Tech Mono',monospace;margin:4px 0 10px;color:var(--blue);text-shadow:0 0 18px var(--blue)}
+.figs{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.fig{padding:14px}.fig+.fig{border-left:1px solid var(--line)}.fig b{display:block;font:400 clamp(16px,4.4vw,25px) 'Share Tech Mono',monospace}
+.in{color:var(--in)}.out{color:var(--out)}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}.wide{grid-column:1/-1}
+.panel{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:14px}h2{margin-bottom:10px}
+.leg{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:13px;color:var(--mute)}.leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+.cols{display:flex;gap:8px;height:150px;align-items:flex-end}.cl{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}.cl i{width:70%;border-radius:3px 3px 0 0}
+li{list-style:none;display:grid;grid-template-columns:1fr auto auto;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+li small{display:block;text-transform:none;letter-spacing:0;font:12px 'Chakra Petch'}li button{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer}
+.empty{color:var(--mute);font-size:14px}
+#mic{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;border:1px solid var(--blue);background:var(--card);color:var(--ink);font:600 13px 'Chakra Petch';padding:14px 20px;border-radius:999px;cursor:pointer}
+#mic i{width:10px;height:10px;border-radius:50%;background:var(--mute)}#mic.on i{background:var(--in)}
+#toast{position:fixed;left:50%;bottom:86px;transform:translate(-50%,200px);background:var(--card);border:1px solid var(--blue);border-radius:12px;padding:10px 16px;display:flex;gap:14px;transition:transform .25s}#toast.show{transform:translate(-50%,0)}
 #toast button{background:none;border:0;color:var(--blue);font:600 14px 'Chakra Petch';cursor:pointer}
-button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-@media(max-width:620px){.charts{grid-template-columns:1fr}.figs{grid-template-columns:1fr}.fig+.fig{border-left:0;border-top:1px solid var(--line)}li{grid-template-columns:1fr auto}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ln{stroke-dashoffset:0}}
-</style>
-</head>
-<body>
-<canvas id="fx"></canvas><div id="scan"></div>
+@media(max-width:620px){.g{grid-template-columns:1fr}.figs{grid-template-columns:1fr}.fig+.fig{border-left:0;border-top:1px solid var(--line)}}
+</style></head><body>
 <div class="wrap">
-<header>
-  <div class="brand"><div id="orb"></div><div><b>ÔMEGA</b><small>FINANÇAS // SISTEMA DO CHEF</small></div></div>
-  <button id="theme" onclick="flip()" aria-label="Alternar tema"></button>
-</header>
-<nav><button id="t1" class="on" onclick="tab(1)">Resumo</button><button id="t2" onclick="tab(2)">Lançamentos</button><button id="t3" onclick="tab(3)">Contatos</button></nav>
-<p id="say" aria-live="polite">Diga <em>“Ômega”</em> e depois o comando, do seu jeito.</p>
+<header><div class="brand"><div id="orb"></div><div><b>ÔMEGA</b><small style="display:block">Finanças // IA</small></div></div>
+<div><button class="ib" id="inst" hidden onclick="install()">Instalar</button> <button class="ib" onclick="flip()">◐</button></div></header>
+<nav><button id="t1" class="on" onclick="tab(1)">Resumo</button><button id="t2" onclick="tab(2)">Lançamentos</button><button id="t3" onclick="tab(3)">Memória</button></nav>
+<p id="say">Diga “Ômega” e fale do seu jeito, ou digite abaixo.</p>
+<form onsubmit="return typed(event)"><input id="cmd" autocomplete="off" placeholder="Converse: dos meus 750, 100 estão no Nubank..." aria-label="Mensagem"><button>Enviar</button></form>
 
 <div id="v1">
-  <div class="hero"><small>Saldo atual na conta</small><b id="now">R$ 0,00</b></div>
-  <div class="figs">
-    <div class="fig"><small>Entradas</small><b class="in" id="inc">R$ 0,00</b></div>
-    <div class="fig"><small>Gastos</small><b class="out" id="spent">R$ 0,00</b></div>
-    <div class="fig"><small>Crédito livre</small><b id="cred">—</b><span id="credSub"></span></div>
-  </div>
-  <section class="charts">
-    <div class="panel"><h2>Pizza · por área</h2><div id="pie"></div><div class="leg" id="leg"></div></div>
-    <div class="panel"><h2>Colunas · por área</h2><div id="cols"></div></div>
-    <div class="panel wide"><h2>Linhas · evolução por área</h2><div id="line"></div><div class="leg" id="lleg"></div></div>
-  </section>
-  <button id="tipBtn" class="btn ghost" onclick="tip()">Gerar dica</button>
-  <div id="tips" aria-live="polite"></div>
+<div class="hero"><small>Saldo disponível</small><b id="now">R$ 0,00</b></div>
+<div class="figs"><div class="fig"><small>Entradas</small><b class="in" id="inc"></b></div><div class="fig"><small>Gastos</small><b class="out" id="spent"></b></div><div class="fig"><small>Crédito livre</small><b id="cred"></b></div></div>
+<div class="g">
+<div class="panel wide"><h2>Onde está o dinheiro</h2><ul id="wl"></ul></div>
+<div class="panel"><h2>Pizza · por área</h2><div id="pie"></div><div class="leg" id="leg"></div></div>
+<div class="panel"><h2>Colunas · por área</h2><div id="cols"></div></div></div>
+<button class="btn ghost" style="margin-top:18px" onclick="ask('Analise meus gastos e me dê dicas práticas.')">Gerar dica</button>
 </div>
-
-<div id="v2" hidden>
-  <section style="margin-top:0"><h2>Lançamentos</h2><ul id="list"></ul></section>
-  <form onsubmit="return typed(event)">
-    <input id="cmd" autocomplete="off" placeholder="Fale do seu jeito: gastei 30 em lazer ontem" aria-label="Comando">
-    <button>Enviar</button>
-  </form>
-  <button class="btn ghost" style="margin-top:14px" onclick="sheet()">Gerar planilha (.xlsx)</button>
-  <p class="hint">Toda saída pede onde, quando e por quê. Exemplos: “recebi 5.000”, “torrei 200 em projetos”, “meu limite é 3.000”, “tira o mercado”, “muda para vermelho”, “modo claro”, “liga pra Maria”, “manda a planilha”, “troca a voz”.</p>
+<div id="v2" hidden><h2>Lançamentos</h2><ul id="list"></ul></div>
+<div id="v3" hidden><div class="panel"><h2>O que aprendi sobre você</h2><ul id="ml"></ul></div>
+<div class="panel" style="margin-top:14px"><h2>Cérebro (IA)</h2><p class="empty" style="margin-bottom:8px">Cole sua chave da API da Anthropic (console.anthropic.com). Ela fica salva só neste aparelho, nunca no código.</p><div style="display:flex;gap:8px"><input id="key" type="password" placeholder="sk-ant-..." autocomplete="off"><button class="btn" onclick="saveKey()">Salvar</button></div><input id="mdl" style="margin-top:8px;width:100%" placeholder="Modelo (padrão: claude-sonnet-5-5)" onchange="ls('o_model',this.value.trim())"></div>
+<div class="panel" style="margin-top:14px"><h2>Voz</h2><select id="vs" onchange="pickVoice(this.value)"></select><p class="empty" style="margin-top:8px">A naturalidade depende das vozes do seu aparelho. Escolha uma com “Natural”, “Neural” ou “Google”. No Android, instale a voz “Português (Brasil)” do Google em Ajustes › Saída de texto para voz.</p></div></div>
 </div>
-
-<div id="v3" hidden>
-  <section style="margin-top:0"><h2>Contatos do WhatsApp</h2><ul id="clist"></ul></section>
-  <form onsubmit="return addContact(event)">
-    <input id="cn" placeholder="Nome como no WhatsApp" aria-label="Nome">
-    <input id="cp" inputmode="tel" placeholder="DDD + número" aria-label="Telefone">
-    <button>Salvar</button>
-  </form>
-  <p class="hint">Diga “Ômega, liga pra Maria”. O site abre o WhatsApp dela; toque no ícone de chamada. Para ligação comum, diga “liga pra Maria no telefone”.</p>
-</div>
-</div>
-<button id="mic" onclick="toggleVoice()" aria-label="Ligar ou desligar o microfone"><i></i><span id="micTxt">Ativar Ômega</span></button>
-<div id="toast"><span id="toastTxt"></span><button id="undoBtn">Desfazer</button></div>
-
+<button id="mic" onclick="active?stopVoice():startVoice()"><i></i><span id="micTxt">Ativar Ômega</span></button>
+<div id="toast"><span id="tt"></span><button id="ub" onclick="undo()">Desfazer</button></div>
 <script>
-const $=id=>document.getElementById(id);
-const strip=s=>s.split('').map(c=>c.normalize('NFD').replace(/[\u0300-\u036f]/g,'')).join('').toLowerCase();
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
-const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-const br=d=>d?d.split('-').reverse().join('/'):'';
+const $=i=>document.getElementById(i),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),today=()=>new Date().toLocaleDateString('sv'),br=d=>d?d.split('-').reverse().join('/'):'';
+const strip=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
-/* ====== CONFIGURAÇÃO ====== */
-const EMAIL='dossantosmatiasjoaopaulo0@gmail.com',KEY='financas_v3';
-/* Envio automático de e-mail (opcional): crie conta no EmailJS e preencha. Deixe vazio para usar compartilhar/baixar. */
-const MAILJS={service:'',template:'',key:''};
-let S={tx:[],limit:0,hide:false,contacts:[]},prev=null,tt,P=null,awake=0,FILE=null;
-try{let s=JSON.parse(ls(KEY)||ls('financas_v2'));
- if(s&&Array.isArray(s.tx)){s.tx.forEach(t=>{if(t.cat=='Moradia')t.cat='Gastos fixos';if(!t.dt)t.dt=iso(new Date(t.id))});S=Object.assign(S,s);S.contacts=S.contacts||[]}}catch(e){}
-function save(){ls(KEY,JSON.stringify(S))}
-function change(fn){prev=JSON.stringify(S);fn();save();render()}
+const KEY='omega_v4',COL={'Gastos fixos':'#ff9f43','Alimentação':'#2cf5b0','Transporte':'#5b8cff','Lazer':'#ff5c7a','Investimentos':'#00e5ff','Projetos':'#a66bff','Outros':'#7d93b2'};
+const ACC={vermelho:'#ff3b4e',neon:'#00e5ff',amarelo:'#ffd21f',verde:'#2cff7a',roxo:'#a66bff'};
+let S={tx:[],limit:0,hide:false,w:{},mem:[]},prev=null,H=[],busy=false,tmo;
+try{Object.assign(S,JSON.parse(ls(KEY)||'{}'))}catch(e){}
+const save=()=>ls(KEY,JSON.stringify(S));
 function undo(){if(!prev)return say('Nada para desfazer, chef.');S=JSON.parse(prev);prev=null;save();render();$('toast').classList.remove('show');say('Desfeito, chef.')}
-function toast(m,lab='Desfazer',fn=undo,ms=8000){$('toastTxt').textContent=m;const b=$('undoBtn');b.textContent=lab;b.onclick=()=>{fn();$('toast').classList.remove('show')};$('toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>$('toast').classList.remove('show'),ms)}
-
-/* ====== Cores e tema ====== */
-const ACC={vermelho:['#ff3b4e','#d6243a','#ff8a3d'],neon:['#00e5ff','#0077d9','#8a5cff'],amarelo:['#ffd21f','#a87c00','#ff8a3d'],verde:['#2cff7a','#0a8f4a','#00e5ff'],roxo:['#a66bff','#6a3de8','#ff5cc8']};
-let curAcc=ls('fin_acc')||'neon',ACCC='#00e5ff';
-function accent(name){curAcc=ACC[name]?name:'neon';const a=ACC[curAcc],L=document.documentElement.dataset.theme=='light',c=L?a[1]:a[0],st=document.documentElement.style;
- const rgb=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)).join(',');
- st.setProperty('--blue',c);st.setProperty('--vio',a[2]);st.setProperty('--glow',`0 0 18px rgba(${rgb},.4)`);st.setProperty('--onacc',L?'#fff':'#04101c');ACCC=c;ls('fin_acc',curAcc)}
-function theme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t=='light'?'☾':'☀';ls('fin_theme',t);accent(curAcc)}
+function toast(m){$('tt').textContent=m;$('toast').classList.add('show');clearTimeout(tmo);tmo=setTimeout(()=>$('toast').classList.remove('show'),7000)}
+function accent(n){const c=ACC[n]||ACC.neon;document.documentElement.style.setProperty('--blue',c);ls('o_acc',n)}
+function theme(t){document.documentElement.dataset.theme=t;ls('o_th',t)}
 function flip(){theme(document.documentElement.dataset.theme=='light'?'dark':'light')}
-
-/* ====== Áreas ====== */
-const CATS=[['Gastos fixos','fixo fixos moradia aluguel condominio luz energia agua internet iptu gas casa plano mensalidade'],['Alimentação','alimentacao mercado supermercado comida padaria feira acougue almoco lanche ifood'],['Transporte','transporte uber gasolina combustivel onibus metro estacionamento pedagio'],['Lazer','lazer restaurante cinema bar jantar festa viagem show streaming netflix jogo'],['Investimentos','investimento investimentos investi tesouro reserva poupanca aporte acoes'],['Projetos','projeto projetos startup negocio curso equipamento ferramenta']];
-const COL={'Gastos fixos':'#ff9f43','Alimentação':'#2cf5b0','Transporte':'#5b8cff','Lazer':'#ff5c7a','Investimentos':'#00e5ff','Projetos':'#a66bff','Outros':'#7d93b2'};
-function totals(){
-  const inc=S.tx.filter(t=>t.type=='in').reduce((a,t)=>a+t.a,0),out=S.tx.filter(t=>t.type=='out');
-  return{inc,out,acc:out.filter(t=>t.pay!='credito').reduce((a,t)=>a+t.a,0),cre:out.filter(t=>t.pay=='credito').reduce((a,t)=>a+t.a,0)}}
-
-/* ====== Gráficos ====== */
-const short=v=>v>=1000?(v/1000).toFixed(1).replace('.',',')+' mil':String(Math.round(v));
-function pie(rows,tot,m){
-  if(!rows.length)return'<p class="empty">Os gastos aparecem aqui.</p>';
-  let acc=0;const arcs=rows.map(([c,v])=>{const p=v/tot*100,s=`<circle r="15.9155" cx="21" cy="21" fill="none" stroke="${COL[c]||COL.Outros}" stroke-width="6" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${25-acc}"/>`;acc+=p;return s}).join('');
-  return`<svg viewBox="0 0 42 42" style="width:100%;max-width:230px;display:block;margin:auto" role="img" aria-label="Gráfico de pizza por área">${arcs}<text x="21" y="22" text-anchor="middle" style="font-size:4px;fill:var(--ink)">${m(tot)}</text></svg>`}
-function cols(rows){
-  if(!rows.length)return'<p class="empty">Os gastos aparecem aqui.</p>';
-  const W=320,H=210,p=16,mx=rows[0][1],bw=(W-p*2)/rows.length;
-  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%" role="img" aria-label="Gráfico de colunas por área"><line x1="${p}" x2="${W-p}" y1="${H-36}" y2="${H-36}" stroke="var(--line)"/>`+rows.map(([c,v],i)=>{const h=Math.max(3,v/mx*(H-80)),x=p+i*bw+bw*.15,cx=x+bw*.35;
-    return`<rect class="col" x="${x}" y="${H-36-h}" width="${bw*.7}" height="${h}" rx="3" fill="${COL[c]||COL.Outros}" style="animation-delay:${i*.09}s"/><text x="${cx}" y="${H-42-h}" text-anchor="middle">${S.hide?'':short(v)}</text><text x="${cx}" y="${H-20}" text-anchor="middle">${esc(c.slice(0,5))}${c.length>5?'.':''}</text>`}).join('')+'</svg>'}
-function lineChart(){
-  const out=S.tx.filter(t=>t.type=='out');
-  if(!out.length){$('lleg').innerHTML='';return'<p class="empty">A evolução aparece aqui.</p>'}
-  const days=[...new Set(out.map(t=>t.dt))].sort(),cats=[...new Set(out.map(t=>t.cat))];
-  const ser=cats.map(c=>{let s=0;return[c,[0,...days.map(d=>{out.filter(t=>t.dt==d&&t.cat==c).forEach(t=>s+=t.a);return s})]]});
-  const W=460,H=200,p=30,n=days.length,mx=Math.max(...ser.flatMap(s=>s[1]),1),X=i=>p+i*(W-p*2)/n,Y=v=>H-24-v/mx*(H-50);
-  $('lleg').innerHTML=cats.map(c=>`<span><i style="background:${COL[c]||COL.Outros}"></i>${esc(c)}</span>`).join('');
-  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%" role="img" aria-label="Gráfico de linhas por área"><line x1="${p}" x2="${W-p}" y1="${H-24}" y2="${H-24}" stroke="var(--line)"/><line x1="${p}" x2="${W-p}" y1="${Y(mx)}" y2="${Y(mx)}" stroke="var(--line)" stroke-dasharray="3 4"/>`+
-   ser.map(([c,a])=>{const col=COL[c]||COL.Outros;return`<polyline class="ln" pathLength="1" points="${a.map((v,i)=>X(i)+','+Y(v)).join(' ')}" fill="none" stroke="${col}" stroke-width="2.5"/>`+a.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${col}"/>`).join('')}).join('')+
-   `<text x="${p}" y="${H-6}">${br(days[0])}</text><text x="${W-p}" y="${H-6}" text-anchor="end">${br(days[n-1])}</text><text x="${p}" y="${Y(mx)-6}">${S.hide?'':brl(mx)}</text></svg>`}
-
-function anim(el,to){const from=el._v||0,t0=performance.now();el._v=to;
-  const f=t=>{const k=Math.min(1,(t-t0)/600),e=1-Math.pow(1-k,3);el.textContent=brl(from+(to-from)*e);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
-function render(){
-  const m=v=>S.hide?'••••••':brl(v),{inc,out,acc,cre}=totals();
-  [['now',inc-acc],['inc',inc],['spent',acc+cre]].forEach(([id,v])=>S.hide?($(id).textContent='••••••'):anim($(id),v));
-  if(S.limit>0){$('cred').textContent=m(S.limit-cre);$('credSub').textContent=S.hide?'':'limite '+brl(S.limit)}
-  else{$('cred').textContent='—';$('credSub').textContent='Diga: meu limite é 3.000'}
-  const by={};out.forEach(t=>by[t.cat]=(by[t.cat]||0)+t.a);
-  const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=rows.reduce((a,r)=>a+r[1],0);
-  $('pie').innerHTML=pie(rows,tot,m);$('cols').innerHTML=cols(rows);$('line').innerHTML=lineChart();
-  $('leg').innerHTML=rows.map(([c,v])=>`<span><i style="background:${COL[c]||COL.Outros}"></i>${esc(c)} ${Math.round(v/tot*100)}%</span>`).join('');
-  $('list').innerHTML=S.tx.length?S.tx.slice(0,50).map(t=>`<li><p>${esc(t.t)}<small>${esc(t.cat)}${t.pay=='credito'?' · crédito':''} · ${br(t.dt)}${t.where?'<br>Onde: '+esc(t.where):''}${t.why?'<br>Por quê: '+esc(t.why):''}</small></p><span class="r ${t.type=='in'?'in':'out'}">${t.type=='in'?'+':'−'} ${m(t.a)}</span><button onclick="rem(${t.id})" aria-label="Remover ${esc(t.t)}">×</button></li>`).join(''):'<p class="empty">Nenhum lançamento ainda.</p>';
-  $('clist').innerHTML=S.contacts.length?S.contacts.map((c,i)=>`<li><p>${esc(c.n)}<small>+${esc(c.p)}</small></p><span class="cb"><button class="btn" onclick="dial(${i},1)">WhatsApp</button><button class="btn ghost" onclick="dial(${i},0)">Ligar</button></span><button onclick="delContact(${i})" aria-label="Remover ${esc(c.n)}">×</button></li>`).join(''):'<p class="empty">Nenhum contato salvo ainda.</p>'}
-function rem(id){const t=S.tx.find(x=>x.id==id);if(!t)return;change(()=>S.tx=S.tx.filter(x=>x.id!=id));toast('Removido: '+t.t+' ('+brl(t.a)+')')}
-
-/* ====== Contatos / WhatsApp ====== */
-const normPhone=s=>{let p=s.replace(/\D/g,'');if(p.length<=11)p='55'+p;return p};
-function addContact(e){e.preventDefault();const n=$('cn').value.trim(),p=normPhone($('cp').value);if(!n||p.length<12)return false;change(()=>S.contacts.push({n,p}));$('cn').value=$('cp').value='';say(`Contato ${n} salvo, chef.`);return false}
-function delContact(i){const c=S.contacts[i];change(()=>S.contacts.splice(i,1));toast('Contato removido: '+c.n)}
-function dial(i,zap){const c=S.contacts[i];say(zap?`Abrindo o WhatsApp de ${c.n}, chef. Toque no ícone de chamada.`:`Ligando para ${c.n}, chef.`);setTimeout(()=>location.href=zap?'https://wa.me/'+c.p:'tel:+'+c.p,1800)}
-function findContact(tk){let best=-1,bs=0;
-  S.contacts.forEach((c,i)=>{const nt=strip(c.n).split(/\s+/).filter(w=>w.length>=3);let s=0;
-    nt.forEach(w=>{if(tk.some(t=>t==w||(w.length>=4&&t.length>=4&&lev(t,w)<=1)))s++});if(s>bs){bs=s;best=i}});return best}
-function saveContactCmd(raw){
-  const ph=(raw.match(/\+?\d[\d\s().-]{7,}\d/)||[''])[0],d=raw.search(/\d/);
-  let nm=(d>0?raw.slice(0,d):raw).replace(/.*contato/i,'').replace(/\b(chamado|chamada|de nome|com o nome|com nome|numero|número|telefone|celular|fone|do|da|é|e)\b/gi,'').replace(/[^\p{L}\s]/gu,'').trim();
-  if(!nm||ph.replace(/\D/g,'').length<10)return say('Para salvar, diga ou digite: salvar contato Maria 11 99999-8888. Ou use a aba Contatos, chef.');
-  nm=nm.split(/\s+/).map(cap).join(' ');change(()=>S.contacts.push({n:nm,p:normPhone(ph)}));say(`Contato ${nm} salvo, chef.`)}
-
-/* ====== Números e valores ====== */
-const NUM={dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,catorze:14,quatorze:14,quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,cem:100,cento:100,duzentos:200,trezentos:300,quatrocentos:400,quinhentos:500,seiscentos:600,setecentos:700,oitocentos:800,novecentos:900};
-const isN=t=>Object.prototype.hasOwnProperty.call(NUM,t);
-function digits(text){
-  const tk=text.split(/\s+/).filter(Boolean),o=[];let i=0;
-  while(i<tk.length){const w=strip(tk[i]);
-    if(w=='mil'&&o.length&&/^\d+$/.test(o[o.length-1])){o[o.length-1]=String(o[o.length-1]*1000);i++;continue}
-    if(isN(w)||w=='mil'){let tot=0,cur=0,j=i,last=i;
-      while(j<tk.length){const t=strip(tk[j]);
-        if(isN(t)){cur+=NUM[t];last=j;j++}
-        else if(t=='mil'){tot+=(cur||1)*1000;cur=0;last=j;j++}
-        else if(t=='e'&&j+1<tk.length&&(isN(strip(tk[j+1]))||strip(tk[j+1])=='mil'))j++;
-        else break}
-      o.push(String(tot+cur));i=last+1}
-    else{o.push(tk[i]);i++}}
-  return o.join(' ')}
-function amount(text){const n=strip(text);
-  let m=n.match(/(\d+)\s*(?:reais|real)\s*e\s*(\d{1,2})\s*centavos?/);
-  if(m)return{v:parseFloat(m[1]+'.'+m[2].padStart(2,'0')),start:m.index,end:m.index+m[0].length};
-  m=n.match(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?(?:\s*mil\b)?/);
-  if(!m)return null;
-  let v=parseFloat(m[1].replace(/\./g,'')+(m[2]?'.'+m[2]:''));if(/mil$/.test(m[0]))v*=1000;
-  return v>0?{v,start:m.index,end:m.index+m[0].length}:null}
-function category(n){let best='Outros',bi=1e9;
-  CATS.forEach(([c,ws])=>ws.split(' ').forEach(w=>{const m=n.match(new RegExp('\\b'+w+'\\b'));if(m&&m.index<bi){best=c;bi=m.index}}));return best}
-const STOP=new Set('adicionar adiciona adicione lancar lance registrar registre anotar uma um despesa receita gasto gastei paguei comprei recebi ganhei entrada saida meu minha foi caiu de do da por com em no na r$ reais real omega torrei'.split(' '));
-function describe(text,n,am,fb){
-  let a=text.slice(am.end),b=n.slice(am.end);
-  const c=b.search(/\b(categoria|no cartao|no credito|no debito|na conta|porque|ontem|hoje)\b/);if(c>=0){a=a.slice(0,c);b=b.slice(0,c)}
-  b=b.replace(/^\s*(r\$|reais|real)?\s*/,x=>{a=a.slice(x.length);return''});
-  let m;while((m=b.match(/^(em|com|de|do|da|no|na|nos|nas|para|pra|por|num)\s+/))){a=a.slice(m[0].length);b=b.slice(m[0].length)}
-  a=a.replace(/^[\s,.]+|[\s,.]+$/g,'');
-  if(a.length<2)a=text.slice(0,am.start).split(/\s+/).filter(t=>t&&!STOP.has(strip(t))).join(' ');
-  if(a.length<2)a=fb;return cap(a)}
-
-/* ====== Justificativa obrigatória: onde, quando, por quê ====== */
-const MES='janeiro fevereiro marco abril maio junho julho agosto setembro outubro novembro dezembro'.split(' ');
-function parseWhen(n){const d=new Date();
-  if(/\banteontem\b/.test(n)){d.setDate(d.getDate()-2);return iso(d)}
-  if(/\bontem\b/.test(n)){d.setDate(d.getDate()-1);return iso(d)}
-  if(/\bhoje\b|\bagora\b/.test(n))return iso(d);
-  let m=n.match(/(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?/);
-  if(m){let y=m[3]?+m[3]:d.getFullYear();if(y<100)y+=2000;return iso(new Date(y,m[2]-1,m[1]))}
-  m=n.match(/\bdia\s+(\d{1,2})(?:\s+de\s+([a-z]+))?/);
-  if(m){const mi=m[2]?MES.indexOf(m[2]):d.getMonth();if(mi>=0)return iso(new Date(d.getFullYear(),mi,m[1]))}
-  return null}
-function ask(){say(P.step=='w'?'Onde foi esse gasto, chef?':P.step=='d'?'E quando foi? Diga hoje, ontem ou a data.':'Por que você fez esse gasto, chef? Preciso da justificativa.')}
-function answer(text,n){
-  if(/\b(cancelar|cancela|esquece|deixa pra la)\b/.test(n)){P=null;return say('Cancelado, chef.')}
-  if(P.step=='v'){const am=amount(text);if(!am)return say('Qual o valor, chef?');const o=P.text;P=null;return handle(o+' '+text)}
-  const d=P.d;
-  if(P.step=='w'){if(text.trim().length<2)return ask();d.where=cap(text.trim());P.step=d.dt?'y':'d';return ask()}
-  if(P.step=='d'){const w=parseWhen(n);if(!w)return say('Não entendi a data, chef. Diga hoje, ontem, dia 15 ou 15/09.');d.dt=w;P.step='y';return ask()}
-  if(text.trim().length<4)return say('Preciso de uma justificativa de verdade, chef. Por que gastou?');
-  d.why=cap(text.trim());P=null;
-  change(()=>S.tx.unshift({id:Date.now(),t:d.t,a:d.a,type:'out',cat:d.cat,pay:d.pay,where:d.where,dt:d.dt,why:d.why}));
-  const msg=`Registrado, chef: ${brl(d.a)} em ${d.t} (${d.cat}${d.pay=='credito'?', crédito':''}), ${br(d.dt)}.`;
-  say(msg+' Diga desfazer se estiver errado.');toast(msg)}
-function add(type,am,text,n){
-  const isSal=/\bsalario\b/.test(n);
-  const title=type=='in'&&isSal?'Salário':describe(text,n,am,type=='in'?'Entrada':'Gasto');
-  if(type=='out'){
-    const dt=/\b(hoje|ontem|anteontem)\b/.test(n)?parseWhen(n):null;
-    P={step:'w',d:{t:title,a:am.v,dt,cat:category(strip(title)+' '+n),pay:/\b(cartao|credito)\b/.test(n)?'credito':'conta'}};
-    say(`Gasto de ${brl(am.v)} em ${title}, área ${P.d.cat}. Para registrar preciso da justificativa. Onde foi esse gasto, chef?`);return}
-  const old=isSal?S.tx.find(t=>t.type=='in'&&t.t=='Salário'):null;
-  if(old){change(()=>old.a=am.v);const m='Salário atualizado para '+brl(am.v)+', chef.';say(m);toast(m);return}
-  change(()=>S.tx.unshift({id:Date.now(),t:title,a:am.v,type:'in',cat:'Entrada',pay:'conta',dt:iso(new Date())}));
-  const msg=`Entrada de ${brl(am.v)} registrada, chef: ${title}.`;say(msg+' Diga desfazer se estiver errado.');toast(msg)}
-const RSTOP=new Set('remover remova remove apagar apague apaga excluir exclua tirar tira o a os as um uma esse essa gasto gastos lancamento despesa receita entrada de do da no na em por porque pois foi colocado colocada incorretamente errado errada errei lancei ultimo ultima recente que omega'.split(' '));
-function removeCmd(text,n){
-  const cut=n.search(/\b(porque|pois|foi colocad|foi lancad)/);
-  const nn=cut>0?n.slice(0,cut):n,tx=cut>0?text.slice(0,cut):text;
-  if(/\b(ultimo|ultima|recente)\b/.test(nn)){const t=S.tx[0];if(!t)return say('Não há lançamentos, chef.');rem(t.id);return say(`Removi o último lançamento: ${t.t}, ${brl(t.a)}.`)}
-  const am=amount(tx),words=nn.split(/[^a-z0-9$]+/).filter(w=>w.length>2&&!RSTOP.has(w)&&!/^\d+$/.test(w));
-  if(!am&&!words.length)return say('Qual lançamento remover, chef? Diga o nome ou o valor, ou “remover o último”.');
-  const hit=S.tx.filter(t=>(!am||Math.abs(t.a-am.v)<.005)&&words.every(w=>strip(t.t+' '+t.cat).includes(w)));
-  if(!hit.length)return say('Não encontrei esse lançamento, chef. Diga o nome ou o valor.');
-  if(hit.length>1)return say(`Achei ${hit.length} lançamentos parecidos. Diga também o valor, chef.`);
-  rem(hit[0].id);say(`Removi ${hit[0].t}, ${brl(hit[0].a)}. Diga desfazer para voltar.`)}
 function tab(n){[1,2,3].forEach(i=>{$('v'+i).hidden=i!=n;$('t'+i).classList.toggle('on',i==n)})}
-function tipText(){
-  const{inc,out,acc,cre}=totals();
-  if(inc<=0)return['Chef, registre quanto caiu na conta, por exemplo “meu salário foi 4.500”, para eu analisar seus gastos.'];
-  if(!out.length)return['Chef, ainda não há gastos registrados. Registre alguns e eu faço a análise.'];
-  const by=c=>out.filter(t=>t.cat==c).reduce((a,t)=>a+t.a,0),p=v=>Math.round(v/inc*100);
-  const need=by('Gastos fixos')+by('Alimentação')+by('Transporte'),want=by('Lazer'),inv=by('Investimentos'),pj=by('Projetos'),r=[];
-  if(inc-acc<0)r.push(`Atenção, chef: seus gastos passaram do que caiu na conta em ${brl(acc-inc)}.`);
-  if(p(want)>30)r.push(`Lazer está em ${p(want)}% da renda, o ideal é até 30%. Cortar ${brl(want-inc*.3)} equilibra o mês.`);
-  if(p(need)>50)r.push(`Gastos fixos, alimentação e transporte somam ${p(need)}%, acima dos 50% recomendados.`);
-  if(p(inv)<20)r.push(`Você investiu ${p(inv)}% da renda. Tente chegar a 20%, cerca de ${brl(inc*.2)} por mês.`);
-  if(pj>0)r.push(`Projetos já consumiram ${p(pj)}% da renda. Confira se cada um tem retorno esperado.`);
-  if(S.limit>0&&cre/S.limit>.7)r.push(`Você já usou ${Math.round(cre/S.limit*100)}% do limite de crédito. Segure as compras no cartão.`);
-  if(!r.length)r.push('Seus gastos estão dentro da regra 50/30/20, chef. Continue assim e mantenha o aporte mensal.');
-  return r}
-function tip(){const r=tipText();tab(1);$('tips').innerHTML=r.map(x=>'<p>'+esc(x)+'</p>').join('');say(r.join(' '))}
+function tot(){const o=S.tx.filter(t=>t.type=='out');return{inc:S.tx.filter(t=>t.type=='in').reduce((a,t)=>a+t.a,0),out:o,acc:o.filter(t=>t.pay!='credito').reduce((a,t)=>a+t.a,0),cre:o.filter(t=>t.pay=='credito').reduce((a,t)=>a+t.a,0)}}
 
-/* ====== Planilha .xlsx (ExcelJS) ====== */
-const download=f=>{const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();a.remove()};
-async function sheet(){
-  if(!window.ExcelJS)return say('Não consegui carregar o gerador de planilhas, chef. Verifique a internet e tente de novo.');
-  say('Gerando a planilha, chef.');
-  const{inc,out,acc,cre}=totals(),by={};out.forEach(t=>by[t.cat]=(by[t.cat]||0)+t.a);
-  const wb=new ExcelJS.Workbook();wb.creator='Ômega';
-  const navy='FF0B1F3A',fill=c=>({type:'pattern',pattern:'solid',fgColor:{argb:c}}),money='"R$" #,##0.00;[Red]-"R$" #,##0.00';
-  const ws=wb.addWorksheet('Resumo',{views:[{showGridLines:false}]}),wl=wb.addWorksheet('Lançamentos',{views:[{state:'frozen',ySplit:1}]});
-  wl.columns=[{header:'Data',width:12},{header:'Tipo',width:10},{header:'Descrição',width:26},{header:'Área',width:16},{header:'Pagamento',width:12},{header:'Onde',width:24},{header:'Por quê',width:42},{header:'Valor',width:16}];
-  const sorted=[...S.tx].sort((a,b)=>a.dt<b.dt?-1:1);
-  sorted.forEach(t=>wl.addRow([new Date(t.dt+'T12:00:00'),t.type=='in'?'Entrada':'Saída',t.t,t.cat,t.pay=='credito'?'Crédito':'Conta',t.where||'—',t.why||'—',t.type=='in'?t.a:-t.a]));
-  const hd=(row)=>row.eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill=fill(navy);c.alignment={horizontal:'center',vertical:'middle'}});
-  hd(wl.getRow(1));wl.getRow(1).height=24;
-  wl.eachRow((r,i)=>{if(i>1){r.getCell(1).numFmt='dd/mm/yyyy';r.getCell(8).numFmt=money;r.getCell(7).alignment={wrapText:true,vertical:'top'};if(i%2)r.eachCell(c=>c.fill=fill('FFF1F6FD'))}});
-  wl.autoFilter={from:'A1',to:'H1'};
-  const N=Math.max(sorted.length+1,2),R=c=>`'Lançamentos'!${c}2:${c}${N}`;
-  ws.columns=[{width:26},{width:20},{width:16},{width:34}];
-  ws.mergeCells('A1:D1');ws.getCell('A1').value='Ômega · Relatório de Finanças';ws.getCell('A1').font={size:20,bold:true,color:{argb:navy}};
-  ws.mergeCells('A2:D2');ws.getCell('A2').value='Gerado em '+new Date().toLocaleString('pt-BR')+'. Como ler: o Resumo mostra os totais, “Por área” mostra para onde o dinheiro foi e a aba Lançamentos lista cada movimentação com onde, quando e por quê. Os valores são fórmulas e se atualizam se você editar a aba Lançamentos.';
-  ws.getCell('A2').alignment={wrapText:true,vertical:'top'};ws.getRow(2).height=62;
-  ws.getCell('A4').value='RESUMO';ws.getCell('A4').font={bold:true,size:13,color:{argb:navy}};
-  const K=[['Entradas',`SUMIF(${R('B')},"Entrada",${R('H')})`,inc],['Gastos na conta',`-SUMIFS(${R('H')},${R('B')},"Saída",${R('E')},"Conta")`,acc],['Gastos no crédito',`-SUMIFS(${R('H')},${R('B')},"Saída",${R('E')},"Crédito")`,cre],['Saldo na conta','B5-B6',inc-acc]];
-  K.forEach(([k,f,v],i)=>{const r=5+i;ws.getCell('A'+r).value=k;ws.getCell('A'+r).font={bold:true};ws.getCell('B'+r).value={formula:f,result:v};ws.getCell('B'+r).numFmt=money;ws.getCell('B'+r).font={bold:true,color:{argb:i==3?(inc-acc<0?'FFD6334F':'FF0A9B6F'):navy}};['A','B'].forEach(c=>ws.getCell(c+r).fill=fill('FFE6F3FF'))});
-  ws.getCell('A10').value='POR ÁREA';ws.getCell('A10').font={bold:true,size:13,color:{argb:navy}};
-  ['Área','Total gasto','% dos gastos'].forEach((h,i)=>ws.getCell(11,i+1).value=h);hd(ws.getRow(11));
-  const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=rows.reduce((a,r)=>a+r[1],0),e=11+rows.length;
-  rows.forEach(([c,v],i)=>{const r=12+i;ws.getCell('A'+r).value=c;ws.getCell('B'+r).value={formula:`-SUMIFS(${R('H')},${R('D')},A${r},${R('B')},"Saída")`,result:v};ws.getCell('B'+r).numFmt=money;ws.getCell('C'+r).value={formula:`B${r}/SUM(B$12:B$${e})`,result:v/tot};ws.getCell('C'+r).numFmt='0%'});
-  if(rows.length)try{ws.addConditionalFormatting({ref:`C12:C${e}`,rules:[{type:'dataBar',gradient:true,cfvo:[{type:'num',value:0},{type:'num',value:1}],color:{argb:'FF00B4D8'}}]})}catch(x){}
-  const name='Financas_Omega_'+iso(new Date())+'.xlsx',buf=await wb.xlsx.writeBuffer();
-  FILE=new File([buf],name,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});download(FILE);
-  if(MAILJS.key){try{if(await mailjs(FILE))return say('Planilha enviada para o seu e-mail, chef.')}catch(x){}say('Não consegui enviar automaticamente, chef. A planilha foi baixada.')}
-  else say('Planilha pronta e baixada, chef. Toque em Enviar para mandar por e-mail.');
-  toast('Planilha pronta: '+name,'Enviar',sendFile,30000)}
-async function mailjs(f){const b64=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(f)});
-  const r=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_id:MAILJS.service,template_id:MAILJS.template,user_id:MAILJS.key,template_params:{to_email:EMAIL,subject:'Relatório de finanças · '+br(iso(new Date())),message:'Chef, segue o relatório em anexo.',attachment:b64}})});return r.ok}
-async function sendFile(){const f=FILE;if(!f)return sheet();
-  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Relatório de finanças',text:'Enviar para '+EMAIL});return}}catch(e){if(e.name=='AbortError')return}
-  location.href='mailto:'+EMAIL+'?subject='+encodeURIComponent('Relatório de finanças · '+br(iso(new Date())))+'&body='+encodeURIComponent('Chef, segue o relatório. Anexe o arquivo '+f.name+' que foi baixado.')}
+/* ===== Interface ===== */
+function render(){
+ const m=v=>S.hide?'••••••':brl(v),{inc,out,acc,cre}=tot(),bal=inc-acc;
+ $('now').textContent=m(bal);$('inc').textContent=m(inc);$('spent').textContent=m(acc+cre);$('cred').textContent=S.limit>0?m(S.limit-cre):'—';
+ const ws=Object.entries(S.w),sum=ws.reduce((a,[,v])=>a+v,0);
+ $('wl').innerHTML=ws.length?ws.map(([k,v])=>`<li><p>${esc(k)}</p><b>${m(v)}</b></li>`).join('')+`<li><p>Sem destino informado</p><b>${m(bal-sum)}</b></li>`:'<p class="empty">Diga: dos meus 750, 100 estão no Nubank e 450 no Mercado Pago.</p>';
+ const by={};out.forEach(t=>by[t.cat]=(by[t.cat]||0)+t.a);const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),T=rows.reduce((a,r)=>a+r[1],0);
+ let ac=0;$('pie').innerHTML=rows.length?`<svg viewBox="0 0 42 42" style="width:100%;max-width:210px;display:block;margin:auto">${rows.map(([c,v])=>{const p=v/T*100,s=`<circle r="15.9155" cx="21" cy="21" fill="none" stroke="${COL[c]||COL.Outros}" stroke-width="6" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${25-ac}"/>`;ac+=p;return s}).join('')}</svg>`:'<p class="empty">Os gastos aparecem aqui.</p>';
+ $('cols').innerHTML=rows.length?`<div class="cols">${rows.map(([c,v])=>`<div class="cl"><i style="height:${Math.max(4,v/rows[0][1]*100)}%;background:${COL[c]||COL.Outros}"></i><small>${esc(c.slice(0,5))}</small></div>`).join('')}</div>`:'<p class="empty">Os gastos aparecem aqui.</p>';
+ $('leg').innerHTML=rows.map(([c,v])=>`<span><i style="background:${COL[c]||COL.Outros}"></i>${esc(c)} ${Math.round(v/T*100)}%</span>`).join('');
+ $('list').innerHTML=S.tx.length?S.tx.slice(0,60).map(t=>`<li><p>${esc(t.t)}<small>${esc(t.cat)}${t.pay=='credito'?' · crédito':''} · ${br(t.dt)}${t.where?'<br>Onde: '+esc(t.where):''}${t.why?'<br>Por quê: '+esc(t.why):''}</small></p><span class="${t.type=='in'?'in':'out'}">${t.type=='in'?'+':'−'} ${m(t.a)}</span><button onclick="rem(${t.id})" aria-label="Remover">×</button></li>`).join(''):'<p class="empty">Nenhum lançamento ainda.</p>';
+ $('ml').innerHTML=S.mem.length?S.mem.map((f,i)=>`<li style="grid-template-columns:1fr auto"><p>${esc(f)}</p><button onclick="forget(${i})" aria-label="Esquecer">×</button></li>`).join(''):'<p class="empty">Ainda não sei nada sobre você. Converse comigo e eu vou aprendendo.</p>'}
+function rem(id){prev=JSON.stringify(S);S.tx=S.tx.filter(t=>t.id!=id);save();render();toast('Lançamento removido')}
+function forget(i){S.mem.splice(i,1);save();render()}
 
-/* ====== CÉREBRO DO ÔMEGA: entendimento flexível ====== */
-const lev=(a,b)=>{const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]==b[j-1]?0:1));p=t}}return d[b.length]};
-const hit=(w,k)=>k.endsWith('=')?w==k.slice(0,-1):w.startsWith(k)||(k.length>=5&&w.length>=4&&lev(w.slice(0,k.length),k)<=1);
-const INT={
- undo:{desfaz:4,volta:2,atras:2},
- sheet:{planilha:4,relatorio:4,exporta:3,excel:3,xlsx:3,'email=':2,gmail:2,mand:1,envi:1},
- tip:{dica:4,conselho:4,analis:3,avali:3,economiz:3,orienta:2},
- remove:{remov:4,apag:4,exclu:4,delet:4,tir:3,retir:3},
- limit:{limite:4},
- hide:{ocult:4,escond:4},
- showv:{mostr:1,exib:1,revel:1,valores:3,'valor=':3},
- tabR:{resumo:3,inicio:3,grafic:3,painel:3,dashboard:3},
- tabL:{lancamento:3,extrato:3,historico:3,movimentac:3},
- tabC:{agenda:3,contatos:3},
- voice:{voz:3,vozes:3},
- income:{receb:3,caiu:3,salar:3,ganh:3,entrou:3,deposit:2,pagaram:2,receita:2,rendeu:2,'entrada=':2},
- expense:{gast:3,pag:2,compr:3,despesa:3,saiu:2,custou:3,torrei:3,investi:3,aplic:2},
- call:{lig:3,chama:3,telefon:3,zap:2,whats:2,'fal=':2,'fala=':2},
- saveC:{contato:1,salv:3,cadastr:3,adicion:1}};
-const NAMES={undo:'desfazer',sheet:'gerar a planilha',tip:'dar uma dica',remove:'remover um lançamento',limit:'definir o limite',hide:'ocultar valores',showv:'mostrar valores',voice:'trocar a voz',income:'registrar uma entrada',expense:'registrar um gasto',call:'ligar para um contato',saveC:'salvar um contato'};
-const CN={vermelh:'vermelho',rubro:'vermelho',verde:'verde',amarel:'amarelo',dourad:'amarelo',roxo:'roxo',roxa:'roxo',violet:'roxo',lilas:'roxo',neon:'neon',azul:'neon',cian:'neon',cyan:'neon'};
-const findColor=tk=>{for(const w of tk)for(const k in CN)if(w.startsWith(k)||(k.length>=5&&w.length>=4&&lev(w.slice(0,k.length),k)<=1))return CN[k]};
-const greet=()=>{const h=new Date().getHours();return(h<12?'Bom dia':h<18?'Boa tarde':'Boa noite')+', chef! Em que posso ajudar?'};
-const PIADAS=['Por que o investidor foi ao médico, chef? Porque estava com os juros altos.','O que o zero disse para o oito? Belo cinto, chef!','Chef, meu cofrinho disse que a única coisa que ele guarda melhor que dinheiro é segredo.'];
-const CHAT=[
- [/\b(quem e voce|seu nome|quem te criou|quem e vc|o que voce e)\b/,()=>'Eu sou o Ômega, seu assistente financeiro, chef. Organizo seus gastos, analiso seu dinheiro e converso com você.'],
- [/\b(como voce esta|tudo bem|como vai|como esta)\b/,()=>'Tudo em ordem por aqui, chef. Sistemas online e pronto para cuidar das suas finanças.'],
- [/\b(obrigad\w*|valeu|brigadao)\b/,()=>'Sempre às ordens, chef.'],
- [/\b(piada|engracad\w*)\b/,()=>PIADAS[Math.floor(Math.random()*PIADAS.length)]],
- [/\bque horas\b|\bhoras sao\b/,()=>'Agora são '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+', chef.'],
- [/\bque dia\b|\bdata de hoje\b/,()=>'Hoje é '+new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})+', chef.'],
- [/\b(ajuda|comandos|o que voce faz|o que voce sabe)\b/,()=>'Chef, eu entendo conversa normal. Posso registrar entradas e gastos, pedir onde, quando e por quê, mostrar gráficos, dar dicas, trocar cores e tema, ligar para contatos, gerar a planilha e conversar com você.'],
- [/\b(tchau|ate logo|desligar microfone|parar de ouvir|dormir)\b/,()=>{setTimeout(stopVoice,3000);return'Até logo, chef. Me chame quando precisar.'}],
- [/^(oi|ola|opa|salve|e ai|fala|bom dia|boa tarde|boa noite)\b/,greet,1]];
-function query(n){
-  const{inc,acc,cre}=totals();
-  if(/\b(credito|limite)\b/.test(n))return S.limit>0?`Você ainda tem ${brl(S.limit-cre)} de crédito, chef.`:'Você ainda não definiu o limite, chef. Diga: meu limite é 3.000.';
-  if(/\b(gast\w*)\b/.test(n))return `Você gastou ${brl(acc+cre)} no total, chef.`;
-  if(/\b(receb\w*|caiu|salario|entrou|entradas)\b/.test(n))return `Caíram ${brl(inc)} na sua conta, chef.`;
-  return `Você tem ${brl(inc-acc)} na conta, chef.`}
-function handle(raw){
-  const text=digits(raw.trim()),n=strip(text),am=amount(text),tk=n.split(/[^a-z0-9$]+/).filter(Boolean);
-  if(P)return answer(text,n);
-  for(const[re,fn,noAm]of CHAT)if(re.test(n)&&!(noAm&&am))return say(fn());
-  const col=findColor(tk),dk=/\b(escuro|noite|preto)\b/.test(n),lt=/\b(claro|dia|branco)\b/.test(n);
-  if(!am&&(col||dk||lt)&&/\b(cor|tema|modo|fundo|mud\w*|troc\w*|colo\w*|deix\w*|visual|estilo|ativ\w*|quero)\b/.test(n)){
-    if(dk)theme('dark');else if(lt)theme('light');if(col)accent(col);
-    return say(`Pronto, chef.${col?' Cor '+col+'.':''}${dk?' Modo escuro.':lt?' Modo claro.':''}`)}
-  if(!am&&tk.some(w=>/^(quanto|quantos|qual|saldo|sobrou|sobra)/.test(w)))return say(query(n));
-  const sc={};let top='',ts=0;
-  for(const k in INT){let s=0;for(const w in INT[k])if(tk.some(t=>hit(t,w)))s+=INT[k][w];sc[k]=s;if(s>ts){ts=s;top=k}}
-  if(ts>=2){
-    if(['income','expense','limit'].includes(top)&&!am){P={step:'v',text:raw};return say(`Entendi, chef: ${NAMES[top]}. Qual é o valor?`)}
-    switch(top){
-      case'undo':return undo();
-      case'sheet':return sheet();
-      case'tip':return tip();
-      case'remove':return removeCmd(text,n);
-      case'limit':change(()=>S.limit=am.v);return say('Limite de crédito definido em '+brl(am.v)+', chef.');
-      case'hide':change(()=>S.hide=true);return say('Valores ocultos, chef.');
-      case'showv':change(()=>S.hide=false);return say('Valores visíveis, chef.');
-      case'tabR':tab(1);return say('Mostrando o resumo, chef.');
-      case'tabL':tab(2);return say('Mostrando os lançamentos, chef.');
-      case'tabC':tab(3);return say('Mostrando os contatos, chef.');
-      case'voice':return nextVoice();
-      case'income':return add('in',am,text,n);
-      case'expense':return add('out',am,text,n);
-      case'saveC':return saveContactCmd(raw);
-      case'call':{const i=findContact(tk);if(i<0)return say(S.contacts.length?'Não achei esse contato, chef. Qual o nome?':'Você ainda não tem contatos salvos, chef. Cadastre na aba Contatos.');return dial(i,!/\b(telefone|celular|normal|comum)\b/.test(n))}}}
-  if(am)return add('out',am,text,n);
-  const alt=Object.entries(sc).sort((a,b)=>b[1]-a[1])[0];
-  say(alt&&alt[1]>0?`Não tenho certeza, chef. Você quis ${NAMES[alt[0]]}? Me diga de outro jeito.`:'Não entendi, chef. Fale do seu jeito, por exemplo: gastei 50 em lazer, ou diga ajuda.')}
-function typed(e){e.preventDefault();const v=$('cmd').value.trim();if(v){handle(v);$('cmd').value=''}return false}
+/* ===== Cérebro: Claude via capacidade "sample" ===== */
+function apply(L){
+ prev=JSON.stringify(S);let n=0;
+ L.forEach((x,i)=>{const a=+x.amount;switch(x.a){
+  case'in':if(a>0){S.tx.unshift({id:Date.now()+i,t:x.title||'Entrada',a,type:'in',cat:'Entrada',pay:'conta',dt:x.date||today()});n++}break;
+  case'out':if(a>0&&x.where&&x.why&&x.date){S.tx.unshift({id:Date.now()+i,t:x.title||'Gasto',a,type:'out',cat:COL[x.cat]?x.cat:'Outros',pay:x.pay=='credito'?'credito':'conta',where:x.where,why:x.why,dt:x.date});n++}break;
+  case'limit':if(a>=0){S.limit=a;n++}break;
+  case'wallet':if(x.name&&a>=0){if(a==0)delete S.w[x.name];else S.w[x.name]=a;n++}break;
+  case'remove':S.tx=S.tx.filter(t=>t.id!=x.id);n++;break;
+  case'undo':S=JSON.parse(prev);n++;break;
+  case'hide':S.hide=!!x.on;break;
+  case'remember':if(x.fact&&!S.mem.includes(x.fact)){S.mem.push(x.fact);if(S.mem.length>60)S.mem.shift()}break;
+  case'theme':theme(x.mode=='light'?'light':'dark');break;
+  case'accent':accent(x.color);break;
+  case'tab':tab(+x.n||1);break;
+  case'voice':nextVoice();break}});
+ save();render();if(n)toast('Feito. Toque para desfazer.')}
+async function llm(prompt){
+ const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':ls('o_key'),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:ls('o_model')||'claude-sonnet-5-5',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
+ if(!r.ok){const e=new Error('http');e.status=r.status;throw e}
+ const d=await r.json(),t=d.content.map(c=>c.text||'').join(''),m=t.match(/\{[\s\S]*\}/);
+ try{return JSON.parse(m?m[0]:t)}catch(e){return{reply:t.trim(),actions:[]}}}
+function saveKey(){const k=$('key').value.trim();if(!k)return;ls('o_key',k);$('key').value='';say('Chave salva neste aparelho, chef. Pode falar comigo.')}
+async function ask(text){
+ if(busy)return;busy=true;$('orb').classList.add('on');say('Pensando, chef...',1);
+ try{
+  if(!ls('o_key')){busy=false;$('orb').classList.remove('on');tab(3);return say('Para pensar, preciso da sua chave da API, chef. Cole na aba Memória, em Cérebro.')}
+  const {inc,acc,cre}=tot(),ctx={hoje:today(),saldo:inc-acc,entradas:inc,gastos_conta:acc,gasto_credito:cre,limite_credito:S.limit,onde_esta_o_dinheiro:S.w,lancamentos_recentes:S.tx.slice(0,25).map(t=>({id:t.id,tipo:t.type,titulo:t.t,valor:t.a,area:t.cat,pagamento:t.pay,onde:t.where,data:t.dt,porque:t.why})),memoria_sobre_o_usuario:S.mem,conversa_recente:H.slice(-12)};
+  const prompt=`Você é o Ômega, assistente pessoal e financeiro do usuário, a quem chama de "chef". Fale em português do Brasil como uma pessoa calorosa e inteligente: frases curtas e naturais para serem FALADAS em voz alta, sem emojis, sem markdown, sem listas, máximo 3 frases, salvo se ele pedir explicação longa. Converse sobre QUALQUER assunto (conhecimento geral, conselhos, contas, ideias), não só finanças; responda com profundidade e raciocínio como um assistente de IA completo, e quando fizer conta, mostre o resultado certo.
+REGRAS: 1) Todo GASTO exige valor, onde, quando (data) e por quê. Se faltar algo, pergunte só o que falta (uma pergunta) e NÃO registre ainda; junte as respostas da conversa recente. 2) Nunca repita uma pergunta cuja resposta já está na conversa. 3) Se ele disser onde está o dinheiro (ex.: 100 no Nubank, 450 no Mercado Pago, 200 em espécie), use uma ação wallet por lugar. 4) Aprenda: sempre que souber algo durável sobre ele (nome, metas, rotina, salário, gostos, como prefere ser tratado), use remember com uma frase curta; use a memória para personalizar. 5) Nunca invente lançamentos nem números que não estejam nos dados.
+Responda SOMENTE um JSON: {"reply":"texto falado","actions":[...]}. Ações possíveis: {"a":"in","amount":n,"title":s,"date":"YYYY-MM-DD"} | {"a":"out","amount":n,"title":s,"cat":"Gastos fixos|Alimentação|Transporte|Lazer|Investimentos|Projetos|Outros","pay":"conta|credito","where":s,"date":"YYYY-MM-DD","why":s} | {"a":"limit","amount":n} | {"a":"wallet","name":s,"amount":n} (amount 0 remove o local) | {"a":"remove","id":n} | {"a":"undo"} | {"a":"hide","on":bool} | {"a":"theme","mode":"dark|light"} | {"a":"accent","color":"vermelho|neon|amarelo|verde|roxo"} | {"a":"tab","n":1|2|3} | {"a":"voice"} | {"a":"remember","fact":s}.
+DADOS: ${JSON.stringify(ctx)}
+MENSAGEM DO USUÁRIO: ${text}`;
+  const r=await llm(prompt);
+  H.push({usuario:text},{omega:r.reply});if(H.length>24)H.splice(0,2);
+  busy=false;$('orb').classList.remove('on');
+  if(Array.isArray(r.actions))apply(r.actions);
+  say(r.reply||'Pronto, chef.')
+ }catch(e){busy=false;$('orb').classList.remove('on');
+  say(e.status==401?'A chave da API foi recusada, chef. Confira na aba Memória.':e.status==429?'Muitos pedidos seguidos, chef. Espere um instante.':e.status==404?'Esse modelo não existe, chef. Confira o nome na aba Memória.':'Não consegui pensar agora, chef. Verifique a internet e tente de novo.')}}
+function typed(e){e.preventDefault();const v=$('cmd').value.trim();if(v){$('cmd').value='';ask(v)}return false}
 
-/* ====== Voz: fala natural e palavra de ativação ====== */
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let rec=null,active=false,speaking=false,spk=0,VN=ls('fin_voice')||'',tw;
-const vscore=v=>(/natural|neural|online/i.test(v.name)?5:0)+(/google/i.test(v.name)?3:0)+(/francisca|antonio|thalita|luciana|felipe|fernanda|vitoria|camila|microsoft/i.test(v.name)?2:0)+(v.localService?0:1);
-const voices=()=>('speechSynthesis'in window?speechSynthesis.getVoices():[]).filter(v=>/^pt[-_]BR/i.test(v.lang)).sort((a,b)=>vscore(b)-vscore(a));
+/* ===== Voz ===== */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition,TTS='speechSynthesis'in window;
+let rec=null,active=false,speaking=false,spk=0,VN=ls('o_voice')||'',awake=0,tw;
+const vscore=v=>(/natural|neural|online/i.test(v.name)?6:0)+(/google/i.test(v.name)?4:0)+(/francisca|antonio|thalita|luciana|fernanda|felipe|vitoria|camila|aurelie|premium|enhanced|aprimorada/i.test(v.name)?3:0)+(v.localService?0:1);
+const voices=()=>(TTS?speechSynthesis.getVoices():[]).filter(v=>/^pt[-_]BR/i.test(v.lang)).sort((a,b)=>vscore(b)-vscore(a));
 const curVoice=()=>{const l=voices();return l.find(v=>v.name==VN)||l[0]||null};
-function nextVoice(){const l=voices();if(!l.length)return say('Não encontrei outras vozes em português neste aparelho, chef.');
-  const i=l.indexOf(curVoice()),v=l[(i+1)%l.length];VN=v.name;ls('fin_voice',VN);say('Esta é a minha nova voz, chef. Gostou?')}
-if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=()=>{};
-const clean=s=>s.replace(/R\$\s?([\d.]+),(\d\d)/g,(_,a,b)=>a+(a=='1'?' real':' reais')+(b=='00'?'':' e '+(+b)+' centavos')).replace(/[•“”"]/g,'').replace(/\s+/g,' ');
-function say(msg){clearInterval(tw);const e=document.createElement('em');$('say').replaceChildren(e);let i=0;
-  tw=setInterval(()=>{e.textContent=msg.slice(0,++i);if(i>=msg.length)clearInterval(tw)},14);speak(msg)}
+function fillVoices(){const l=voices(),c=curVoice();$('vs').innerHTML=l.length?l.map(v=>`<option ${c&&v.name==c.name?'selected':''}>${esc(v.name)}</option>`).join(''):'<option>Nenhuma voz pt-BR encontrada</option>'}
+function pickVoice(n){VN=n;ls('o_voice',n);say('Esta é a minha voz agora, chef. O que achou?')}
+function nextVoice(){const l=voices();if(!l.length)return;const v=l[(l.indexOf(curVoice())+1)%l.length];pickVoice(v.name);fillVoices()}
+if(TTS){speechSynthesis.onvoiceschanged=fillVoices;fillVoices()}
+const spoken=s=>s.replace(/R\$\s?([\d.]+),(\d\d)/g,(_,a,b)=>a+(a=='1'?' real':' reais')+(b=='00'?'':' e '+(+b)+' centavos')).replace(/[•“”"*_#]/g,'').replace(/\s+/g,' ');
+function say(msg,quiet){clearInterval(tw);const e=document.createElement('em');e.style.fontStyle='normal';$('say').replaceChildren(e);let i=0;tw=setInterval(()=>{e.textContent=msg.slice(0,i+=2);if(i>=msg.length)clearInterval(tw)},14);if(!quiet)speak(msg)}
 function speak(msg){
-  if(!active||!('speechSynthesis'in window))return;
-  const id=++spk;speechSynthesis.cancel();speaking=true;try{rec.stop()}catch(e){}
-  const done=()=>{if(id!=spk)return;speaking=false;if(active)go()},v=curVoice(),parts=clean(msg).match(/[^.!?]+[.!?]*/g)||[msg];
-  parts.forEach((t,i)=>{const u=new SpeechSynthesisUtterance(t.trim());u.lang='pt-BR';if(v)u.voice=v;u.rate=1.03;u.pitch=1;if(i==parts.length-1){u.onend=done;u.onerror=done}speechSynthesis.speak(u)})}
-function go(){try{rec.start()}catch(e){}}
+ if(!active||!TTS)return;const id=++spk;speechSynthesis.cancel();speaking=true;try{rec.stop()}catch(e){}
+ const done=()=>{if(id!=spk)return;speaking=false;if(active)go()},v=curVoice(),parts=(spoken(msg).match(/[^.!?;:]+[.!?;:]*/g)||[msg]).map(t=>t.trim()).filter(Boolean);
+ parts.forEach((t,i)=>{const u=new SpeechSynthesisUtterance(t);u.lang='pt-BR';if(v)u.voice=v;
+  u.rate=/\?$/.test(t)?.97:.93;u.pitch=/\?$/.test(t)?1.08:1;if(i==parts.length-1){u.onend=done;u.onerror=done}speechSynthesis.speak(u)})}
+const go=()=>{try{rec.start()}catch(e){}};
 function heard(raw){
-  const n=strip(raw),m=n.match(/(^|\s)(h?o\s)?(omega|mega|omeca|omeja)\b/);
-  if(m){awake=Date.now()+30000;const i=m.index+(m[1]?1:0),rest=(raw.slice(0,i)+' '+raw.slice(m.index+m[0].length)).replace(/^[\s,.!?]+/,'').trim();
-    return rest?handle(rest):say('Pois não, chef? Estou ouvindo.')}
-  if(P||Date.now()<awake){awake=Date.now()+30000;return handle(raw)}
-  $('say').innerHTML='Em espera. Diga <em>“Ômega”</em> e o comando.'}
-function toggleVoice(){active?stopVoice():startVoice()}
+ const n=strip(raw),m=n.match(/(^|\s)(h?o\s)?(omega|mega|omeca|omeja)\b/);
+ if(m){awake=Date.now()+30000;const rest=(raw.slice(0,m.index)+' '+raw.slice(m.index+m[0].length)).replace(/^[\s,.!?]+/,'').trim();return rest?ask(rest):say('Pois não, chef? Estou ouvindo.')}
+ if(Date.now()<awake){awake=Date.now()+30000;ask(raw)}}
 function startVoice(){
-  if(!SR)return say('Este navegador não tem reconhecimento de voz, chef. Use Chrome, Edge ou Safari, ou digite.');
-  active=true;$('mic').classList.add('on');$('orb').classList.add('on');$('micTxt').textContent='Ômega ativo';
-  if(!rec){rec=new SR();rec.lang='pt-BR';rec.interimResults=false;rec.continuous=false;
-    rec.onresult=ev=>{for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal&&r[0].transcript.trim())heard(r[0].transcript)}};
-    rec.onerror=ev=>{if(/not-allowed|service-not-allowed/.test(ev.error)){stopVoice();say('Microfone bloqueado, chef. Libere o acesso nas configurações do navegador.')}else if(ev.error=='audio-capture'){stopVoice();say('Não encontrei um microfone.')}else if(ev.error=='network'){stopVoice();say('Sem conexão com o serviço de voz.')}};
-    rec.onend=()=>{if(active&&!speaking)setTimeout(go,250)}}
-  $('say').innerHTML='Ômega em espera. Diga <em>“Ômega”</em> e o comando.';go()}
-function stopVoice(){active=false;speaking=false;spk++;try{rec&&rec.stop()}catch(e){}
-  if('speechSynthesis'in window)speechSynthesis.cancel();$('mic').classList.remove('on');$('orb').classList.remove('on');$('micTxt').textContent='Ativar Ômega'}
+ if(!SR)return say('Este navegador não tem reconhecimento de voz, chef. Use Chrome, Edge ou Safari, ou digite.');
+ active=true;$('mic').classList.add('on');$('micTxt').textContent='Ômega ativo';
+ if(!rec){rec=new SR();rec.lang='pt-BR';rec.interimResults=false;rec.continuous=false;
+  rec.onresult=ev=>{for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal&&r[0].transcript.trim())heard(r[0].transcript)}};
+  rec.onerror=ev=>{if(/not-allowed|service-not-allowed|audio-capture/.test(ev.error)){stopVoice();say('Não consegui acessar o microfone, chef. Libere nas configurações do navegador.')}};
+  rec.onend=()=>{if(active&&!speaking)setTimeout(go,250)}}
+ say('Ômega ouvindo. Diga “Ômega” e o comando.',1);go()}
+function stopVoice(){active=false;speaking=false;spk++;try{rec&&rec.stop()}catch(e){}if(TTS)speechSynthesis.cancel();$('mic').classList.remove('on');$('micTxt').textContent='Ativar Ômega'}
 
-/* ====== Efeito: rede de partículas ====== */
-const cv=$('fx'),cx=cv.getContext('2d');let pts=[],W,H;
-function size(){W=cv.width=innerWidth;H=cv.height=innerHeight;pts=Array.from({length:Math.min(55,W/16|0)},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35}))}
-function loop(){cx.clearRect(0,0,W,H);cx.fillStyle=cx.strokeStyle=ACCC;
-  pts.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;cx.globalAlpha=.5;cx.beginPath();cx.arc(p.x,p.y,1.6,0,7);cx.fill();
-    for(let j=i+1;j<pts.length;j++){const q=pts[j],d=Math.hypot(p.x-q.x,p.y-q.y);if(d<120){cx.globalAlpha=(1-d/120)*.22;cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke()}}});
-  requestAnimationFrame(loop)}
-addEventListener('resize',size);size();
-if(!matchMedia('(prefers-reduced-motion: reduce)').matches)loop();
+/* ===== App no celular (PWA) ===== */
+let dip=null;
+if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e;$('inst').hidden=false});
+async function install(){if(dip){dip.prompt();dip=null;$('inst').hidden=true}}
 
-let th=ls('fin_theme');if(!th){try{th=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}catch(e){th='dark'}}
-theme(th);render();
+$('mdl').value=ls('o_model')||'';
+let th=ls('o_th');if(th)theme(th);accent(ls('o_acc')||'neon');render();
 if(SR)try{startVoice()}catch(e){}
-</script>
-</body>
-</html>
+</script></body></html>
