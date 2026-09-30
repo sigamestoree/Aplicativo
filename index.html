@@ -12,6 +12,7 @@
 :root{--bg:#050912;--ink:#e6f3ff;--mute:#7d93b2;--line:#16284a;--blue:#00e5ff;--vio:#8a5cff;--in:#2cf5b0;--out:#ff5c7a;--card:rgba(11,20,38,.82);--glow:0 0 18px rgba(0,229,255,.4);--onacc:#04101c}
 [data-theme=light]{--bg:#eef3fb;--ink:#0d1b33;--mute:#51627f;--line:#cfdaee;--in:#0a9b6f;--out:#d6334f;--card:rgba(255,255,255,.88)}
 *{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
 ul{padding:0}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.5 'Chakra Petch',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
 #fx{position:fixed;inset:0;z-index:0;pointer-events:none}
@@ -60,6 +61,10 @@ li{list-style:none;display:grid;grid-template-columns:1fr auto auto;gap:10px;ali
 li p{font-size:15px}li p small{display:block;color:var(--mute);font-size:12px;line-height:1.45}
 li .r{white-space:nowrap}
 li button{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer}li button:hover{color:var(--out)}
+li button.ed:hover{color:var(--blue)}
+.acts{display:flex;align-items:flex-start}
+.bar{display:block;height:6px;border-radius:3px;background:var(--line);margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:3px;transition:width .4s}
 .cb{display:flex;gap:6px;align-items:center}.cb .btn{min-height:34px;padding:0 12px;font-size:13px}
 form{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
 input,select{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:400 15px 'Chakra Petch',sans-serif;padding:12px 14px}
@@ -70,6 +75,14 @@ input,select{flex:1;min-width:0;background:var(--card);border:1px solid var(--li
 #tips:empty{display:none}#tips p+p{margin-top:8px}
 .hint{color:var(--mute);font-size:13px;margin-top:10px}
 .vrow{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+#mrow{margin:0 0 14px}
+#msel{flex:none;width:auto;min-width:230px;max-width:100%}
+dialog{background:var(--bg);color:var(--ink);border:1px solid var(--blue);border-radius:14px;padding:18px;width:min(92vw,440px);margin:auto}
+dialog::backdrop{background:rgba(0,0,0,.65)}
+#ef{margin:0;flex-direction:column;flex-wrap:nowrap}
+.stack{display:flex;flex-direction:column;gap:10px;width:100%}
+#ef label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute);letter-spacing:.06em;width:100%}
+#ef input,#ef select{flex:none;width:100%}
 #mic{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;align-items:center;gap:10px;border:1px solid var(--blue);background:var(--card);backdrop-filter:blur(6px);color:var(--ink);font:600 13px 'Chakra Petch';letter-spacing:.1em;padding:14px 20px;border-radius:999px;cursor:pointer;box-shadow:var(--glow)}
 #mic i{width:10px;height:10px;border-radius:50%;background:var(--mute)}
 #mic.on i{background:var(--in);animation:br 1.2s infinite}
@@ -89,7 +102,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <button id="theme" onclick="flip()" aria-label="Alternar tema"></button>
 </header>
 <nav><button id="t1" class="on" onclick="tab(1)">Resumo</button><button id="t2" onclick="tab(2)">Lançamentos</button><button id="t3" onclick="tab(3)">Contatos</button></nav>
-<p id="say" aria-live="polite">Diga <em>“Ômega”</em> e depois o comando, do seu jeito.</p>
+<div class="vrow" id="mrow"><select id="msel" onchange="setMonth(this.value)" aria-label="Período"></select></div>
+<p id="say" aria-live="polite">Toque em <em>Ativar Ômega</em> para falar, ou digite na aba Lançamentos.</p>
 
 <div id="v1">
   <div class="hero"><small>Saldo atual na conta</small><b id="now">R$ 0,00</b></div>
@@ -98,7 +112,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="fig"><small>Gastos</small><b class="out" id="spent">R$ 0,00</b></div>
     <div class="fig"><small>Crédito livre</small><b id="cred">—</b><span id="credSub"></span></div>
   </div>
+  <div class="vrow"><button class="btn ghost" onclick="askFatura()">Pagar fatura</button></div>
   <section class="panel" style="margin-top:14px"><h2>Onde está o dinheiro</h2><ul id="wl"></ul><p class="hint" id="wsum"></p></section>
+  <section class="panel" id="bp" style="margin-top:14px" hidden><h2>Orçamento do mês</h2><ul id="bl"></ul></section>
   <section class="charts">
     <div class="panel"><h2>Pizza · por área</h2><div id="pie"></div><div class="leg" id="leg"></div></div>
     <div class="panel"><h2>Colunas · por área</h2><div id="cols"></div></div>
@@ -116,8 +132,13 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <input id="cmd" autocomplete="off" placeholder="Fale do seu jeito: gastei 30 em lazer ontem" aria-label="Comando">
     <button>Enviar</button>
   </form>
-  <button class="btn ghost" style="margin-top:14px" onclick="sheet()">Gerar planilha (.xlsx)</button>
-  <p class="hint">Toda saída pede onde, quando e por quê. Exemplos: “recebi 5.000”, “torrei 200 em projetos”, “meu limite é 3.000”, “do saldo, 100 está no Nubank e 200 em espécie”, “onde está meu dinheiro”, “quanto é 15% de 200”, “aprenda que minha meta é viajar”, “o que você sabe sobre mim”, “o que é CDB”, “tira o mercado”, “muda para vermelho”, “liga pra Maria”, “manda a planilha”, “troca a voz”.</p>
+  <div class="vrow" style="margin-top:14px">
+    <button class="btn ghost" onclick="sheet()">Gerar planilha (.xlsx)</button>
+    <button class="btn ghost" onclick="backup()">Fazer backup</button>
+    <button class="btn ghost" onclick="$('bkf').click()">Importar backup</button>
+    <input type="file" id="bkf" accept=".json,application/json" hidden onchange="importBk(this)">
+  </div>
+  <p class="hint">Toda saída pede onde e quando; o por quê é pedido a partir de um valor (padrão R$ 50). Exemplos: “recebi 5.000”, “torrei 200 em projetos”, “meu limite é 3.000”, “paguei a fatura de 500”, “orçamento de lazer 400”, “corrige o último para 45”, “justificativa a partir de 100”, “mostra agosto”, “faz backup”, “do saldo, 100 está no Nubank e 200 em espécie”, “onde está meu dinheiro”, “quanto é 15% de 200”, “aprenda que minha meta é viajar”, “o que você sabe sobre mim”, “o que é CDB”, “tira o mercado”, “muda para vermelho”, “liga pra Maria”, “manda a planilha”, “troca a voz”. Toque no lápis (✎) de um lançamento para editar.</p>
 </div>
 
 <div id="v3" hidden>
@@ -133,28 +154,75 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <button id="mic" onclick="toggleVoice()" aria-label="Ligar ou desligar o microfone"><i></i><span id="micTxt">Ativar Ômega</span></button>
 <div id="toast"><span id="toastTxt"></span><button id="undoBtn">Desfazer</button></div>
 
+<dialog id="dlg" aria-labelledby="eh">
+  <form id="ef" onsubmit="return saveEdit(event)">
+    <h2 id="eh">Editar lançamento</h2>
+    <label>Descrição<input id="e_t" autocomplete="off"></label>
+    <label>Valor (R$)<input id="e_a" inputmode="decimal" autocomplete="off"></label>
+    <label>Data<input id="e_d" type="date"></label>
+    <div class="stack" id="e_x">
+      <label>Área<select id="e_c"></select></label>
+      <label>Pagamento<select id="e_p"><option value="conta">Conta</option><option value="credito">Crédito</option></select></label>
+      <label>Onde<input id="e_w" autocomplete="off"></label>
+      <label>Por quê<input id="e_y" autocomplete="off"></label>
+    </div>
+    <div class="vrow"><button class="btn" type="submit">Salvar alterações</button><button class="btn ghost" type="button" onclick="$('dlg').close()">Cancelar</button></div>
+  </form>
+</dialog>
+
 <script>
 const $=id=>document.getElementById(id);
 const strip=s=>s.split('').map(c=>c.normalize('NFD').replace(/[\u0300-\u036f]/g,'')).join('').toLowerCase();
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+/* Todos os valores são guardados em CENTAVOS (inteiros). brl recebe centavos. */
+const brl=c=>(c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const rb=x=>brl(Math.round(x*100));
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const br=d=>d?d.split('-').reverse().join('/'):'';
 const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
 /* ====== CONFIGURAÇÃO ====== */
-const EMAIL='dossantosmatiasjoaopaulo0@gmail.com',KEY='financas_v3';
+const EMAIL='dossantosmatiasjoaopaulo0@gmail.com',KEY='financas_v4';
 const MAILJS={service:'',template:'',key:''};
 const newMem=()=>({name:'',facts:[],qa:[],cat:{},alias:{}});
-let S={tx:[],limit:0,hide:false,contacts:[],wallets:[],mem:newMem()},prev=null,tt,P=null,awake=0,FILE=null;
-try{let s=JSON.parse(ls(KEY)||ls('financas_v2'));
- if(s&&Array.isArray(s.tx)){s.tx.forEach(t=>{if(t.cat=='Moradia')t.cat='Gastos fixos';if(!t.dt)t.dt=iso(new Date(t.id))});S=Object.assign(S,s);S.contacts=S.contacts||[]}}catch(e){}
-S.wallets=S.wallets||[];S.mem=Object.assign(newMem(),S.mem||{});
+let S={tx:[],limit:0,hide:false,contacts:[],wallets:[],mem:newMem(),budget:{},whyMin:5000,month:'cur',v:4},prev=null,tt,P=null,awake=0,FILE=null,EID=null;
+function migrate(s){
+  if(!s||!Array.isArray(s.tx))return null;
+  s.tx=s.tx.filter(t=>t&&Number.isFinite(+t.a));
+  if(!s.v){s.tx.forEach(t=>t.a=Math.round(t.a*100));s.limit=Math.round((+s.limit||0)*100);(s.wallets||[]).forEach(w=>w.a=Math.round((+w.a||0)*100))}
+  s.v=4;
+  s.tx.forEach(t=>{t.a=Math.round(+t.a);if(t.cat=='Moradia')t.cat='Gastos fixos';if(!t.dt)t.dt=iso(new Date(t.id))});
+  return s}
+try{const s=migrate(JSON.parse(ls(KEY)||ls('financas_v3')||ls('financas_v2')));if(s)S=Object.assign(S,s)}catch(e){}
+S.wallets=S.wallets||[];S.contacts=S.contacts||[];S.budget=S.budget||{};if(S.whyMin==null)S.whyMin=5000;if(!S.month)S.month='cur';S.mem=Object.assign(newMem(),S.mem||{});
 function save(){ls(KEY,JSON.stringify(S))}
 function change(fn){prev=JSON.stringify(S);fn();save();render()}
 function undo(){if(!prev)return say('Nada para desfazer, chef.');S=JSON.parse(prev);prev=null;save();render();$('toast').classList.remove('show');say('Desfeito, chef.')}
 function toast(m,lab='Desfazer',fn=undo,ms=8000){$('toastTxt').textContent=m;const b=$('undoBtn');b.textContent=lab;b.onclick=()=>{fn();$('toast').classList.remove('show')};$('toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>$('toast').classList.remove('show'),ms)}
+
+/* ====== Período (mês) e totais ====== */
+const curKey=()=>iso(new Date()).slice(0,7);
+const mk=()=>S.month=='all'?'':S.month=='cur'?curKey():S.month;
+const inM=t=>{const k=mk();return !k||String(t.dt).startsWith(k)};
+const mlab=k=>{const[y,m]=k.split('-');return new Date(+y,m-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'})};
+const pl=()=>{const k=mk();return !k?'no total':k==curKey()?'neste mês':'em '+mlab(k)};
+function setMonth(v){S.month=v;save();render()}
+function fillMonths(){
+  const cur=curKey(),ms=[...new Set(S.tx.map(t=>String(t.dt).slice(0,7)))].filter(k=>k!=cur);
+  if(/^\d{4}-\d\d$/.test(S.month)&&S.month!=cur&&!ms.includes(S.month))ms.push(S.month);
+  ms.sort().reverse();
+  $('msel').innerHTML=`<option value="cur">Este mês · ${esc(mlab(cur))}</option>`+ms.map(k=>`<option value="${k}">${esc(cap(mlab(k)))}</option>`).join('')+'<option value="all">Todos os meses</option>';
+  $('msel').value=S.month}
+/* Do período selecionado */
+function totals(){
+  const tx=S.tx.filter(inM),inc=tx.filter(t=>t.type=='in').reduce((a,t)=>a+t.a,0),out=tx.filter(t=>t.type=='out');
+  return{inc,out,acc:out.filter(t=>t.pay!='credito').reduce((a,t)=>a+t.a,0),cre:out.filter(t=>t.pay=='credito').reduce((a,t)=>a+t.a,0)}}
+/* De todo o histórico: saldo real da conta e fatura em aberto */
+function G(){
+  const sm=k=>S.tx.filter(t=>t.type==k).reduce((a,t)=>a+t.a,0),out=S.tx.filter(t=>t.type=='out'),
+  acc=out.filter(t=>t.pay!='credito').reduce((a,t)=>a+t.a,0),cre=out.filter(t=>t.pay=='credito').reduce((a,t)=>a+t.a,0),inc=sm('in'),fat=sm('fat');
+  return{inc,acc,cre,fat,bal:inc-acc-fat,owed:Math.max(0,cre-fat)}}
 
 /* ====== Cores e tema ====== */
 const ACC={vermelho:['#ff3b4e','#d6243a','#ff8a3d'],neon:['#00e5ff','#0077d9','#8a5cff'],amarelo:['#ffd21f','#a87c00','#ff8a3d'],verde:['#2cff7a','#0a8f4a','#00e5ff'],roxo:['#a66bff','#6a3de8','#ff5cc8']};
@@ -168,9 +236,6 @@ function flip(){theme(document.documentElement.dataset.theme=='light'?'dark':'li
 /* ====== Áreas (com aprendizado) ====== */
 const CATS=[['Gastos fixos','fixo fixos moradia aluguel condominio luz energia agua internet iptu gas casa plano mensalidade'],['Alimentação','alimentacao mercado supermercado comida padaria feira acougue almoco lanche ifood'],['Transporte','transporte uber gasolina combustivel onibus metro estacionamento pedagio'],['Lazer','lazer restaurante cinema bar jantar festa viagem show streaming netflix jogo'],['Investimentos','investimento investimentos investi tesouro reserva poupanca aporte acoes'],['Projetos','projeto projetos startup negocio curso equipamento ferramenta']];
 const COL={'Gastos fixos':'#ff9f43','Alimentação':'#2cf5b0','Transporte':'#5b8cff','Lazer':'#ff5c7a','Investimentos':'#00e5ff','Projetos':'#a66bff','Outros':'#7d93b2'};
-function totals(){
-  const inc=S.tx.filter(t=>t.type=='in').reduce((a,t)=>a+t.a,0),out=S.tx.filter(t=>t.type=='out');
-  return{inc,out,acc:out.filter(t=>t.pay!='credito').reduce((a,t)=>a+t.a,0),cre:out.filter(t=>t.pay=='credito').reduce((a,t)=>a+t.a,0)}}
 
 /* ====== Gráficos ====== */
 const short=v=>v>=1000?(v/1000).toFixed(1).replace('.',',')+' mil':String(Math.round(v));
@@ -182,9 +247,9 @@ function cols(rows){
   if(!rows.length)return'<p class="empty">Os gastos aparecem aqui.</p>';
   const W=320,H=210,p=16,mx=rows[0][1],bw=(W-p*2)/rows.length;
   return`<svg viewBox="0 0 ${W} ${H}" style="width:100%" role="img" aria-label="Gráfico de colunas por área"><line x1="${p}" x2="${W-p}" y1="${H-36}" y2="${H-36}" stroke="var(--line)"/>`+rows.map(([c,v],i)=>{const h=Math.max(3,v/mx*(H-80)),x=p+i*bw+bw*.15,cx=x+bw*.35;
-    return`<rect class="col" x="${x}" y="${H-36-h}" width="${bw*.7}" height="${h}" rx="3" fill="${COL[c]||COL.Outros}" style="animation-delay:${i*.09}s"/><text x="${cx}" y="${H-42-h}" text-anchor="middle">${S.hide?'':short(v)}</text><text x="${cx}" y="${H-20}" text-anchor="middle">${esc(c.slice(0,5))}${c.length>5?'.':''}</text>`}).join('')+'</svg>'}
+    return`<rect class="col" x="${x}" y="${H-36-h}" width="${bw*.7}" height="${h}" rx="3" fill="${COL[c]||COL.Outros}" style="animation-delay:${i*.09}s"/><text x="${cx}" y="${H-42-h}" text-anchor="middle">${S.hide?'':short(v/100)}</text><text x="${cx}" y="${H-20}" text-anchor="middle">${esc(c.slice(0,5))}${c.length>5?'.':''}</text>`}).join('')+'</svg>'}
 function lineChart(){
-  const out=S.tx.filter(t=>t.type=='out');
+  const out=S.tx.filter(t=>t.type=='out'&&inM(t));
   if(!out.length){$('lleg').innerHTML='';return'<p class="empty">A evolução aparece aqui.</p>'}
   const days=[...new Set(out.map(t=>t.dt))].sort(),cats=[...new Set(out.map(t=>t.cat))];
   const ser=cats.map(c=>{let s=0;return[c,[0,...days.map(d=>{out.filter(t=>t.dt==d&&t.cat==c).forEach(t=>s+=t.a);return s})]]});
@@ -197,32 +262,77 @@ function lineChart(){
 function anim(el,to){const from=el._v||0,t0=performance.now();el._v=to;
   const f=t=>{const k=Math.min(1,(t-t0)/600),e=1-Math.pow(1-k,3);el.textContent=brl(from+(to-from)*e);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
 function render(){
-  const m=v=>S.hide?'••••••':brl(v),{inc,out,acc,cre}=totals();
-  [['now',inc-acc],['inc',inc],['spent',acc+cre]].forEach(([id,v])=>S.hide?($(id).textContent='••••••'):anim($(id),v));
-  if(S.limit>0){$('cred').textContent=m(S.limit-cre);$('credSub').textContent=S.hide?'':'limite '+brl(S.limit)}
-  else{$('cred').textContent='—';$('credSub').textContent='Diga: meu limite é 3.000'}
+  const m=v=>S.hide?'••••••':brl(v),{inc,out,acc,cre}=totals(),g=G(),k=mk();
+  fillMonths();
+  [['now',g.bal],['inc',inc],['spent',acc+cre]].forEach(([id,v])=>S.hide?($(id).textContent='••••••'):anim($(id),v));
+  if(S.limit>0){$('cred').textContent=m(S.limit-g.owed);$('credSub').textContent=S.hide?'':'limite '+brl(S.limit)+(g.owed>0?' · fatura '+brl(g.owed):'')}
+  else{$('cred').textContent='—';$('credSub').textContent=g.owed>0&&!S.hide?'fatura '+brl(g.owed)+' · diga: meu limite é 3.000':'Diga: meu limite é 3.000'}
   const by={};out.forEach(t=>by[t.cat]=(by[t.cat]||0)+t.a);
   const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=rows.reduce((a,r)=>a+r[1],0);
   $('pie').innerHTML=pie(rows,tot,m);$('cols').innerHTML=cols(rows);$('line').innerHTML=lineChart();
   $('leg').innerHTML=rows.map(([c,v])=>`<span><i style="background:${COL[c]||COL.Outros}"></i>${esc(c)} ${Math.round(v/tot*100)}%</span>`).join('');
   $('wl').innerHTML=S.wallets.length?S.wallets.map((w,i)=>`<li><p>${esc(w.n)}</p><span class="r">${m(w.a)}</span><button onclick="delW(${i})" aria-label="Remover ${esc(w.n)}">×</button></li>`).join(''):'<p class="empty">Diga: do meu saldo, 100 está no Nubank e 450 no Mercado Pago.</p>';
-  const wt=S.wallets.reduce((a,w)=>a+w.a,0);$('wsum').textContent=S.wallets.length&&!S.hide?`Somando ${brl(wt)}. Saldo no app: ${brl(inc-acc)}.`:'';
-  $('list').innerHTML=S.tx.length?S.tx.slice(0,50).map(t=>`<li><p>${esc(t.t)}<small>${esc(t.cat)}${t.pay=='credito'?' · crédito':''} · ${br(t.dt)}${t.where?'<br>Onde: '+esc(t.where):''}${t.why?'<br>Por quê: '+esc(t.why):''}</small></p><span class="r ${t.type=='in'?'in':'out'}">${t.type=='in'?'+':'−'} ${m(t.a)}</span><button onclick="rem(${t.id})" aria-label="Remover ${esc(t.t)}">×</button></li>`).join(''):'<p class="empty">Nenhum lançamento ainda.</p>';
+  const wt=S.wallets.reduce((a,w)=>a+w.a,0);$('wsum').textContent=S.wallets.length&&!S.hide?`Somando ${brl(wt)}. Saldo no app: ${brl(g.bal)}.`:'';
+  const bk=Object.keys(S.budget);
+  $('bp').hidden=!k;
+  if(k)$('bl').innerHTML=bk.length?bk.map((c,i)=>{const b=S.budget[c],sp=by[c]||0,pc=Math.round(sp/b*100);
+    return`<li><p>${esc(c)}<small>${m(sp)} de ${m(b)}</small><span class="bar"><i style="width:${Math.min(100,pc)}%;background:${pc>=100?'var(--out)':pc>=80?'#ffb020':'var(--in)'}"></i></span></p><span class="r">${S.hide?'':pc+'%'}</span><button onclick="delB(${i})" aria-label="Remover orçamento de ${esc(c)}">×</button></li>`}).join(''):'<p class="empty">Diga: orçamento de lazer 400.</p>';
+  const lt=S.tx.filter(inM).sort((a,b)=>a.dt<b.dt?1:a.dt>b.dt?-1:b.id-a.id);
+  $('list').innerHTML=lt.length?lt.slice(0,50).map(t=>`<li><p>${esc(t.t)}<small>${esc(t.cat)}${t.pay=='credito'?' · crédito':''} · ${br(t.dt)}${t.where?'<br>Onde: '+esc(t.where):''}${t.why?'<br>Por quê: '+esc(t.why):''}</small></p><span class="r ${t.type=='in'?'in':'out'}">${t.type=='in'?'+':'−'} ${m(t.a)}</span><span class="acts"><button class="ed" onclick="editTx(${t.id})" aria-label="Editar ${esc(t.t)}">✎</button><button onclick="rem(${t.id})" aria-label="Remover ${esc(t.t)}">×</button></span></li>`).join(''):'<p class="empty">Nenhum lançamento neste período.</p>';
   $('clist').innerHTML=S.contacts.length?S.contacts.map((c,i)=>`<li><p>${esc(c.n)}<small>+${esc(c.p)}</small></p><span class="cb"><button class="btn" onclick="dial(${i},1)">WhatsApp</button><button class="btn ghost" onclick="dial(${i},0)">Ligar</button></span><button onclick="delContact(${i})" aria-label="Remover ${esc(c.n)}">×</button></li>`).join(''):'<p class="empty">Nenhum contato salvo ainda.</p>'}
 function rem(id){const t=S.tx.find(x=>x.id==id);if(!t)return;change(()=>S.tx=S.tx.filter(x=>x.id!=id));toast('Removido: '+t.t+' ('+brl(t.a)+')')}
 function delW(i){const w=S.wallets[i];change(()=>S.wallets.splice(i,1));toast('Removido: '+w.n)}
+function delB(i){const c=Object.keys(S.budget)[i];if(!c)return;change(()=>delete S.budget[c]);toast('Orçamento removido: '+c)}
+
+/* ====== Editar lançamento ====== */
+const parseMoney=s=>{s=String(s).replace(/[^\d.,]/g,'');if(!s)return NaN;
+  if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');
+  const v=Math.round(parseFloat(s)*100);return v>0?v:NaN};
+function editTx(id){const t=S.tx.find(x=>x.id==id);if(!t)return;EID=id;
+  $('e_t').value=t.t;$('e_a').value=(t.a/100).toFixed(2).replace('.',',');$('e_d').value=t.dt;
+  const x=t.type=='out';$('e_x').hidden=!x;
+  $('e_c').innerHTML=[...CATS.map(c=>c[0]),'Outros'].map(c=>`<option${c==t.cat?' selected':''}>${c}</option>`).join('');
+  $('e_p').value=t.pay=='credito'?'credito':'conta';$('e_w').value=t.where||'';$('e_y').value=t.why||'';
+  $('eh').textContent=t.type=='in'?'Editar entrada':t.type=='fat'?'Editar pagamento da fatura':'Editar gasto';
+  $('dlg').showModal()}
+function saveEdit(e){e.preventDefault();const t=S.tx.find(x=>x.id==EID);if(!t)return false;
+  const a=parseMoney($('e_a').value),ti=$('e_t').value.trim(),d=$('e_d').value;
+  if(!ti||isNaN(a)||!d){toast('Confira descrição, valor e data, chef.','OK',()=>{},4000);return false}
+  change(()=>{t.t=cap(ti);t.a=a;t.dt=d;
+    if(t.type=='out'){const c=$('e_c').value;if(c!=t.cat&&c!='Outros')learnCat(t.t,c);t.cat=c;t.pay=$('e_p').value;t.where=cap($('e_w').value.trim());t.why=cap($('e_y').value.trim())}});
+  $('dlg').close();say('Lançamento atualizado, chef.');return false}
+
+/* ====== Fatura do cartão ====== */
+function faturaTxt(){const o=G().owed;return o>0?`Sua fatura em aberto é ${brl(o)}, chef.`:'Você não tem fatura em aberto, chef.'}
+function payFatura(v){
+  const owed=G().owed;
+  change(()=>S.tx.unshift({id:Date.now(),t:'Pagamento da fatura',a:v,type:'fat',cat:'Fatura',pay:'conta',dt:iso(new Date())}));
+  const r=G().owed,m=`Fatura paga, chef: ${brl(v)}.`+(v>owed?` Isso passou da fatura em aberto (${brl(owed)}).`:r>0?` Ainda restam ${brl(r)} em aberto.`:' Cartão zerado.');
+  say(m+' Diga desfazer se estiver errado.');toast(m)}
+function askFatura(){tab(2);P={step:'v',kind:'fatura',text:'',tries:0};say('Qual o valor da fatura que você pagou, chef? Digite abaixo.');$('cmd').focus()}
+
+/* ====== Backup ====== */
+function backup(){
+  const f=new File([JSON.stringify(S,null,1)],'Backup_Omega_'+iso(new Date())+'.json',{type:'application/json'});
+  download(f);ls('fin_bk',String(Date.now()));FILE=f;
+  say('Backup baixado, chef. Guarde esse arquivo em um lugar seguro.');toast('Backup pronto: '+f.name,'Enviar',()=>sendFile(f),20000)}
+function importBk(inp){const f=inp.files[0];inp.value='';if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const s=migrate(JSON.parse(r.result));if(!s)throw 0;
+    change(()=>{S=Object.assign({tx:[],limit:0,hide:false,contacts:[],wallets:[],budget:{},whyMin:5000,month:'cur',v:4},s);S.mem=Object.assign(newMem(),S.mem||{});S.wallets=S.wallets||[];S.contacts=S.contacts||[];S.budget=S.budget||{}});
+    say(`Backup restaurado, chef: ${S.tx.length} lançamentos. Diga desfazer para voltar.`)}catch(e){say('Esse arquivo não parece um backup do Ômega, chef.')}};
+  r.readAsText(f)}
 
 /* ====== Onde está o dinheiro ====== */
 function parseWallets(text,n){
   const ms=[...n.matchAll(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?/g)];
   return ms.map((m,i)=>{
-    const v=parseFloat(m[1].replace(/\./g,'')+(m[2]?'.'+m[2]:'')),end=m.index+m[0].length,nx=ms[i+1]?ms[i+1].index:n.length;
+    const v=Math.round(parseFloat(m[1].replace(/\./g,'')+(m[2]?'.'+m[2]:''))*100),end=m.index+m[0].length,nx=ms[i+1]?ms[i+1].index:n.length;
     let a=text.slice(end,nx),b=n.slice(end,nx),k;
     while((k=b.match(/^[\s,.;:]*(reais|real|esta|estao|ficou|ficam|fica|guardados?|na minha|no meu|na|no|em|de|do|da|conta|meu|minha|banco|aplicado|investido|depositado|sendo|tem|e)\b/))&&k[0].length){a=a.slice(k[0].length);b=b.slice(k[0].length)}
     a=a.replace(/[\s,.;:]+$/,'');while(/\s+(e|mais)$/i.test(a))a=a.replace(/\s+(e|mais)$/i,'');
     a=a.trim().split(/\s+/).map(cap).join(' ')||'Conta';
     return{n:a,a:v}})}
-function diffTxt(){const t=totals(),bal=t.inc-t.acc,w=S.wallets.reduce((a,x)=>a+x.a,0);return Math.abs(bal-w)>.005?` O saldo do app é ${brl(bal)}, uma diferença de ${brl(Math.abs(bal-w))}.`:' Bate certinho com o saldo, chef.'}
+function diffTxt(){const bal=G().bal,w=S.wallets.reduce((a,x)=>a+x.a,0);return bal!==w?` O saldo do app é ${brl(bal)}, uma diferença de ${brl(Math.abs(bal-w))}.`:' Bate certinho com o saldo, chef.'}
 function walletSay(){
   if(!S.wallets.length)return'Você ainda não me disse onde está o dinheiro, chef. Diga, por exemplo: do meu saldo, 100 está no Nubank e 200 em espécie.';
   return'Seu dinheiro está assim, chef: '+S.wallets.map(w=>`${brl(w.a)} em ${w.n}`).join(', ')+`. Total de ${brl(S.wallets.reduce((a,w)=>a+w.a,0))}.`+diffTxt()}
@@ -261,12 +371,14 @@ function digits(text){
       o.push(String(tot+cur));i=last+1}
     else{o.push(tk[i]);i++}}
   return o.join(' ')}
+/* amount devolve o valor em CENTAVOS */
 function amount(text){const n=strip(text);
   let m=n.match(/(\d+)\s*(?:reais|real)\s*e\s*(\d{1,2})\s*centavos?/);
-  if(m)return{v:parseFloat(m[1]+'.'+m[2].padStart(2,'0')),start:m.index,end:m.index+m[0].length};
+  if(m)return{v:+m[1]*100+ +m[2].padStart(2,'0'),start:m.index,end:m.index+m[0].length};
   m=n.match(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?(?:\s*mil\b)?/);
   if(!m)return null;
   let v=parseFloat(m[1].replace(/\./g,'')+(m[2]?'.'+m[2]:''));if(/mil$/.test(m[0]))v*=1000;
+  v=Math.round(v*100);
   return v>0?{v,start:m.index,end:m.index+m[0].length}:null}
 const catOf=s=>{s=strip(s);for(const[c]of CATS){if(s.includes(strip(c).split(' ')[0].slice(0,5)))return c}return/\bfixos?\b/.test(s)?'Gastos fixos':null};
 function category(n){
@@ -284,7 +396,7 @@ function describe(text,n,am,fb){
   if(a.length<2)a=text.slice(0,am.start).split(/\s+/).filter(t=>t&&!STOP.has(strip(t))).join(' ');
   if(a.length<2)a=fb;return cap(a)}
 
-/* ====== Justificativa obrigatória: onde, quando, por quê ====== */
+/* ====== Justificativa: onde e quando sempre; por quê a partir de um valor ====== */
 const MES='janeiro fevereiro marco abril maio junho julho agosto setembro outubro novembro dezembro'.split(' ');
 function parseWhen(n){const d=new Date();
   if(/\banteontem\b/.test(n)){d.setDate(d.getDate()-2);return iso(d)}
@@ -296,6 +408,18 @@ function parseWhen(n){const d=new Date();
   if(m){const mi=m[2]?MES.indexOf(m[2]):d.getMonth();if(mi>=0)return iso(new Date(d.getFullYear(),mi,m[1]))}
   return null}
 function ask(p=''){say(p+(P.step=='w'?'Onde foi esse gasto, chef?':P.step=='d'?'E quando foi? Diga hoje, ontem ou a data.':'Por que você fez esse gasto, chef? Preciso da justificativa.'))}
+function advance(p=''){const d=P.d;
+  if(!d.where)P.step='w';else if(!d.dt)P.step='d';else if(!d.why&&d.a>=S.whyMin)P.step='y';else return finishTx();
+  ask(p)}
+function finishTx(){
+  const d=P.d;P=null;
+  const tx={id:Date.now(),t:d.t,a:d.a,type:'out',cat:d.cat,pay:d.pay,where:d.where,dt:d.dt,why:d.why||''};
+  change(()=>{S.tx.unshift(tx);if(!inM(tx))S.month=tx.dt.slice(0,7)==curKey()?'cur':tx.dt.slice(0,7)});
+  let extra='';const b=S.budget[d.cat];
+  if(b){const k=d.dt.slice(0,7),sp=S.tx.filter(t=>t.type=='out'&&t.cat==d.cat&&String(t.dt).startsWith(k)).reduce((a,t)=>a+t.a,0),pc=Math.round(sp/b*100);
+    if(pc>=100)extra=` Atenção: ${d.cat} passou do orçamento (${pc}%).`;else if(pc>=80)extra=` Cuidado: ${d.cat} já está em ${pc}% do orçamento.`}
+  const msg=`Registrado, chef: ${brl(d.a)} em ${d.t} (${d.cat}${d.pay=='credito'?', crédito':''}), ${br(d.dt)}.`;
+  say(msg+extra+' Diga desfazer se estiver errado.');toast(msg)}
 function answer(text,n){
   if(P.until&&Date.now()>P.until){P=null;return handle(text)}
   if(/\b(cancelar|cancela|esquece|deixa pra la)\b/.test(n)){P=null;return say('Cancelado, chef.')}
@@ -308,21 +432,19 @@ function answer(text,n){
     if(!am){if(++P.tries>=2){P=null;return say('Tudo bem, deixei para lá. Quando quiser, é só pedir de novo.')}return say('Não peguei o número. Diga só o valor, por exemplo: três mil.')}
     const o=P;P=null;
     if(o.kind=='limit'){change(()=>S.limit=am.v);return say('Limite de crédito definido em '+brl(am.v)+', chef.')}
+    if(o.kind=='fatura')return payFatura(am.v);
     return handle(o.text+' '+text,1)}
   if(P.step=='c'){
     const c=catOf(text)||(/\boutr/.test(n)?'Outros':null);
     if(!c)return say('Qual área, chef? Gastos fixos, alimentação, transporte, lazer, investimentos, projetos ou outros.');
-    P.d.cat=c;P.step='w';
-    if(c!='Outros'){learnCat(P.d.t,c);return ask(`Aprendi, chef: ${P.d.t} é ${c}. `)}
-    return ask()}
+    P.d.cat=c;
+    if(c!='Outros'){learnCat(P.d.t,c);return advance(`Aprendi, chef: ${P.d.t} é ${c}. `)}
+    return advance()}
   const d=P.d;
-  if(P.step=='w'){if(text.trim().length<2)return ask();d.where=cap(text.trim());P.step=d.dt?'y':'d';return ask()}
-  if(P.step=='d'){const w=parseWhen(n);if(!w)return say('Não entendi a data, chef. Diga hoje, ontem, dia 15 ou 15/09.');d.dt=w;P.step='y';return ask()}
+  if(P.step=='w'){if(text.trim().length<2)return ask();d.where=cap(text.trim());return advance()}
+  if(P.step=='d'){const w=parseWhen(n);if(!w)return say('Não entendi a data, chef. Diga hoje, ontem, dia 15 ou 15/09.');d.dt=w;return advance()}
   if(text.trim().length<4)return say('Preciso de uma justificativa de verdade, chef. Por que gastou?');
-  d.why=cap(text.trim());P=null;
-  change(()=>S.tx.unshift({id:Date.now(),t:d.t,a:d.a,type:'out',cat:d.cat,pay:d.pay,where:d.where,dt:d.dt,why:d.why}));
-  const msg=`Registrado, chef: ${brl(d.a)} em ${d.t} (${d.cat}${d.pay=='credito'?', crédito':''}), ${br(d.dt)}.`;
-  say(msg+' Diga desfazer se estiver errado.');toast(msg)}
+  d.why=cap(text.trim());finishTx()}
 function add(type,am,text,n){
   const isSal=/\bsalario\b/.test(n);
   const title=type=='in'&&isSal?'Salário':describe(text,n,am,type=='in'?'Entrada':'Gasto');
@@ -330,10 +452,11 @@ function add(type,am,text,n){
     const dt=/\b(hoje|ontem|anteontem)\b/.test(n)?parseWhen(n):null,cat=category(strip(title)+' '+n);
     P={step:cat=='Outros'?'c':'w',d:{t:title,a:am.v,dt,cat,pay:/\b(cartao|credito)\b/.test(n)?'credito':'conta'}};
     if(P.step=='c')return say(`Gasto de ${brl(am.v)} em ${title}. Ainda não sei em qual área isso entra. Qual é: gastos fixos, alimentação, transporte, lazer, investimentos ou projetos?`);
-    say(`Gasto de ${brl(am.v)} em ${title}, área ${cat}. Para registrar preciso da justificativa. Onde foi esse gasto, chef?`);return}
-  const old=isSal?S.tx.find(t=>t.type=='in'&&t.t=='Salário'):null;
+    say(`Gasto de ${brl(am.v)} em ${title}, área ${cat}. Onde foi esse gasto, chef?`);return}
+  const old=isSal?S.tx.find(t=>t.type=='in'&&t.t=='Salário'&&String(t.dt).startsWith(curKey())):null;
   if(old){change(()=>old.a=am.v);const m='Salário atualizado para '+brl(am.v)+', chef.';say(m);toast(m);return}
-  change(()=>S.tx.unshift({id:Date.now(),t:title,a:am.v,type:'in',cat:'Entrada',pay:'conta',dt:iso(new Date())}));
+  const nt={id:Date.now(),t:title,a:am.v,type:'in',cat:'Entrada',pay:'conta',dt:iso(new Date())};
+  change(()=>{S.tx.unshift(nt);if(!inM(nt))S.month='cur'});
   const msg=`Entrada de ${brl(am.v)} registrada, chef: ${title}.`;say(msg+' Diga desfazer se estiver errado.');toast(msg)}
 const RSTOP=new Set('remover remova remove apagar apague apaga excluir exclua tirar tira o a os as um uma esse essa gasto gastos lancamento despesa receita entrada de do da no na em por porque pois foi colocado colocada incorretamente errado errada errei lancei ultimo ultima recente que omega'.split(' '));
 function removeCmd(text,n){
@@ -342,15 +465,15 @@ function removeCmd(text,n){
   if(/\b(ultimo|ultima|recente)\b/.test(nn)){const t=S.tx[0];if(!t)return say('Não há lançamentos, chef.');rem(t.id);return say(`Removi o último lançamento: ${t.t}, ${brl(t.a)}.`)}
   const am=amount(tx),words=nn.split(/[^a-z0-9$]+/).filter(w=>w.length>2&&!RSTOP.has(w)&&!/^\d+$/.test(w));
   if(!am&&!words.length)return say('Qual lançamento remover, chef? Diga o nome ou o valor, ou “remover o último”.');
-  const hit=S.tx.filter(t=>(!am||Math.abs(t.a-am.v)<.005)&&words.every(w=>strip(t.t+' '+t.cat).includes(w)));
+  const hit=S.tx.filter(t=>(!am||t.a===am.v)&&words.every(w=>strip(t.t+' '+t.cat).includes(w)));
   if(!hit.length)return say('Não encontrei esse lançamento, chef. Diga o nome ou o valor.');
   if(hit.length>1)return say(`Achei ${hit.length} lançamentos parecidos. Diga também o valor, chef.`);
   rem(hit[0].id);say(`Removi ${hit[0].t}, ${brl(hit[0].a)}. Diga desfazer para voltar.`)}
-function tab(n){[1,2,3].forEach(i=>{$('v'+i).hidden=i!=n;$('t'+i).classList.toggle('on',i==n)})}
+function tab(n){[1,2,3].forEach(i=>{$('v'+i).hidden=i!=n;$('t'+i).classList.toggle('on',i==n)});$('mrow').hidden=n==3}
 function tipText(){
-  const{inc,out,acc,cre}=totals();
-  if(inc<=0)return['Chef, registre quanto caiu na conta, por exemplo “meu salário foi 4.500”, para eu analisar seus gastos.'];
-  if(!out.length)return['Chef, ainda não há gastos registrados. Registre alguns e eu faço a análise.'];
+  const{inc,out,acc,cre}=totals(),k=mk();
+  if(inc<=0)return['Chef, registre quanto caiu na conta '+pl()+', por exemplo “meu salário foi 4.500”, para eu analisar seus gastos.'];
+  if(!out.length)return['Chef, ainda não há gastos registrados '+pl()+'. Registre alguns e eu faço a análise.'];
   const by=c=>out.filter(t=>t.cat==c).reduce((a,t)=>a+t.a,0),p=v=>Math.round(v/inc*100);
   const need=by('Gastos fixos')+by('Alimentação')+by('Transporte'),want=by('Lazer'),inv=by('Investimentos'),pj=by('Projetos'),r=[];
   if(inc-acc<0)r.push(`Atenção, chef: seus gastos passaram do que caiu na conta em ${brl(acc-inc)}.`);
@@ -358,7 +481,10 @@ function tipText(){
   if(p(need)>50)r.push(`Gastos fixos, alimentação e transporte somam ${p(need)}%, acima dos 50% recomendados.`);
   if(p(inv)<20)r.push(`Você investiu ${p(inv)}% da renda. Tente chegar a 20%, cerca de ${brl(inc*.2)} por mês.`);
   if(pj>0)r.push(`Projetos já consumiram ${p(pj)}% da renda. Confira se cada um tem retorno esperado.`);
-  if(S.limit>0&&cre/S.limit>.7)r.push(`Você já usou ${Math.round(cre/S.limit*100)}% do limite de crédito. Segure as compras no cartão.`);
+  if(S.limit>0&&G().owed/S.limit>.7)r.push(`Você já usou ${Math.round(G().owed/S.limit*100)}% do limite de crédito. Segure as compras no cartão e pague a fatura.`);
+  if(k)Object.entries(S.budget).forEach(([c,b])=>{const sp=by(c);if(sp>b)r.push(`${c} estourou o orçamento em ${brl(sp-b)}.`);else if(sp>=b*.8)r.push(`${c} já usou ${Math.round(sp/b*100)}% do orçamento.`)});
+  if(k){const[y,mo]=k.split('-').map(Number),pk=iso(new Date(y,mo-2,1)).slice(0,7),pv=S.tx.filter(t=>t.type=='out'&&String(t.dt).startsWith(pk)).reduce((a,t)=>a+t.a,0),cv=acc+cre;
+    if(pv>0){const d=Math.round((cv-pv)/pv*100);if(d>=10)r.push(`Você já gastou ${d}% a mais do que em todo o mês anterior (${brl(pv)}).`);else if(d<=-10&&k!=curKey())r.push(`Boa, chef: gastou ${-d}% a menos do que no mês anterior.`)}}
   const cnt={};out.forEach(t=>cnt[t.cat]=(cnt[t.cat]||0)+1);const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
   if(out.length>=4&&fav)r.push(`Pelo seu hábito, o que mais aparece é ${fav[0]}, com ${fav[1]} lançamentos. Vale olhar esse ponto primeiro.`);
   if(!r.length)r.push('Seus gastos estão dentro da regra 50/30/20, chef. Continue assim e mantenha o aporte mensal.');
@@ -370,13 +496,13 @@ const download=f=>{const a=document.createElement('a');a.href=URL.createObjectUR
 async function sheet(){
   if(!window.ExcelJS)return say('Não consegui carregar o gerador de planilhas, chef. Verifique a internet e tente de novo.');
   say('Gerando a planilha, chef.');
-  const{inc,out,acc,cre}=totals(),by={};out.forEach(t=>by[t.cat]=(by[t.cat]||0)+t.a);
+  const g=G(),C=x=>x/100,by={};S.tx.filter(t=>t.type=='out').forEach(t=>by[t.cat]=(by[t.cat]||0)+t.a);
   const wb=new ExcelJS.Workbook();wb.creator='Ômega';
   const navy='FF0B1F3A',fill=c=>({type:'pattern',pattern:'solid',fgColor:{argb:c}}),money='"R$" #,##0.00;[Red]-"R$" #,##0.00';
   const ws=wb.addWorksheet('Resumo',{views:[{showGridLines:false}]}),wl=wb.addWorksheet('Lançamentos',{views:[{state:'frozen',ySplit:1}]});
   wl.columns=[{header:'Data',width:12},{header:'Tipo',width:10},{header:'Descrição',width:26},{header:'Área',width:16},{header:'Pagamento',width:12},{header:'Onde',width:24},{header:'Por quê',width:42},{header:'Valor',width:16}];
   const sorted=[...S.tx].sort((a,b)=>a.dt<b.dt?-1:1);
-  sorted.forEach(t=>wl.addRow([new Date(t.dt+'T12:00:00'),t.type=='in'?'Entrada':'Saída',t.t,t.cat,t.pay=='credito'?'Crédito':'Conta',t.where||'—',t.why||'—',t.type=='in'?t.a:-t.a]));
+  sorted.forEach(t=>wl.addRow([new Date(t.dt+'T12:00:00'),t.type=='in'?'Entrada':t.type=='fat'?'Fatura':'Saída',t.t,t.cat,t.pay=='credito'?'Crédito':'Conta',t.where||'—',t.why||'—',t.type=='in'?C(t.a):-C(t.a)]));
   const hd=(row)=>row.eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill=fill(navy);c.alignment={horizontal:'center',vertical:'middle'}});
   hd(wl.getRow(1));wl.getRow(1).height=24;
   wl.eachRow((r,i)=>{if(i>1){r.getCell(1).numFmt='dd/mm/yyyy';r.getCell(8).numFmt=money;r.getCell(7).alignment={wrapText:true,vertical:'top'};if(i%2)r.eachCell(c=>c.fill=fill('FFF1F6FD'))}});
@@ -384,28 +510,34 @@ async function sheet(){
   const N=Math.max(sorted.length+1,2),R=c=>`'Lançamentos'!${c}2:${c}${N}`;
   ws.columns=[{width:26},{width:20},{width:16},{width:34}];
   ws.mergeCells('A1:D1');ws.getCell('A1').value='Ômega · Relatório de Finanças';ws.getCell('A1').font={size:20,bold:true,color:{argb:navy}};
-  ws.mergeCells('A2:D2');ws.getCell('A2').value='Gerado em '+new Date().toLocaleString('pt-BR')+'. Como ler: o Resumo mostra os totais, “Por área” mostra para onde o dinheiro foi e a aba Lançamentos lista cada movimentação com onde, quando e por quê. Os valores são fórmulas e se atualizam se você editar a aba Lançamentos.';
+  ws.mergeCells('A2:D2');ws.getCell('A2').value='Gerado em '+new Date().toLocaleString('pt-BR')+'. Como ler: o Resumo mostra os totais de todo o histórico, “Por área” mostra para onde o dinheiro foi e a aba Lançamentos lista cada movimentação com onde, quando e por quê. Os valores são fórmulas e se atualizam se você editar a aba Lançamentos.';
   ws.getCell('A2').alignment={wrapText:true,vertical:'top'};ws.getRow(2).height=62;
   ws.getCell('A4').value='RESUMO';ws.getCell('A4').font={bold:true,size:13,color:{argb:navy}};
-  const K=[['Entradas',`SUMIF(${R('B')},"Entrada",${R('H')})`,inc],['Gastos na conta',`-SUMIFS(${R('H')},${R('B')},"Saída",${R('E')},"Conta")`,acc],['Gastos no crédito',`-SUMIFS(${R('H')},${R('B')},"Saída",${R('E')},"Crédito")`,cre],['Saldo na conta','B5-B6',inc-acc]];
-  K.forEach(([k,f,v],i)=>{const r=5+i;ws.getCell('A'+r).value=k;ws.getCell('A'+r).font={bold:true};ws.getCell('B'+r).value={formula:f,result:v};ws.getCell('B'+r).numFmt=money;ws.getCell('B'+r).font={bold:true,color:{argb:i==3?(inc-acc<0?'FFD6334F':'FF0A9B6F'):navy}};['A','B'].forEach(c=>ws.getCell(c+r).fill=fill('FFE6F3FF'))});
-  ws.getCell('A10').value='POR ÁREA';ws.getCell('A10').font={bold:true,size:13,color:{argb:navy}};
-  ['Área','Total gasto','% dos gastos'].forEach((h,i)=>ws.getCell(11,i+1).value=h);hd(ws.getRow(11));
-  const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=rows.reduce((a,r)=>a+r[1],0),e=11+rows.length;
-  rows.forEach(([c,v],i)=>{const r=12+i;ws.getCell('A'+r).value=c;ws.getCell('B'+r).value={formula:`-SUMIFS(${R('H')},${R('D')},A${r},${R('B')},"Saída")`,result:v};ws.getCell('B'+r).numFmt=money;ws.getCell('C'+r).value={formula:`B${r}/SUM(B$12:B$${e})`,result:v/tot};ws.getCell('C'+r).numFmt='0%'});
-  if(rows.length)try{ws.addConditionalFormatting({ref:`C12:C${e}`,rules:[{type:'dataBar',gradient:true,cfvo:[{type:'num',value:0},{type:'num',value:1}],color:{argb:'FF00B4D8'}}]})}catch(x){}
+  const K=[['Entradas',`SUMIF(${R('B')},"Entrada",${R('H')})`,C(g.inc)],
+    ['Gastos na conta',`-SUMIFS(${R('H')},${R('B')},"Saída",${R('E')},"Conta")`,C(g.acc)],
+    ['Gastos no crédito',`-SUMIFS(${R('H')},${R('B')},"Saída",${R('E')},"Crédito")`,C(g.cre)],
+    ['Faturas pagas',`-SUMIF(${R('B')},"Fatura",${R('H')})`,C(g.fat)],
+    ['Saldo na conta','B5-B6-B8',C(g.bal)],
+    ['Fatura em aberto','MAX(0,B7-B8)',C(g.owed)]];
+  K.forEach(([k,f,v],i)=>{const r=5+i;ws.getCell('A'+r).value=k;ws.getCell('A'+r).font={bold:true};ws.getCell('B'+r).value={formula:f,result:v};ws.getCell('B'+r).numFmt=money;ws.getCell('B'+r).font={bold:true,color:{argb:i==4?(g.bal<0?'FFD6334F':'FF0A9B6F'):navy}};['A','B'].forEach(c=>ws.getCell(c+r).fill=fill('FFE6F3FF'))});
+  ws.getCell('A12').value='POR ÁREA';ws.getCell('A12').font={bold:true,size:13,color:{argb:navy}};
+  ['Área','Total gasto','% dos gastos'].forEach((h,i)=>ws.getCell(13,i+1).value=h);hd(ws.getRow(13));
+  const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=rows.reduce((a,r)=>a+r[1],0),e=13+rows.length;
+  rows.forEach(([c,v],i)=>{const r=14+i;ws.getCell('A'+r).value=c;ws.getCell('B'+r).value={formula:`-SUMIFS(${R('H')},${R('D')},A${r},${R('B')},"Saída")`,result:C(v)};ws.getCell('B'+r).numFmt=money;ws.getCell('C'+r).value={formula:`B${r}/SUM(B$14:B$${e})`,result:v/tot};ws.getCell('C'+r).numFmt='0%'});
+  if(rows.length)try{ws.addConditionalFormatting({ref:`C14:C${e}`,rules:[{type:'dataBar',gradient:true,cfvo:[{type:'num',value:0},{type:'num',value:1}],color:{argb:'FF00B4D8'}}]})}catch(x){}
   if(S.wallets.length){const s=e+3;ws.getCell('A'+s).value='ONDE ESTÁ O DINHEIRO';ws.getCell('A'+s).font={bold:true,size:13,color:{argb:navy}};
-    S.wallets.forEach((w,i)=>{ws.getCell('A'+(s+1+i)).value=w.n;ws.getCell('B'+(s+1+i)).value=w.a;ws.getCell('B'+(s+1+i)).numFmt=money})}
+    S.wallets.forEach((w,i)=>{ws.getCell('A'+(s+1+i)).value=w.n;ws.getCell('B'+(s+1+i)).value=C(w.a);ws.getCell('B'+(s+1+i)).numFmt=money})}
   const name='Financas_Omega_'+iso(new Date())+'.xlsx',buf=await wb.xlsx.writeBuffer();
   FILE=new File([buf],name,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});download(FILE);
   if(MAILJS.key){try{if(await mailjs(FILE))return say('Planilha enviada para o seu e-mail, chef.')}catch(x){}say('Não consegui enviar automaticamente, chef. A planilha foi baixada.')}
   else say('Planilha pronta e baixada, chef. Toque em Enviar para mandar por e-mail.');
-  toast('Planilha pronta: '+name,'Enviar',sendFile,30000)}
+  toast('Planilha pronta: '+name,'Enviar',()=>sendFile(FILE),30000)}
 async function mailjs(f){const b64=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(f)});
   const r=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_id:MAILJS.service,template_id:MAILJS.template,user_id:MAILJS.key,template_params:{to_email:EMAIL,subject:'Relatório de finanças · '+br(iso(new Date())),message:'Chef, segue o relatório em anexo.',attachment:b64}})});return r.ok}
-async function sendFile(){const f=FILE;if(!f)return sheet();
-  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Relatório de finanças',text:'Enviar para '+EMAIL});return}}catch(e){if(e.name=='AbortError')return}
-  location.href='mailto:'+EMAIL+'?subject='+encodeURIComponent('Relatório de finanças · '+br(iso(new Date())))+'&body='+encodeURIComponent('Chef, segue o relatório. Anexe o arquivo '+f.name+' que foi baixado.')}
+async function sendFile(f){f=f||FILE;if(!f)return sheet();
+  const bk=/\.json$/.test(f.name),subj=(bk?'Backup do Ômega · ':'Relatório de finanças · ')+br(iso(new Date()));
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:subj,text:'Enviar para '+EMAIL});return}}catch(e){if(e.name=='AbortError')return}
+  location.href='mailto:'+EMAIL+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent('Chef, segue o arquivo. Anexe '+f.name+' que foi baixado.')}
 
 /* ====== CÉREBRO DO ÔMEGA: 100% local, aprende com você ====== */
 const lev=(a,b)=>{const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]==b[j-1]?0:1));p=t}}return d[b.length]};
@@ -413,6 +545,8 @@ const hit=(w,k)=>k.endsWith('=')?w==k.slice(0,-1):w.startsWith(k)||(k.length>=5&
 const INT={
  undo:{desfaz:4,volta:2,atras:2},
  sheet:{planilha:4,relatorio:4,exporta:3,excel:3,xlsx:3,'email=':2,gmail:2,mand:1,envi:1},
+ backup:{backup:4,backups:4},
+ restore:{restaur:4,importa:3},
  tip:{dica:4,conselho:4,analis:3,avali:3,economiz:3,orienta:2},
  remove:{remov:4,apag:4,exclu:4,delet:4,tir:3,retir:3},
  limit:{limite:4},
@@ -426,7 +560,7 @@ const INT={
  expense:{gast:3,pag:2,compr:3,despesa:3,saiu:2,custou:3,torrei:3,investi:3,aplic:2},
  call:{lig:3,chama:3,telefon:3,zap:2,whats:2,'fal=':2,'fala=':2},
  saveC:{contato:1,salv:3,cadastr:3,adicion:1}};
-const NAMES={undo:'desfazer',sheet:'gerar a planilha',tip:'dar uma dica',remove:'remover um lançamento',limit:'definir o limite',hide:'ocultar valores',showv:'mostrar valores',voice:'trocar a voz',income:'registrar uma entrada',expense:'registrar um gasto',call:'ligar para um contato',saveC:'salvar um contato'};
+const NAMES={undo:'desfazer',sheet:'gerar a planilha',backup:'fazer o backup',restore:'restaurar um backup',tip:'dar uma dica',remove:'remover um lançamento',limit:'definir o limite',hide:'ocultar valores',showv:'mostrar valores',voice:'trocar a voz',income:'registrar uma entrada',expense:'registrar um gasto',call:'ligar para um contato',saveC:'salvar um contato'};
 const CN={vermelh:'vermelho',rubro:'vermelho',verde:'verde',amarel:'amarelo',dourad:'amarelo',roxo:'roxo',roxa:'roxo',violet:'roxo',lilas:'roxo',neon:'neon',azul:'neon',cian:'neon',cyan:'neon'};
 const findColor=tk=>{for(const w of tk)for(const k in CN)if(w.startsWith(k)||(k.length>=5&&w.length>=4&&lev(w.slice(0,k.length),k)<=1))return CN[k]};
 const greet=()=>{const h=new Date().getHours();return pick([(h<12?'Bom dia':h<18?'Boa tarde':'Boa noite')+', '+(S.mem.name||'chef')+'! Em que posso ajudar?','Oi, '+(S.mem.name||'chef')+'! Do que você precisa?','Estou aqui, '+(S.mem.name||'chef')+'. Pode falar.'])};
@@ -441,7 +575,7 @@ const CHAT=[
  [/\b(estou|to|tou|me sinto)\s+(triste|cansad\w*|estressad\w*|ansios\w*|preocupad\w*)/,()=>'Sinto muito, chef. Se for por causa do dinheiro, eu analiso seus gastos e montamos um plano simples. E se quiser só conversar, estou aqui.'],
  [/\bque horas\b|\bhoras sao\b/,()=>'Agora são '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+', chef.'],
  [/\bque dia\b|\bdata de hoje\b/,()=>'Hoje é '+new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})+', chef.'],
- [/\b(ajuda|comandos|o que voce faz|o que voce sabe fazer)\b/,()=>'Chef, eu entendo conversa normal. Registro entradas e gastos, peço onde, quando e por quê, anoto onde está o dinheiro, faço contas e simulações, explico termos de finanças, mostro gráficos, dou dicas, ligo para contatos, gero a planilha e aprendo o que você me ensinar.'],
+ [/\b(ajuda|comandos|o que voce faz|o que voce sabe fazer)\b/,()=>'Chef, eu entendo conversa normal. Registro entradas e gastos, peço onde, quando e por quê, anoto onde está o dinheiro, controlo a fatura e o orçamento por área, mostro cada mês, faço contas e simulações, explico termos de finanças, mostro gráficos, dou dicas, ligo para contatos, gero a planilha, faço backup e aprendo o que você me ensinar.'],
  [/\b(tchau|ate logo|desligar microfone|parar de ouvir|dormir)\b/,()=>{setTimeout(stopVoice,3000);return'Até logo, chef. Me chame quando precisar.'}],
  [/^(oi|ola|opa|salve|e ai|fala|bom dia|boa tarde|boa noite)\b/,greet,1]];
 /* Base de conhecimento interna (funciona sem internet e sem IA externa) */
@@ -490,7 +624,35 @@ function learnCmd(text,n,am){let m;
  if(!am&&(m=n.match(/^(.{2,30}?) (?:e|sao|conta como|fica em) (gastos? fixos?|fixos?|alimentacao|transporte|lazer|investimentos?|projetos?)$/))){const c=catOf(m[2]);if(c&&!/\b(modo|tema|cor)\b/.test(m[1])){change(()=>learnCat(m[1],c));say(`Aprendido, chef: ${m[1]} entra em ${c}.`);return 1}}
  if(!am&&/^(eu|minha|meu|a minha|o meu)\s+(gosto|amo|odeio|moro|trabalho|sou|tenho|quero|sonho|meta|objetivo|profissao|estudo|prefiro|adoro|nao gosto|planejo)/.test(n)){teachFact(text);return 1}
  return 0}
-/* Contas e simulações */
+/* Comandos de fatura, orçamento, justificativa, edição e período */
+function extraCmds(text,n,am,tk){
+  let m;
+  if(/\bjustificativ\w*/.test(n)){
+    if(am)return change(()=>S.whyMin=am.v),say(`Só peço o por quê em gastos a partir de ${brl(am.v)}, chef.`),1;
+    if(/\b(sempre|todo|todos|toda)\b/.test(n))return change(()=>S.whyMin=0),say('Vou pedir o por quê em todos os gastos, chef.'),1;
+    return say(S.whyMin>0?`Hoje eu peço o por quê em gastos a partir de ${brl(S.whyMin)}, chef. Para mudar, diga: justificativa a partir de 100.`:'Hoje eu peço o por quê em todos os gastos, chef.'),1}
+  if(/\b(orcamento|teto)\b/.test(n)){
+    const c=catOf(n);
+    if(!c)return say('De qual área, chef? Diga, por exemplo: orçamento de lazer 400.'),1;
+    if(/\b(remov\w*|tir\w*|apag\w*|zer\w*)\b/.test(n))return change(()=>delete S.budget[c]),say(`Orçamento de ${c} removido, chef.`),1;
+    if(!am)return say(S.budget[c]?`O orçamento de ${c} é ${brl(S.budget[c])} por mês, chef.`:`Você não definiu orçamento para ${c}. Diga: orçamento de ${c.toLowerCase()} 400.`),1;
+    return change(()=>S.budget[c]=am.v),say(`Orçamento mensal de ${c}: ${brl(am.v)}, chef.`),1}
+  if(/\bfatura\b/.test(n)){
+    if(/\b(pagu\w*|pago|pagar|paga|quit\w*|pagamento)\b/.test(n)){
+      if(!am)return P={step:'v',kind:'fatura',text:'',tries:0},say('Qual o valor da fatura que você pagou, chef?'),1;
+      return payFatura(am.v),1}
+    if(!am&&/\b(quanto|qual|minha|meu|valor|aberto)\b/.test(n))return say(faturaTxt()),1}
+  if(/\b(corrig\w*|edit\w*|alter\w*|mud\w*|troc\w*)\b/.test(n)&&/\bultim[oa]\b/.test(n)){
+    const t=S.tx[0];if(!t)return say('Não há lançamentos, chef.'),1;
+    if(am)return change(()=>t.a=am.v),say(`Corrigi o último lançamento (${t.t}) para ${brl(am.v)}, chef.`),1;
+    tab(2);editTx(t.id);return say('Abri a edição do último lançamento, chef.'),1}
+  if(!am&&/\b(mostr\w*|ver|exib\w*|abr\w*)\b/.test(n)){
+    if(/\b(todos os meses|tudo|historico completo)\b/.test(n))return setMonth('all'),say('Mostrando todos os meses, chef.'),1;
+    if(/\b(este mes|mes atual|mes corrente)\b/.test(n))return setMonth('cur'),say('Mostrando este mês, chef.'),1;
+    const mi=MES.findIndex(x=>tk.includes(x));
+    if(mi>=0){const key=new Date().getFullYear()+'-'+String(mi+1).padStart(2,'0');setMonth(key==curKey()?'cur':key);return say(`Mostrando ${mlab(key)}, chef.`),1}}
+  return 0}
+/* Contas e simulações (trabalham em reais, só a saída usa centavos) */
 const num=s=>parseFloat(s.replace(/\.(?=\d{3}\b)/g,'').replace(',','.')),fmt=x=>x.toLocaleString('pt-BR',{maximumFractionDigits:2});
 function think(n){
   const N='(\\d{1,3}(?:\\.\\d{3})+(?:,\\d+)?|\\d+(?:,\\d+)?)',t=n.match(/(\d+)\s*(mes|meses|ano|anos)\b/),r=n.match(/(\d+(?:,\d+)?)\s*(?:%|por cento)/);
@@ -499,9 +661,9 @@ function think(n){
   if(r&&t&&v&&/\b(juros|rend\w*|invest\w*|aplic\w*|simul\w*)\b/.test(n)){
     let i=num(r[1])/100;const k=+t[1]*(/ano/.test(t[2])?12:1),anual=/\b(ao ano|anual|a a)\b/.test(n);if(anual)i=Math.pow(1+i,1/12)-1;
     const mon=/\b(por mes|todo mes|mensal|mensalmente|cada mes)\b/.test(n.replace(/ao mes/g,'')),fv=mon?v*((Math.pow(1+i,k)-1)/(i||1e-9)):v*Math.pow(1+i,k),put=mon?v*k:v;
-    return`Com ${brl(v)}${mon?' por mês':''} a ${r[1]}% ${anual?'ao ano':'ao mês'} durante ${k} meses, você chega a cerca de ${brl(fv)}, sendo ${brl(put)} seus e ${brl(fv-put)} de juros, chef. É uma simulação, sem imposto e sem oscilação.`}
+    return`Com ${rb(v)}${mon?' por mês':''} a ${r[1]}% ${anual?'ao ano':'ao mês'} durante ${k} meses, você chega a cerca de ${rb(fv)}, sendo ${rb(put)} seus e ${rb(fv-put)} de juros, chef. É uma simulação, sem imposto e sem oscilação.`}
   if(t&&v&&/\b(juntar|guardar|poupar|economizar|alcancar)\b/.test(n)&&/\b(preciso|quanto|quero|devo)\b/.test(n)){
-    const k=+t[1]*(/ano/.test(t[2])?12:1);return`Para juntar ${brl(v)} em ${k} meses, guarde cerca de ${brl(v/k)} por mês, chef, sem contar rendimento. Com investimento rendendo, dá para guardar um pouco menos.`}
+    const k=+t[1]*(/ano/.test(t[2])?12:1);return`Para juntar ${rb(v)} em ${k} meses, guarde cerca de ${rb(v/k)} por mês, chef, sem contar rendimento. Com investimento rendendo, dá para guardar um pouco menos.`}
   if(/\b(quanto (e|da|fica|vale)|calcul\w*|resultado|conta de)\b/.test(n)){
     let m=n.match(new RegExp(N+'\\s*(?:%|por cento)\\s*de\\s*'+N));
     if(m)return`${m[1]}% de ${m[2]} é ${fmt(num(m[1])*num(m[2])/100)}, chef.`;
@@ -510,11 +672,11 @@ function think(n){
       const x=o=='mais'||o=='+'?a+b:o=='menos'||o=='-'?a-b:/dividido|\//.test(o)?a/b:a*b;return`${fmt(a)} ${o} ${fmt(b)} dá ${fmt(x)}, chef.`}}
   return null}
 function query(n){
-  const{inc,acc,cre}=totals();
-  if(/\b(credito|limite)\b/.test(n))return S.limit>0?`Você ainda tem ${brl(S.limit-cre)} de crédito, chef.`:'Você ainda não definiu o limite, chef. Diga: meu limite é 3.000.';
-  if(/\b(gast\w*)\b/.test(n))return `Você gastou ${brl(acc+cre)} no total, chef.`;
-  if(/\b(receb\w*|caiu|salario|entrou|entradas)\b/.test(n))return `Caíram ${brl(inc)} na sua conta, chef.`;
-  return `Você tem ${brl(inc-acc)} na conta, chef.`}
+  const g=G(),{inc,acc,cre}=totals();
+  if(/\b(credito|limite)\b/.test(n))return S.limit>0?`Você ainda tem ${brl(S.limit-g.owed)} de crédito, chef.`:'Você ainda não definiu o limite, chef. Diga: meu limite é 3.000.';
+  if(/\b(gast\w*)\b/.test(n))return `Você gastou ${brl(acc+cre)} ${pl()}, chef.`;
+  if(/\b(receb\w*|caiu|salario|entrou|entradas)\b/.test(n))return `Caíram ${brl(inc)} na sua conta ${pl()}, chef.`;
+  return `Você tem ${brl(g.bal)} na conta, chef.`}
 const WLR=/\b(nubank|mercadopago|picpay|inter|itau|bradesco|santander|caixa|c6|banco|especie|dinheiro vivo|carteira|cofrinho|poupanca)\b/;
 function handle(raw,na){
   const text=digits(raw.trim()),n=strip(text),am=amount(text),tk=n.split(/[^a-z0-9$]+/).filter(Boolean);
@@ -523,6 +685,7 @@ function handle(raw,na){
   for(const[re,fn,noAm]of CHAT)if(re.test(n)&&!(noAm&&am))return say(fn());
   if(learnCmd(text,n,am))return;
   if(!am){const q=qaFind(n,.75);if(q)return say(q)}
+  if(extraCmds(text,n,am,tk))return;
   const col=findColor(tk),dk=/\b(escuro|noite|preto)\b/.test(n),lt=/\b(claro|dia|branco)\b/.test(n);
   if(!am&&(col||dk||lt)&&/\b(cor|tema|modo|fundo|mud\w*|troc\w*|colo\w*|deix\w*|visual|estilo|ativ\w*|quero)\b/.test(n)){
     if(dk)theme('dark');else if(lt)theme('light');if(col)accent(col);
@@ -542,6 +705,8 @@ function handle(raw,na){
     switch(top){
       case'undo':return undo();
       case'sheet':return sheet();
+      case'backup':return backup();
+      case'restore':tab(2);return say('Toque em Importar backup, na aba Lançamentos, e escolha o arquivo, chef.');
       case'tip':return tip();
       case'remove':return removeCmd(text,n);
       case'limit':change(()=>S.limit=am.v);return say('Limite de crédito definido em '+brl(am.v)+', chef.');
@@ -592,7 +757,7 @@ function heard(raw){
   const n=strip(raw),now=Date.now();
   if(speaking||now<quiet)return;
   if(raw==lastH&&now-lastT<3000)return;lastH=raw;lastT=now;
-  if(/qual e o valor|onde foi esse gasto|por que voce fez esse gasto|nao peguei o numero/.test(n))return;
+  if(/qual e o valor|qual o valor da fatura|onde foi esse gasto|por que voce fez esse gasto|nao peguei o numero/.test(n))return;
   const m=n.match(/(^|\s)(h?o\s)?(omega|mega|omeca|omeja)\b/);
   if(m){awake=now+30000;const i=m.index+(m[1]?1:0),rest=(raw.slice(0,i)+' '+raw.slice(m.index+m[0].length)).replace(/^[\s,.!?]+/,'').trim();
     return rest?handle(rest):say('Pois não, chef? Estou ouvindo.')}
@@ -622,7 +787,9 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches)loop();
 
 let th=ls('fin_theme');if(!th){try{th=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}catch(e){th='dark'}}
 theme(th);render();fillVoices();setTimeout(fillVoices,800);
-if(SR)try{startVoice()}catch(e){}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+{const last=+ls('fin_bk')||0;if(S.tx.length>=5&&Date.now()-last>30*864e5)setTimeout(()=>toast('Faz tempo que você não faz backup, chef.','Fazer backup',backup,15000),1500)}
+/* O microfone só liga quando você toca em "Ativar Ômega". */
 </script>
 </body>
 </html>
