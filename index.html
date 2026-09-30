@@ -3,142 +3,161 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Minhas Finanças</title>
+<title>Ômega · Finanças</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0f1c;--ink:#e9eef8;--mute:#8593ad;--line:#1d2842;--blue:#5b8cff;--in:#35d0a0;--out:#ff7a70;--card:#111a30;--grid:var(--grid)}
-[data-theme=light]{--bg:#f4f6fb;--ink:#101828;--mute:#5b6a85;--line:#dbe2ef;--blue:#3b6df0;--in:#0f9d75;--out:#d9483f;--card:#fff;--grid:rgba(59,109,240,.09)}
+:root{--bg:#050912;--ink:#e6f3ff;--mute:#7d93b2;--line:#16284a;--blue:#00e5ff;--vio:#8a5cff;--in:#2cf5b0;--out:#ff5c7a;--card:#0b1426;--grid:rgba(0,229,255,.07);--glow:0 0 18px rgba(0,229,255,.35)}
+[data-theme=light]{--bg:#eef3fb;--ink:#0d1b33;--mute:#51627f;--line:#cfdaee;--blue:#0077d9;--vio:#6a3de8;--in:#0a9b6f;--out:#d6334f;--card:#fff;--grid:rgba(0,119,217,.08);--glow:0 0 14px rgba(0,119,217,.22)}
 *{box-sizing:border-box;margin:0}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.5 'IBM Plex Sans',system-ui,sans-serif;min-height:100vh}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 70%)}
-.wrap{position:relative;max-width:860px;margin:0 auto;padding:20px 20px 110px}
-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:28px}
-.brand{font:700 18px 'Space Grotesk',sans-serif;letter-spacing:.01em}
-#mic{position:fixed;right:20px;bottom:20px;z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.3);display:flex;align-items:center;gap:10px;border:1px solid var(--blue);background:var(--card);color:var(--ink);font:500 15px 'IBM Plex Sans',sans-serif;padding:14px 22px;border-radius:999px;cursor:pointer;transition:background .2s}
-
-#mic i{width:10px;height:10px;border-radius:50%;background:var(--blue)}
-#mic.on{background:var(--out);border-color:var(--out);color:#160b0a}
-#mic.on i{background:#160b0a;animation:p 1.2s infinite}
-@keyframes p{50%{opacity:.25}}
-button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-.hero small,.fig small,h2{color:var(--mute);font-size:14px;font-weight:400}
-.hero b{display:block;font:700 clamp(46px,12vw,92px)/1.05 'Space Grotesk',sans-serif;letter-spacing:-.02em;margin:4px 0 6px}
-#say{min-height:48px;color:var(--mute);font-size:15px;margin:6px 0 30px}
-#say em{color:var(--ink);font-style:normal}
-.figs{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.fig{padding:18px 16px 18px 0}.fig+.fig{padding-left:18px;border-left:1px solid var(--line)}
-.fig b{display:block;font:700 clamp(20px,5vw,30px) 'Space Grotesk',sans-serif;margin-top:2px}
-.fig span{font-size:13px;color:var(--mute)}
-.in{color:var(--in)}.out{color:var(--out)}
-section{margin-top:40px}
-h2{margin-bottom:14px}
-.bar{display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:center;margin:10px 0;font-size:14px}
-.bar div{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
-.bar div i{display:block;height:100%;background:var(--blue);border-radius:5px;transition:width .5s}
-.bar span{color:var(--mute);min-width:96px;text-align:right}
-li{list-style:none;display:grid;grid-template-columns:1fr auto 32px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
-li p{font-size:15px}li p small{display:block;color:var(--mute);font-size:12px}
-li button{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer;border-radius:6px}
-li button:hover{color:var(--out)}
-form{display:flex;gap:10px;margin-top:40px}
-input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:400 15px 'IBM Plex Sans',sans-serif;padding:12px 14px}
-form button{background:var(--blue);border:0;border-radius:10px;color:#07101f;font:500 15px 'IBM Plex Sans',sans-serif;padding:0 20px;cursor:pointer}
-.hint{color:var(--mute);font-size:13px;margin-top:10px}
-.empty{color:var(--mute);font-size:15px}
-#toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,200px);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 16px;font-size:14px;display:flex;gap:14px;align-items:center;transition:transform .25s;max-width:92vw}
-#toast.show{transform:translate(-50%,0)}
-#toast button{background:none;border:0;color:var(--blue);font:500 14px 'IBM Plex Sans',sans-serif;cursor:pointer}
-header{padding-bottom:12px}
-#theme{background:none;border:1px solid var(--line);color:var(--ink);border-radius:999px;width:38px;height:38px;cursor:pointer;font-size:16px}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 75%);mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 75%)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 1px,transparent 1px 3px)}
+.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:18px 18px 120px}
+header{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px}
+.brand{display:flex;align-items:center;gap:12px;font:700 16px Orbitron,sans-serif;letter-spacing:.14em}
+.brand small{display:block;font:400 11px 'IBM Plex Sans';letter-spacing:.08em;color:var(--mute)}
+#orb{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--blue) 35%,var(--vio) 80%);box-shadow:var(--glow);animation:br 3s infinite}
+#orb.on{animation:br 1s infinite;box-shadow:0 0 28px var(--blue)}
+@keyframes br{50%{transform:scale(.88);opacity:.75}}
+#theme{background:none;border:1px solid var(--line);color:var(--ink);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:16px}
 nav{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:14px}
-nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);font:500 15px 'IBM Plex Sans',sans-serif;padding:10px 14px;cursor:pointer}
-nav button.on{color:var(--ink);border-color:var(--blue)}
-#say{margin:0 0 22px}
-#tipBtn{margin-top:26px;background:none;border:1px solid var(--blue);color:var(--ink);border-radius:10px;font:500 15px 'IBM Plex Sans',sans-serif;padding:10px 18px;cursor:pointer}
-#tips{margin-top:14px;padding:12px 16px;border-left:3px solid var(--blue);font-size:15px}
+nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);font:500 12px Orbitron,sans-serif;letter-spacing:.1em;padding:10px 14px;cursor:pointer;text-transform:uppercase}
+nav button.on{color:var(--blue);border-color:var(--blue);text-shadow:var(--glow)}
+#say{min-height:48px;color:var(--mute);font-size:15px;margin:0 0 20px;padding:10px 14px;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:8px;background:var(--card)}
+#say em{color:var(--ink);font-style:normal}
+.hero small,.fig small,h2{color:var(--mute);font:400 12px Orbitron,sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.hero b{display:block;font:700 clamp(40px,11vw,80px)/1.05 Orbitron,sans-serif;margin:4px 0 8px;color:var(--blue);text-shadow:var(--glow)}
+.figs{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.fig{padding:16px}.fig+.fig{border-left:1px solid var(--line)}
+.fig b{display:block;font:700 clamp(17px,4.5vw,26px) Orbitron,sans-serif;margin-top:4px}
+.fig span{font-size:12px;color:var(--mute)}
+.in{color:var(--in)}.out{color:var(--out)}
+section{margin-top:28px}
+h2{margin-bottom:12px}
+.charts{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
+.panel{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:16px;position:relative}
+.panel::before,.panel::after{content:"";position:absolute;width:12px;height:12px;border:2px solid var(--blue);opacity:.7}
+.panel::before{top:-1px;left:-1px;border-right:0;border-bottom:0;border-radius:12px 0 0 0}
+.panel::after{bottom:-1px;right:-1px;border-left:0;border-top:0;border-radius:0 0 12px 0}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:13px;color:var(--mute)}
+.leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+svg text{fill:var(--mute);font:11px 'IBM Plex Sans'}
+.empty{color:var(--mute);font-size:14px}
+li{list-style:none;display:grid;grid-template-columns:1fr auto 32px;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+li p{font-size:15px}li p small{display:block;color:var(--mute);font-size:12px;line-height:1.45}
+li button{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer}li button:hover{color:var(--out)}
+form{display:flex;gap:10px;margin-top:26px}
+input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:400 15px 'IBM Plex Sans',sans-serif;padding:12px 14px}
+.btn,form button{background:var(--blue);border:0;border-radius:10px;color:#04101c;font:500 14px 'IBM Plex Sans',sans-serif;padding:0 18px;cursor:pointer;min-height:42px}
+.ghost{background:none;border:1px solid var(--blue);color:var(--ink)}
+#tipBtn{margin-top:24px}
+#tips{margin-top:14px;padding:12px 16px;border-left:3px solid var(--vio);font-size:15px}
 #tips:empty{display:none}#tips p+p{margin-top:8px}
-@media(max-width:560px){.figs{grid-template-columns:1fr}.fig,.fig+.fig{padding:14px 0;border-left:0}.fig+.fig{border-top:1px solid var(--line)}.bar{grid-template-columns:86px 1fr auto}}
+.hint{color:var(--mute);font-size:13px;margin-top:10px}
+#mic{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;align-items:center;gap:10px;border:1px solid var(--blue);background:var(--card);color:var(--ink);font:500 13px Orbitron,sans-serif;letter-spacing:.06em;padding:14px 20px;border-radius:999px;cursor:pointer;box-shadow:var(--glow)}
+#mic i{width:10px;height:10px;border-radius:50%;background:var(--mute)}
+#mic.on i{background:var(--in);animation:br 1.2s infinite}
+#toast{position:fixed;left:50%;bottom:90px;z-index:20;transform:translate(-50%,200px);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 16px;font-size:14px;display:flex;gap:14px;align-items:center;transition:transform .25s;max-width:92vw}
+#toast.show{transform:translate(-50%,0)}
+#toast button{background:none;border:0;color:var(--blue);font:500 14px 'IBM Plex Sans';cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@media(max-width:600px){.charts{grid-template-columns:1fr}.figs{grid-template-columns:1fr}.fig+.fig{border-left:0;border-top:1px solid var(--line)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-  <span class="brand">Minhas Finanças</span>
-  <button id="theme" onclick="flip()" aria-label="Alternar modo claro e escuro"></button>
+  <div class="brand"><div id="orb"></div><div>ÔMEGA<small>FINANÇAS · SISTEMA DO CHEF</small></div></div>
+  <button id="theme" onclick="flip()" aria-label="Alternar tema"></button>
 </header>
 <nav><button id="t1" class="on" onclick="tab(1)">Resumo</button><button id="t2" onclick="tab(2)">Lançamentos</button></nav>
-<p id="say" aria-live="polite">Toque em <em>Falar</em> e diga, por exemplo: “meu salário foi 4.500”.</p>
+<p id="say" aria-live="polite">Diga <em>“Ômega”</em> e depois o comando. Ex.: “Ômega, meu salário foi 4.500”.</p>
+
 <div id="v1">
+  <div class="hero"><small>Saldo atual na conta</small><b id="now">R$ 0,00</b></div>
+  <div class="figs">
+    <div class="fig"><small>Entradas</small><b class="in" id="inc">R$ 0,00</b></div>
+    <div class="fig"><small>Gastos</small><b class="out" id="spent">R$ 0,00</b></div>
+    <div class="fig"><small>Crédito livre</small><b id="cred">—</b><span id="credSub"></span></div>
+  </div>
+  <section class="charts">
+    <div class="panel"><h2>Por área</h2><div id="pie"></div><div class="leg" id="leg"></div></div>
+    <div class="panel"><h2>Evolução</h2><div id="line"></div><div class="leg"><span><i style="background:var(--in)"></i>Entradas</span><span><i style="background:var(--out)"></i>Gastos</span></div></div>
+  </section>
+  <button id="tipBtn" class="btn ghost" onclick="tip()">Gerar dica</button>
+  <div id="tips" aria-live="polite"></div>
+</div>
 
-<div class="hero">
-  <small>Tenho agora na conta</small>
-  <b id="now">R$ 0,00</b>
-</div>
-<div class="figs">
-  <div class="fig"><small>Caiu na conta</small><b class="in" id="inc">R$ 0,00</b></div>
-  <div class="fig"><small>Gastei</small><b class="out" id="spent">R$ 0,00</b></div>
-  <div class="fig"><small>Crédito disponível</small><b id="cred">—</b><span id="credSub"></span></div>
-</div>
-
-<section>
-  <h2>Para onde foi o dinheiro</h2>
-  <div id="bars"></div>
-</section>
-<button id="tipBtn" onclick="tip()">Gerar dica</button>
-<div id="tips" aria-live="polite"></div>
-</div>
 <div id="v2" hidden>
-
-<section style="margin-top:0">
-  <h2>Lançamentos</h2>
-  <ul id="list"></ul>
-</section>
-
-<form onsubmit="return typed(event)">
-  <input id="cmd" autocomplete="off" placeholder="Ou digite: gastei 30 no mercado" aria-label="Digitar um comando">
-  <button>Enviar</button>
-</form>
-<p class="hint">Comandos: “recebi 5.000”, “gastei 50 em lazer”, “gastei 200 no cartão”, “meu limite é 3.000”, “remover mercado”, “remover o último”, “desfazer”, “modo claro”, “dica”, “ocultar valores”.</p>
+  <section style="margin-top:0"><h2>Lançamentos</h2><ul id="list"></ul></section>
+  <form onsubmit="return typed(event)">
+    <input id="cmd" autocomplete="off" placeholder="Digite: gastei 30 em lazer" aria-label="Comando">
+    <button>Enviar</button>
+  </form>
+  <button class="btn ghost" style="margin-top:14px" onclick="sheet()">Gerar planilha e enviar por e-mail</button>
+  <p class="hint">Toda saída pede: onde, quando e por quê. Áreas: Gastos fixos, Lazer, Investimentos, Projetos, Alimentação, Transporte. Comandos: “recebi 5.000”, “gastei 200 em projetos”, “gastei 80 no cartão”, “meu limite é 3.000”, “remover mercado”, “remover o último”, “desfazer”, “cancelar”, “modo claro”, “dica”, “ocultar valores”, “gerar planilha”.</p>
 </div>
 </div>
-<button id="mic" onclick="toggleVoice()" aria-label="Ligar ou desligar o microfone"><i></i><span id="micTxt">Falar</span></button>
-<div id="toast"><span id="toastTxt"></span><button id="undoBtn" onclick="undo()">Desfazer</button></div>
+<button id="mic" onclick="toggleVoice()" aria-label="Ligar ou desligar o microfone"><i></i><span id="micTxt">Ativar Ômega</span></button>
+<div id="toast"><span id="toastTxt"></span><button onclick="undo()">Desfazer</button></div>
 
 <script>
 const $=id=>document.getElementById(id);
 const strip=s=>s.split('').map(c=>c.normalize('NFD').replace(/[\u0300-\u036f]/g,'')).join('').toLowerCase();
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-const KEY='financas_v2';
-let S={tx:[],limit:0,hide:false},prev=null,tt;
-try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.tx))S=s}catch(e){}
+const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const br=d=>d?d.split('-').reverse().join('/'):'';
+const EMAIL='dossantosmatiasjoaopaulo0@gmail.com',KEY='financas_v3';
+let S={tx:[],limit:0,hide:false},prev=null,tt,P=null,awake=0;
+try{let s=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('financas_v2'));
+ if(s&&Array.isArray(s.tx)){s.tx.forEach(t=>{if(t.cat=='Moradia')t.cat='Gastos fixos';if(!t.dt)t.dt=iso(new Date(t.id))});S=s}}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function change(fn){prev=JSON.stringify(S);fn();save();render()}
-function undo(){if(!prev)return say('Nada para desfazer.');S=JSON.parse(prev);prev=null;save();render();$('toast').classList.remove('show');say('Desfeito.')}
-function toast(msg){$('toastTxt').textContent=msg;$('toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>$('toast').classList.remove('show'),8000)}
+function undo(){if(!prev)return say('Nada para desfazer, chef.');S=JSON.parse(prev);prev=null;save();render();$('toast').classList.remove('show');say('Desfeito, chef.')}
+function toast(m){$('toastTxt').textContent=m;$('toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>$('toast').classList.remove('show'),8000)}
 
-/* ---------- Tela ---------- */
-const CATS=[['Moradia','moradia aluguel condominio luz energia agua internet iptu gas casa'],['Alimentação','alimentacao mercado supermercado comida padaria feira acougue almoco lanche ifood'],['Transporte','transporte uber gasolina combustivel onibus metro estacionamento pedagio'],['Lazer','lazer restaurante cinema bar jantar festa viagem show streaming netflix jogo'],['Investimentos','investimento investimentos investi tesouro reserva poupanca aporte acoes']];
+/* ---------- Áreas ---------- */
+const CATS=[['Gastos fixos','fixo fixos moradia aluguel condominio luz energia agua internet iptu gas casa plano mensalidade'],['Alimentação','alimentacao mercado supermercado comida padaria feira acougue almoco lanche ifood'],['Transporte','transporte uber gasolina combustivel onibus metro estacionamento pedagio'],['Lazer','lazer restaurante cinema bar jantar festa viagem show streaming netflix jogo'],['Investimentos','investimento investimentos investi tesouro reserva poupanca aporte acoes'],['Projetos','projeto projetos startup negocio curso equipamento ferramenta']];
+const COL={'Gastos fixos':'#ff9f43','Alimentação':'#2cf5b0','Transporte':'#5b8cff','Lazer':'#ff5c7a','Investimentos':'#00e5ff','Projetos':'#8a5cff','Outros':'#7d93b2'};
 function totals(){
   const inc=S.tx.filter(t=>t.type=='in').reduce((a,t)=>a+t.a,0),out=S.tx.filter(t=>t.type=='out');
-  const acc=out.filter(t=>t.pay!='credito').reduce((a,t)=>a+t.a,0),cre=out.filter(t=>t.pay=='credito').reduce((a,t)=>a+t.a,0);
-  return{inc,out,acc,cre}}
+  return{inc,out,acc:out.filter(t=>t.pay!='credito').reduce((a,t)=>a+t.a,0),cre:out.filter(t=>t.pay=='credito').reduce((a,t)=>a+t.a,0)}}
+
+/* ---------- Gráficos ---------- */
+function pie(rows,tot,m){
+  if(!rows.length)return'<p class="empty">Os gastos aparecem aqui.</p>';
+  let acc=0;const arcs=rows.map(([c,v])=>{const p=v/tot*100,s=`<circle r="15.9155" cx="21" cy="21" fill="none" stroke="${COL[c]||COL.Outros}" stroke-width="6" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${25-acc}"/>`;acc+=p;return s}).join('');
+  return`<svg viewBox="0 0 42 42" style="width:100%;max-width:230px;display:block;margin:auto" role="img" aria-label="Gráfico de pizza por área">${arcs}<text x="21" y="22" text-anchor="middle" style="font-size:4px;fill:var(--ink)">${m(tot)}</text></svg>`}
+function lineChart(){
+  const days=[...new Set(S.tx.map(t=>t.dt))].sort();
+  if(!days.length)return'<p class="empty">A evolução aparece aqui.</p>';
+  let ci=0,co=0;const I=[0],O=[0],L=[''];
+  days.forEach(d=>{S.tx.filter(t=>t.dt==d).forEach(t=>t.type=='in'?ci+=t.a:co+=t.a);I.push(ci);O.push(co);L.push(d)});
+  const W=420,H=190,p=30,mx=Math.max(...I,...O,1),n=L.length-1;
+  const X=i=>p+i*(W-p*2)/n,Y=v=>H-24-v/mx*(H-50);
+  const pts=a=>a.map((v,i)=>X(i)+','+Y(v)).join(' ');
+  const dots=(a,c)=>a.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${c}"/>`).join('');
+  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%" role="img" aria-label="Gráfico de linhas de entradas e gastos"><line x1="${p}" x2="${W-p}" y1="${H-24}" y2="${H-24}" stroke="var(--line)"/><line x1="${p}" x2="${W-p}" y1="${Y(mx)}" y2="${Y(mx)}" stroke="var(--line)" stroke-dasharray="3 4"/><polyline points="${pts(I)}" fill="none" stroke="var(--in)" stroke-width="2.5"/><polyline points="${pts(O)}" fill="none" stroke="var(--out)" stroke-width="2.5"/>${dots(I,'var(--in)')}${dots(O,'var(--out)')}<text x="${p}" y="${H-6}">${br(L[1])}</text><text x="${W-p}" y="${H-6}" text-anchor="end">${br(L[n])}</text><text x="${p}" y="${Y(mx)-6}">${S.hide?'':brl(mx)}</text></svg>`}
+
 function render(){
   const m=v=>S.hide?'••••••':brl(v),{inc,out,acc,cre}=totals();
   $('now').textContent=m(inc-acc);$('inc').textContent=m(inc);$('spent').textContent=m(acc+cre);
-  if(S.limit>0){$('cred').textContent=m(S.limit-cre);$('credSub').textContent=S.hide?'':'limite de '+brl(S.limit)+' · usado '+brl(cre)}
-  else{$('cred').textContent='—';$('credSub').textContent='Diga: “meu limite é 3.000”'}
+  if(S.limit>0){$('cred').textContent=m(S.limit-cre);$('credSub').textContent=S.hide?'':'limite '+brl(S.limit)}
+  else{$('cred').textContent='—';$('credSub').textContent='Diga: meu limite é 3.000'}
   const by={};out.forEach(t=>by[t.cat]=(by[t.cat]||0)+t.a);
-  const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),max=rows.length?rows[0][1]:1;
-  $('bars').innerHTML=rows.length?rows.map(([c,v])=>`<div class="bar"><span style="text-align:left;color:var(--ink)">${esc(c)}</span><div><i style="width:${v/max*100}%"></i></div><span>${m(v)}</span></div>`).join(''):'<p class="empty">Os gastos aparecem aqui.</p>';
-  $('list').innerHTML=S.tx.length?S.tx.slice(0,40).map(t=>`<li><p>${esc(t.t)}<small>${esc(t.cat)}${t.pay=='credito'?' · crédito':''} · ${esc(t.d)}</small></p><span class="${t.type=='in'?'in':'out'}">${t.type=='in'?'+':'−'} ${m(t.a)}</span><button onclick="rem(${t.id})" aria-label="Remover ${esc(t.t)}">×</button></li>`).join(''):'<p class="empty">Nenhum lançamento ainda.</p>';
-}
+  const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=rows.reduce((a,r)=>a+r[1],0);
+  $('pie').innerHTML=pie(rows,tot,m);
+  $('leg').innerHTML=rows.map(([c,v])=>`<span><i style="background:${COL[c]||COL.Outros}"></i>${esc(c)} ${Math.round(v/tot*100)}%</span>`).join('');
+  $('line').innerHTML=lineChart();
+  $('list').innerHTML=S.tx.length?S.tx.slice(0,50).map(t=>`<li><p>${esc(t.t)}<small>${esc(t.cat)}${t.pay=='credito'?' · crédito':''} · ${br(t.dt)}${t.where?'<br>Onde: '+esc(t.where):''}${t.why?'<br>Por quê: '+esc(t.why):''}</small></p><span class="${t.type=='in'?'in':'out'}">${t.type=='in'?'+':'−'} ${m(t.a)}</span><button onclick="rem(${t.id})" aria-label="Remover ${esc(t.t)}">×</button></li>`).join(''):'<p class="empty">Nenhum lançamento ainda.</p>'}
 function rem(id){const t=S.tx.find(x=>x.id==id);if(!t)return;change(()=>S.tx=S.tx.filter(x=>x.id!=id));toast('Removido: '+t.t+' ('+brl(t.a)+')')}
 
-/* ---------- Interpretação da fala ---------- */
+/* ---------- Interpretação ---------- */
 const NUM={dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,catorze:14,quatorze:14,quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,cem:100,cento:100,duzentos:200,trezentos:300,quatrocentos:400,quinhentos:500,seiscentos:600,setecentos:700,oitocentos:800,novecentos:900};
 const isN=t=>Object.prototype.hasOwnProperty.call(NUM,t);
 function digits(text){
@@ -163,7 +182,7 @@ function amount(text){const n=strip(text);
   return v>0?{v,start:m.index,end:m.index+m[0].length}:null}
 function category(n){let best='Outros',bi=1e9;
   CATS.forEach(([c,ws])=>ws.split(' ').forEach(w=>{const m=n.match(new RegExp('\\b'+w+'\\b'));if(m&&m.index<bi){best=c;bi=m.index}}));return best}
-const STOP=new Set('adicionar adiciona adicione lancar lance registrar registre anotar uma um despesa receita gasto gastei paguei comprei recebi ganhei entrada saida meu minha foi caiu de do da por com em no na r$ reais real'.split(' '));
+const STOP=new Set('adicionar adiciona adicione lancar lance registrar registre anotar uma um despesa receita gasto gastei paguei comprei recebi ganhei entrada saida meu minha foi caiu de do da por com em no na r$ reais real omega'.split(' '));
 function describe(text,n,am,fb){
   let a=text.slice(am.end),b=n.slice(am.end);
   const c=b.search(/\b(categoria|no cartao|no credito|no debito|na conta|porque)\b/);if(c>=0){a=a.slice(0,c);b=b.slice(0,c)}
@@ -171,29 +190,52 @@ function describe(text,n,am,fb){
   let m;while((m=b.match(/^(em|com|de|do|da|no|na|nos|nas|para|pra|por|num)\s+/))){a=a.slice(m[0].length);b=b.slice(m[0].length)}
   a=a.replace(/^[\s,.]+|[\s,.]+$/g,'');
   if(a.length<2)a=text.slice(0,am.start).split(/\s+/).filter(t=>t&&!STOP.has(strip(t))).join(' ');
-  if(a.length<2)a=fb;return a[0].toUpperCase()+a.slice(1)}
+  if(a.length<2)a=fb;return cap(a)}
+
+/* ---------- Justificativa obrigatória: onde, quando, por quê ---------- */
+const MES='janeiro fevereiro marco abril maio junho julho agosto setembro outubro novembro dezembro'.split(' ');
+function parseWhen(n){const d=new Date();
+  if(/\banteontem\b/.test(n)){d.setDate(d.getDate()-2);return iso(d)}
+  if(/\bontem\b/.test(n)){d.setDate(d.getDate()-1);return iso(d)}
+  if(/\bhoje\b|\bagora\b/.test(n))return iso(d);
+  let m=n.match(/(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?/);
+  if(m){let y=m[3]?+m[3]:d.getFullYear();if(y<100)y+=2000;return iso(new Date(y,m[2]-1,m[1]))}
+  m=n.match(/\bdia\s+(\d{1,2})(?:\s+de\s+([a-z]+))?/);
+  if(m){const mi=m[2]?MES.indexOf(m[2]):d.getMonth();if(mi>=0)return iso(new Date(d.getFullYear(),mi,m[1]))}
+  return null}
+function ask(){say(P.step=='w'?'Onde foi esse gasto, chef?':P.step=='d'?'E quando foi? Diga hoje, ontem ou a data.':'Por que você fez esse gasto, chef? Preciso da justificativa.')}
+function answer(text,n){
+  if(/\b(cancelar|cancela|esquece)\b/.test(n)){P=null;return say('Gasto cancelado, chef.')}
+  const d=P.d;
+  if(P.step=='w'){if(text.trim().length<2)return ask();d.where=cap(text.trim());P.step='d';return ask()}
+  if(P.step=='d'){const w=parseWhen(n);if(!w)return say('Não entendi a data, chef. Diga hoje, ontem, dia 15 ou 15/09.');d.dt=w;P.step='y';return ask()}
+  if(text.trim().length<4)return say('Preciso de uma justificativa de verdade, chef. Por que gastou?');
+  d.why=cap(text.trim());P=null;
+  change(()=>S.tx.unshift({id:Date.now(),t:d.t,a:d.a,type:'out',cat:d.cat,pay:d.pay,where:d.where,dt:d.dt,why:d.why}));
+  const msg=`Registrado, chef: ${brl(d.a)} em ${d.t} (${d.cat}${d.pay=='credito'?', crédito':''}), ${br(d.dt)}.`;
+  say(msg+' Diga desfazer se estiver errado.');toast(msg)}
 
 function add(type,am,text,n){
   const isSal=/\bsalario\b/.test(n);
   const title=type=='in'&&isSal?'Salário':describe(text,n,am,type=='in'?'Entrada':'Gasto');
-  const cat=type=='in'?'Entrada':category(strip(title)+' '+n);
-  const pay=/\b(cartao|credito)\b/.test(n)?'credito':'conta';
-  const old=type=='in'&&isSal?S.tx.find(t=>t.type=='in'&&t.t=='Salário'):null;
-  if(old){change(()=>old.a=am.v);const msg='Salário atualizado para '+brl(am.v)+'.';say(msg);toast(msg);return}
-  change(()=>S.tx.unshift({id:Date.now(),t:title,a:am.v,type,cat,pay:type=='out'?pay:'conta',d:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}));
-  const msg=type=='in'?`Entrada de ${brl(am.v)} registrada: ${title}.`:`Gasto de ${brl(am.v)} em ${title} (${cat}${pay=='credito'?', crédito':''}).`;
-  say(msg+' Diga desfazer se estiver errado.');toast(msg)}
+  if(type=='out'){
+    P={step:'w',d:{t:title,a:am.v,cat:category(strip(title)+' '+n),pay:/\b(cartao|credito)\b/.test(n)?'credito':'conta'}};
+    say(`Gasto de ${brl(am.v)} em ${title}, área ${P.d.cat}. Para registrar preciso da justificativa. Onde foi esse gasto, chef?`);return}
+  const old=isSal?S.tx.find(t=>t.type=='in'&&t.t=='Salário'):null;
+  if(old){change(()=>old.a=am.v);const m='Salário atualizado para '+brl(am.v)+', chef.';say(m);toast(m);return}
+  change(()=>S.tx.unshift({id:Date.now(),t:title,a:am.v,type:'in',cat:'Entrada',pay:'conta',dt:iso(new Date())}));
+  const msg=`Entrada de ${brl(am.v)} registrada, chef: ${title}.`;say(msg+' Diga desfazer se estiver errado.');toast(msg)}
 
-const RSTOP=new Set('remover remova remove apagar apague apaga excluir exclua tirar tira o a os as um uma esse essa gasto gastos lancamento despesa receita entrada de do da no na em por porque pois foi colocado colocada incorretamente errado errada errei lancei ultimo ultima recente que'.split(' '));
+const RSTOP=new Set('remover remova remove apagar apague apaga excluir exclua tirar tira o a os as um uma esse essa gasto gastos lancamento despesa receita entrada de do da no na em por porque pois foi colocado colocada incorretamente errado errada errei lancei ultimo ultima recente que omega'.split(' '));
 function removeCmd(text,n){
   const cut=n.search(/\b(porque|pois|foi colocad|foi lancad)/);
   const nn=cut>0?n.slice(0,cut):n,tx=cut>0?text.slice(0,cut):text;
-  if(/\b(ultimo|ultima|recente)\b/.test(nn)){const t=S.tx[0];if(!t)return say('Não há lançamentos.');rem(t.id);return say(`Removi o último lançamento: ${t.t}, ${brl(t.a)}.`)}
+  if(/\b(ultimo|ultima|recente)\b/.test(nn)){const t=S.tx[0];if(!t)return say('Não há lançamentos, chef.');rem(t.id);return say(`Removi o último lançamento: ${t.t}, ${brl(t.a)}.`)}
   const am=amount(tx),words=nn.split(/[^a-z0-9$]+/).filter(w=>w.length>2&&!RSTOP.has(w)&&!/^\d+$/.test(w));
-  if(!am&&!words.length)return say('Qual lançamento remover? Diga o nome ou o valor, ou “remover o último”.');
+  if(!am&&!words.length)return say('Qual lançamento remover, chef? Diga o nome ou o valor, ou “remover o último”.');
   const hit=S.tx.filter(t=>(!am||Math.abs(t.a-am.v)<.005)&&words.every(w=>strip(t.t+' '+t.cat).includes(w)));
-  if(!hit.length)return say('Não encontrei esse lançamento. Veja a lista e diga o nome ou o valor.');
-  if(hit.length>1)return say(`Achei ${hit.length} lançamentos parecidos. Diga também o valor para eu remover o certo.`);
+  if(!hit.length)return say('Não encontrei esse lançamento, chef. Diga o nome ou o valor.');
+  if(hit.length>1)return say(`Achei ${hit.length} lançamentos parecidos. Diga também o valor, chef.`);
   rem(hit[0].id);say(`Removi ${hit[0].t}, ${brl(hit[0].a)}. Diga desfazer para voltar.`)}
 
 function theme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t=='light'?'☾':'☀';try{localStorage.setItem('fin_theme',t)}catch(e){}}
@@ -201,45 +243,81 @@ function flip(){theme(document.documentElement.dataset.theme=='light'?'dark':'li
 function tab(n){$('v1').hidden=n!=1;$('v2').hidden=n!=2;$('t1').classList.toggle('on',n==1);$('t2').classList.toggle('on',n==2)}
 function tipText(){
   const{inc,out,acc,cre}=totals();
-  if(inc<=0)return['Registre quanto caiu na conta, por exemplo “meu salário foi 4.500”, para eu analisar seus gastos.'];
-  if(!out.length)return['Ainda não há gastos registrados. Registre alguns e eu faço a análise.'];
+  if(inc<=0)return['Chef, registre quanto caiu na conta, por exemplo “meu salário foi 4.500”, para eu analisar seus gastos.'];
+  if(!out.length)return['Chef, ainda não há gastos registrados. Registre alguns e eu faço a análise.'];
   const by=c=>out.filter(t=>t.cat==c).reduce((a,t)=>a+t.a,0),p=v=>Math.round(v/inc*100);
-  const need=by('Moradia')+by('Alimentação')+by('Transporte'),want=by('Lazer'),inv=by('Investimentos'),r=[];
-  if(inc-acc<0)r.push(`Atenção: seus gastos passaram do que caiu na conta em ${brl(acc-inc)}.`);
-  if(p(want)>30)r.push(`Lazer está em ${p(want)}% da renda (o ideal é até 30%). Cortar ${brl(want-inc*.3)} equilibra o mês.`);
-  if(p(need)>50)r.push(`Moradia, alimentação e transporte somam ${p(need)}%, acima dos 50% recomendados.`);
+  const need=by('Gastos fixos')+by('Alimentação')+by('Transporte'),want=by('Lazer'),inv=by('Investimentos'),pj=by('Projetos'),r=[];
+  if(inc-acc<0)r.push(`Atenção, chef: seus gastos passaram do que caiu na conta em ${brl(acc-inc)}.`);
+  if(p(want)>30)r.push(`Lazer está em ${p(want)}% da renda (ideal até 30%). Cortar ${brl(want-inc*.3)} equilibra o mês.`);
+  if(p(need)>50)r.push(`Gastos fixos, alimentação e transporte somam ${p(need)}%, acima dos 50% recomendados.`);
   if(p(inv)<20)r.push(`Você investiu ${p(inv)}% da renda. Tente chegar a 20%, cerca de ${brl(inc*.2)} por mês.`);
-  if(S.limit>0&&cre/S.limit>.7)r.push(`Você já usou ${Math.round(cre/S.limit*100)}% do limite de crédito. Vale segurar as compras no cartão.`);
-  if(!r.length)r.push('Seus gastos estão dentro da regra 50/30/20. Continue assim e mantenha o aporte mensal.');
+  if(pj>0)r.push(`Projetos já consumiram ${p(pj)}% da renda. Confira se cada um tem retorno esperado.`);
+  if(S.limit>0&&cre/S.limit>.7)r.push(`Você já usou ${Math.round(cre/S.limit*100)}% do limite de crédito. Segure as compras no cartão.`);
+  if(!r.length)r.push('Seus gastos estão dentro da regra 50/30/20, chef. Continue assim e mantenha o aporte mensal.');
   return r}
 function tip(){const r=tipText();tab(1);$('tips').innerHTML=r.map(x=>'<p>'+esc(x)+'</p>').join('');say(r.join(' '))}
+
+/* ---------- Planilha ---------- */
+function sheet(){
+  const{inc,out,acc,cre}=totals(),by={};out.forEach(t=>by[t.cat]=(by[t.cat]||0)+t.a);
+  const tot=acc+cre,R='style="mso-number-format:\'R\\$ \\#\\,\\#\\#0\\.00\'"',th='style="background:#0b1f3a;color:#00e5ff;font-weight:bold;padding:6px"',td='style="border-bottom:1px solid #d0d9e8;padding:5px"';
+  const rowsC=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<tr><td ${td}>${esc(c)}</td><td ${td} ${R}>${v.toFixed(2)}</td><td ${td}>${Math.round(v/tot*100)}%</td></tr>`).join('');
+  const rowsT=S.tx.map(t=>`<tr><td ${td}>${br(t.dt)}</td><td ${td}>${t.type=='in'?'Entrada':'Saída'}</td><td ${td}>${esc(t.t)}</td><td ${td}>${esc(t.cat)}</td><td ${td}>${t.pay=='credito'?'Crédito':'Conta'}</td><td ${td}>${esc(t.where||'—')}</td><td ${td}>${esc(t.why||'—')}</td><td ${td} ${R}>${(t.type=='in'?t.a:-t.a).toFixed(2)}</td></tr>`).join('');
+  const html=`<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body style="font-family:Calibri,Arial">
+<table><tr><td colspan="8" style="font-size:22px;font-weight:bold;color:#0b1f3a">Ômega · Relatório de Finanças do Chef</td></tr>
+<tr><td colspan="8" style="color:#51627f">Gerado em ${new Date().toLocaleString('pt-BR')}. Como ler: 1) Resumo = visão geral; 2) Por área = onde o dinheiro foi; 3) Lançamentos = cada movimentação com onde, quando e por quê. Valores negativos são saídas.</td></tr><tr><td></td></tr>
+<tr><td colspan="8" style="font-size:15px;font-weight:bold;background:#e6f3ff">1) RESUMO</td></tr>
+<tr><td ${th}>Entradas</td><td ${th}>Gastos na conta</td><td ${th}>Gastos no crédito</td><td ${th}>Saldo na conta</td></tr>
+<tr><td ${R}>${inc.toFixed(2)}</td><td ${R}>${acc.toFixed(2)}</td><td ${R}>${cre.toFixed(2)}</td><td ${R} style="font-weight:bold">${(inc-acc).toFixed(2)}</td></tr><tr><td></td></tr>
+<tr><td colspan="8" style="font-size:15px;font-weight:bold;background:#e6f3ff">2) POR ÁREA</td></tr>
+<tr><td ${th}>Área</td><td ${th}>Total</td><td ${th}>% dos gastos</td></tr>${rowsC||'<tr><td>Sem gastos</td></tr>'}<tr><td></td></tr>
+<tr><td colspan="8" style="font-size:15px;font-weight:bold;background:#e6f3ff">3) LANÇAMENTOS</td></tr>
+<tr><td ${th}>Data</td><td ${th}>Tipo</td><td ${th}>Descrição</td><td ${th}>Área</td><td ${th}>Pagamento</td><td ${th}>Onde</td><td ${th}>Por quê</td><td ${th}>Valor</td></tr>${rowsT}</table></body></html>`;
+  const name='Financas_Omega_'+iso(new Date())+'.xls',a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'}));a.download=name;document.body.appendChild(a);a.click();a.remove();
+  const body=`Chef, segue o resumo.\n\nEntradas: ${brl(inc)}\nGastos: ${brl(tot)}\nSaldo na conta: ${brl(inc-acc)}\n\nAnexe o arquivo ${name} que acabou de ser baixado.`;
+  say('Planilha gerada, chef. Abrindo o e-mail para enviar. Anexe o arquivo baixado.');
+  setTimeout(()=>location.href='mailto:'+EMAIL+'?subject='+encodeURIComponent('Relatório de finanças · '+br(iso(new Date())))+'&body='+encodeURIComponent(body),900)}
+
+/* ---------- Conversa e comandos ---------- */
+const PIADAS=['Por que o investidor foi ao médico, chef? Porque estava com os juros altos.','Chef, meu cofrinho me disse que está sem saldo para piadas. Mas aqui vai uma: o que o zero disse ao oito? Belo cinto!'];
 function handle(raw){
   const text=digits(raw.trim()),n=strip(text),am=amount(text);
+  if(P)return answer(text,n);
   if(/\b(desfazer|desfaz|voltar atras)\b/.test(n))return undo();
+  if(/\b(planilha|relatorio|exportar)\b/.test(n))return sheet();
   if(/\b(dica|dicas|conselho)\b/.test(n))return tip();
-  if(/\bmodo (claro|dia)\b|\btema claro\b/.test(n)){theme('light');return say('Modo claro ativado.')}
-  if(/\bmodo (escuro|noite)\b|\btema escuro\b/.test(n)){theme('dark');return say('Modo escuro ativado.')}
-  if(/\b(resumo|inicio|grafico)\b/.test(n)){tab(1);return say('Mostrando o resumo.')}
-  if(/\blancamentos\b/.test(n)&&!/\b(remov\w*|apag\w*|exclu\w*)\b/.test(n)){tab(2);return say('Mostrando os lançamentos.')}
-  if(/\b(ajuda|comandos)\b/.test(n))return say('Diga: meu salário foi 4.500; gastei 50 em lazer; gastei 200 no cartão; meu limite é 3.000; remover mercado; remover o último; quanto eu tenho; dica; modo claro; desfazer.');
+  if(/\bmodo (claro|dia)\b|\btema claro\b/.test(n)){theme('light');return say('Modo claro ativado, chef.')}
+  if(/\bmodo (escuro|noite)\b|\btema escuro\b/.test(n)){theme('dark');return say('Modo escuro ativado, chef.')}
+  if(/\b(resumo|inicio|grafico|graficos)\b/.test(n)){tab(1);return say('Mostrando o resumo, chef.')}
+  if(/\blancamentos\b/.test(n)&&!/\b(remov\w*|apag\w*|exclu\w*)\b/.test(n)){tab(2);return say('Mostrando os lançamentos, chef.')}
+  if(/\b(ajuda|comandos)\b/.test(n))return say('Chef, diga: meu salário foi 4.500; gastei 50 em lazer; gastei 200 em projetos; meu limite é 3.000; remover mercado; quanto eu tenho; dica; gerar planilha; modo claro; desfazer.');
   if(/\b(remov\w*|apag\w*|exclu\w*|tira|tirar)\b/.test(n))return removeCmd(text,n);
-  if(/\b(ocultar|esconder|esconde)\b/.test(n)){change(()=>S.hide=true);return say('Valores ocultos.')}
-  if(/\b(mostrar|exibir|mostra)\b/.test(n)){change(()=>S.hide=false);return say('Valores visíveis.')}
-  if(/\blimite\b/.test(n)&&am){change(()=>S.limit=am.v);return say('Limite de crédito definido em '+brl(am.v)+'.')}
+  if(/\b(ocultar|esconder|esconde)\b/.test(n)){change(()=>S.hide=true);return say('Valores ocultos, chef.')}
+  if(/\b(mostrar|exibir|mostra)\b/.test(n)){change(()=>S.hide=false);return say('Valores visíveis, chef.')}
+  if(/\b(tchau|desligar microfone|parar de ouvir|ate logo)\b/.test(n)){say('Até logo, chef. Me chame quando precisar.');return setTimeout(stopVoice,2500)}
+  if(/\b(obrigad\w*|valeu)\b/.test(n))return say('Sempre às ordens, chef.');
+  if(/\b(piada)\b/.test(n))return say(PIADAS[Math.floor(Math.random()*PIADAS.length)]);
+  if(/\bque horas\b/.test(n))return say('Agora são '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+', chef.');
+  if(/\bque dia\b/.test(n))return say('Hoje é '+new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})+', chef.');
+  if(/\b(quem e voce|seu nome|quem voce e)\b/.test(n))return say('Eu sou o Ômega, seu assistente financeiro, chef. Organizo seus gastos e converso com você.');
+  if(/\b(como voce esta|tudo bem|como vai)\b/.test(n))return say('Tudo em ordem por aqui, chef. Sistemas online e pronto para cuidar das suas finanças.');
+  if(/\b(oi|ola|bom dia|boa tarde|boa noite|e ai)\b/.test(n)&&!am){const h=new Date().getHours();return say((h<12?'Bom dia':h<18?'Boa tarde':'Boa noite')+', chef! Em que posso ajudar?')}
+  if(/\blimite\b/.test(n)&&am){change(()=>S.limit=am.v);return say('Limite de crédito definido em '+brl(am.v)+', chef.')}
   const{inc,acc,cre}=totals();
   if(/\b(quanto|qual)\b/.test(n)&&!am){
-    if(/\bcredito\b|\blimite\b/.test(n))return say(S.limit>0?`Você ainda tem ${brl(S.limit-cre)} de crédito.`:'Você ainda não definiu o limite. Diga: meu limite é 3.000.');
-    if(/\b(gastei|gasto|gastou)\b/.test(n))return say(`Você gastou ${brl(acc+cre)} no total.`);
-    if(/\b(recebi|caiu|salario|entrou)\b/.test(n))return say(`Caíram ${brl(inc)} na sua conta.`);
-    if(/\b(tenho|saldo|sobrou|conta)\b/.test(n))return say(`Você tem ${brl(inc-acc)} na conta.`)}
+    if(/\bcredito\b|\blimite\b/.test(n))return say(S.limit>0?`Você ainda tem ${brl(S.limit-cre)} de crédito, chef.`:'Você ainda não definiu o limite, chef. Diga: meu limite é 3.000.');
+    if(/\b(gastei|gasto|gastou)\b/.test(n))return say(`Você gastou ${brl(acc+cre)} no total, chef.`);
+    if(/\b(recebi|caiu|salario|entrou)\b/.test(n))return say(`Caíram ${brl(inc)} na sua conta, chef.`);
+    if(/\b(tenho|saldo|sobrou|conta)\b/.test(n))return say(`Você tem ${brl(inc-acc)} na conta, chef.`)}
   if(am&&/\b(recebi|caiu|cai|entrou|ganhei|deposit\w*|salario|entrada|receita)\b/.test(n)&&!/\b(gastei|paguei|comprei)\b/.test(n))return add('in',am,text,n);
   if(am)return add('out',am,text,n);
-  say('Não entendi. Diga “ajuda” para ver os comandos.')}
+  say('Não entendi, chef. Diga “ajuda” para ver os comandos.')}
 function typed(e){e.preventDefault();const v=$('cmd').value.trim();if(v){handle(v);$('cmd').value=''}return false}
 
-/* ---------- Voz ---------- */
+/* ---------- Voz: palavra de ativação “Ômega” ---------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let rec=null,active=false,speaking=false,idle;
+let rec=null,active=false,speaking=false;
 function say(msg){$('say').innerHTML='<em>'+esc(msg)+'</em>';speak(msg)}
 function speak(msg){
   if(!active||!('speechSynthesis'in window))return;
@@ -247,21 +325,26 @@ function speak(msg){
   const u=new SpeechSynthesisUtterance(msg);u.lang='pt-BR';
   const done=()=>{speaking=false;if(active)go()};u.onend=done;u.onerror=done;speechSynthesis.speak(u)}
 function go(){try{rec.start()}catch(e){}}
-function bump(){clearTimeout(idle);idle=setTimeout(()=>{stopVoice();toast('Microfone desligado por inatividade.')},60000)}
+function heard(raw){
+  const n=strip(raw),m=n.match(/(^|\s)(o\s)?(omega|mega)\b/);
+  if(m){awake=Date.now()+30000;const i=m.index+(m[1]?1:0),rest=(raw.slice(0,i)+' '+raw.slice(m.index+m[0].length)).replace(/^[\s,.!?]+/,'').trim();
+    return rest?handle(rest):say('Pois não, chef? Estou ouvindo.')}
+  if(P||Date.now()<awake){awake=Date.now()+30000;return handle(raw)}
+  $('say').innerHTML='Em espera. Diga <em>“Ômega”</em> e o comando.'}
 function toggleVoice(){active?stopVoice():startVoice()}
 function startVoice(){
-  if(!SR)return say('Este navegador não tem reconhecimento de voz. Use Chrome, Edge ou Safari, ou digite abaixo.');
-  active=true;$('mic').classList.add('on');$('micTxt').textContent='Ouvindo…';
-  if(!rec){rec=new SR();rec.lang='pt-BR';rec.interimResults=true;rec.continuous=false;
-    rec.onresult=ev=>{let f='',p='';for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)f+=r[0].transcript;else p+=r[0].transcript}
-      $('say').textContent='“'+(f||p).trim()+'”';if(f.trim()){bump();handle(f)}};
-    rec.onerror=ev=>{if(/not-allowed|service-not-allowed/.test(ev.error)){stopVoice();say('Microfone bloqueado. Libere o acesso nas configurações do navegador.')}else if(ev.error=='audio-capture'){stopVoice();say('Não encontrei um microfone.')}else if(ev.error=='network'){stopVoice();say('Sem conexão com o serviço de voz.')}};
+  if(!SR)return say('Este navegador não tem reconhecimento de voz, chef. Use Chrome, Edge ou Safari, ou digite.');
+  active=true;$('mic').classList.add('on');$('orb').classList.add('on');$('micTxt').textContent='Ômega ativo';
+  if(!rec){rec=new SR();rec.lang='pt-BR';rec.interimResults=false;rec.continuous=false;
+    rec.onresult=ev=>{for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal&&r[0].transcript.trim())heard(r[0].transcript)}};
+    rec.onerror=ev=>{if(/not-allowed|service-not-allowed/.test(ev.error)){stopVoice();say('Microfone bloqueado, chef. Libere o acesso nas configurações do navegador.')}else if(ev.error=='audio-capture'){stopVoice();say('Não encontrei um microfone.')}else if(ev.error=='network'){stopVoice();say('Sem conexão com o serviço de voz.')}};
     rec.onend=()=>{if(active&&!speaking)setTimeout(go,250)}}
-  $('say').textContent='Pode falar…';go();bump()}
-function stopVoice(){active=false;speaking=false;clearTimeout(idle);try{rec&&rec.stop()}catch(e){}
-  if('speechSynthesis'in window)speechSynthesis.cancel();$('mic').classList.remove('on');$('micTxt').textContent='Falar'}
+  $('say').innerHTML='Ômega em espera. Diga <em>“Ômega”</em> e o comando.';go()}
+function stopVoice(){active=false;speaking=false;try{rec&&rec.stop()}catch(e){}
+  if('speechSynthesis'in window)speechSynthesis.cancel();$('mic').classList.remove('on');$('orb').classList.remove('on');$('micTxt').textContent='Ativar Ômega'}
 let th='dark';try{th=localStorage.getItem('fin_theme')||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}catch(e){}
 theme(th);render();
+if(SR)try{startVoice()}catch(e){}
 </script>
 </body>
 </html>
