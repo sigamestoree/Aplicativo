@@ -6,75 +6,88 @@
 <title>Ômega · Finanças</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js" defer></script>
 <style>
-:root{--bg:#050912;--ink:#e6f3ff;--mute:#7d93b2;--line:#16284a;--blue:#00e5ff;--vio:#8a5cff;--in:#2cf5b0;--out:#ff5c7a;--card:#0b1426;--grid:rgba(0,229,255,.07);--glow:0 0 18px rgba(0,229,255,.35)}
-[data-theme=light]{--bg:#eef3fb;--ink:#0d1b33;--mute:#51627f;--line:#cfdaee;--blue:#0077d9;--vio:#6a3de8;--in:#0a9b6f;--out:#d6334f;--card:#fff;--grid:rgba(0,119,217,.08);--glow:0 0 14px rgba(0,119,217,.22)}
+:root{--bg:#050912;--ink:#e6f3ff;--mute:#7d93b2;--line:#16284a;--blue:#00e5ff;--vio:#8a5cff;--in:#2cf5b0;--out:#ff5c7a;--card:rgba(11,20,38,.82);--glow:0 0 18px rgba(0,229,255,.4);--onacc:#04101c}
+[data-theme=light]{--bg:#eef3fb;--ink:#0d1b33;--mute:#51627f;--line:#cfdaee;--in:#0a9b6f;--out:#d6334f;--card:rgba(255,255,255,.88)}
 *{box-sizing:border-box;margin:0}
-body{background:var(--bg);color:var(--ink);font:400 16px/1.5 'IBM Plex Sans',system-ui,sans-serif;min-height:100vh}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px;-webkit-mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 75%);mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 75%)}
-body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 1px,transparent 1px 3px)}
-.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:18px 18px 120px}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 'Chakra Petch',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+#fx{position:fixed;inset:0;z-index:0;pointer-events:none}
+#scan{position:fixed;left:0;right:0;height:120px;z-index:0;pointer-events:none;background:linear-gradient(transparent,var(--blue),transparent);opacity:.05;animation:sc 9s linear infinite}
+@keyframes sc{from{top:-120px}to{top:100%}}
+.wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:18px 18px 120px}
 header{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px}
-.brand{display:flex;align-items:center;gap:12px;font:700 16px Orbitron,sans-serif;letter-spacing:.14em}
-.brand small{display:block;font:400 11px 'IBM Plex Sans';letter-spacing:.08em;color:var(--mute)}
-#orb{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--blue) 35%,var(--vio) 80%);box-shadow:var(--glow);animation:br 3s infinite}
-#orb.on{animation:br 1s infinite;box-shadow:0 0 28px var(--blue)}
-@keyframes br{50%{transform:scale(.88);opacity:.75}}
+.brand{display:flex;align-items:center;gap:12px}
+.brand b{font:700 20px 'Chakra Petch';letter-spacing:.3em;position:relative;animation:gl 7s infinite}
+.brand small{display:block;font:400 11px 'Share Tech Mono';letter-spacing:.14em;color:var(--mute)}
+@keyframes gl{0%,93%,100%{text-shadow:none;transform:none}94%{text-shadow:-2px 0 var(--out),2px 0 var(--blue);transform:translateX(2px)}96%{text-shadow:2px 0 var(--out),-2px 0 var(--blue);transform:translateX(-2px)}}
+#orb{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--blue) 35%,var(--vio) 85%);box-shadow:var(--glow);animation:br 3s infinite;position:relative}
+#orb::after{content:"";position:absolute;inset:-6px;border:1px dashed var(--blue);border-radius:50%;animation:rot 8s linear infinite;opacity:.7}
+#orb.on{animation:br 1s infinite;box-shadow:0 0 30px var(--blue)}
+@keyframes br{50%{transform:scale(.88);opacity:.8}}@keyframes rot{to{transform:rotate(360deg)}}
 #theme{background:none;border:1px solid var(--line);color:var(--ink);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:16px}
-nav{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:14px}
-nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);font:500 12px Orbitron,sans-serif;letter-spacing:.1em;padding:10px 14px;cursor:pointer;text-transform:uppercase}
+nav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto}
+nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);font:600 13px 'Chakra Petch';letter-spacing:.14em;padding:10px 14px;cursor:pointer;text-transform:uppercase;white-space:nowrap}
 nav button.on{color:var(--blue);border-color:var(--blue);text-shadow:var(--glow)}
-#say{min-height:48px;color:var(--mute);font-size:15px;margin:0 0 20px;padding:10px 14px;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:8px;background:var(--card)}
+#say{min-height:52px;color:var(--mute);font-size:15px;margin:0 0 20px;padding:10px 14px;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:8px;background:var(--card);backdrop-filter:blur(6px)}
 #say em{color:var(--ink);font-style:normal}
-.hero small,.fig small,h2{color:var(--mute);font:400 12px Orbitron,sans-serif;letter-spacing:.12em;text-transform:uppercase}
-.hero b{display:block;font:700 clamp(40px,11vw,80px)/1.05 Orbitron,sans-serif;margin:4px 0 8px;color:var(--blue);text-shadow:var(--glow)}
+#say em::after{content:"▍";color:var(--blue);animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+.hero small,.fig small,h2{color:var(--mute);font:400 12px 'Share Tech Mono';letter-spacing:.18em;text-transform:uppercase}
+.hero b{display:block;font:700 clamp(40px,11vw,80px)/1.05 'Share Tech Mono',monospace;margin:4px 0 8px;color:var(--blue);text-shadow:var(--glow)}
 .figs{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:12px;background:var(--card)}
 .fig{padding:16px}.fig+.fig{border-left:1px solid var(--line)}
-.fig b{display:block;font:700 clamp(17px,4.5vw,26px) Orbitron,sans-serif;margin-top:4px}
+.fig b{display:block;font:400 clamp(18px,4.6vw,27px) 'Share Tech Mono',monospace;margin-top:4px}
 .fig span{font-size:12px;color:var(--mute)}
 .in{color:var(--in)}.out{color:var(--out)}
-section{margin-top:28px}
-h2{margin-bottom:12px}
-.charts{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
-.panel{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:16px;position:relative}
-.panel::before,.panel::after{content:"";position:absolute;width:12px;height:12px;border:2px solid var(--blue);opacity:.7}
+section{margin-top:26px}h2{margin-bottom:12px}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}.wide{grid-column:1/-1}
+.panel{border:1px solid var(--line);border-radius:12px;background:var(--card);backdrop-filter:blur(6px);padding:16px;position:relative}
+.panel::before,.panel::after{content:"";position:absolute;width:12px;height:12px;border:2px solid var(--blue);opacity:.8}
 .panel::before{top:-1px;left:-1px;border-right:0;border-bottom:0;border-radius:12px 0 0 0}
 .panel::after{bottom:-1px;right:-1px;border-left:0;border-top:0;border-radius:0 0 12px 0}
 .leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:13px;color:var(--mute)}
 .leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
-svg text{fill:var(--mute);font:11px 'IBM Plex Sans'}
+svg text{fill:var(--mute);font:11px 'Share Tech Mono'}
+.col{transform-box:fill-box;transform-origin:bottom;animation:grow .8s both}
+@keyframes grow{from{transform:scaleY(0)}}
+.ln{stroke-dasharray:1;stroke-dashoffset:1;animation:dr 1.5s forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
 .empty{color:var(--mute);font-size:14px}
-li{list-style:none;display:grid;grid-template-columns:1fr auto 32px;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+li{list-style:none;display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
 li p{font-size:15px}li p small{display:block;color:var(--mute);font-size:12px;line-height:1.45}
+li .r{white-space:nowrap}
 li button{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer}li button:hover{color:var(--out)}
-form{display:flex;gap:10px;margin-top:26px}
-input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:400 15px 'IBM Plex Sans',sans-serif;padding:12px 14px}
-.btn,form button{background:var(--blue);border:0;border-radius:10px;color:#04101c;font:500 14px 'IBM Plex Sans',sans-serif;padding:0 18px;cursor:pointer;min-height:42px}
+.cb{display:flex;gap:6px;align-items:center}.cb .btn{min-height:34px;padding:0 12px;font-size:13px}
+form{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
+input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:400 15px 'Chakra Petch',sans-serif;padding:12px 14px}
+.btn,form button{background:var(--blue);border:0;border-radius:10px;color:var(--onacc);font:600 14px 'Chakra Petch',sans-serif;padding:0 18px;cursor:pointer;min-height:42px}
 .ghost{background:none;border:1px solid var(--blue);color:var(--ink)}
 #tipBtn{margin-top:24px}
 #tips{margin-top:14px;padding:12px 16px;border-left:3px solid var(--vio);font-size:15px}
 #tips:empty{display:none}#tips p+p{margin-top:8px}
 .hint{color:var(--mute);font-size:13px;margin-top:10px}
-#mic{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;align-items:center;gap:10px;border:1px solid var(--blue);background:var(--card);color:var(--ink);font:500 13px Orbitron,sans-serif;letter-spacing:.06em;padding:14px 20px;border-radius:999px;cursor:pointer;box-shadow:var(--glow)}
+#mic{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;align-items:center;gap:10px;border:1px solid var(--blue);background:var(--card);backdrop-filter:blur(6px);color:var(--ink);font:600 13px 'Chakra Petch';letter-spacing:.1em;padding:14px 20px;border-radius:999px;cursor:pointer;box-shadow:var(--glow)}
 #mic i{width:10px;height:10px;border-radius:50%;background:var(--mute)}
 #mic.on i{background:var(--in);animation:br 1.2s infinite}
-#toast{position:fixed;left:50%;bottom:90px;z-index:20;transform:translate(-50%,200px);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 16px;font-size:14px;display:flex;gap:14px;align-items:center;transition:transform .25s;max-width:92vw}
+#toast{position:fixed;left:50%;bottom:90px;z-index:20;transform:translate(-50%,200px);background:var(--card);border:1px solid var(--blue);border-radius:12px;padding:10px 16px;font-size:14px;display:flex;gap:14px;align-items:center;transition:transform .25s;max-width:92vw}
 #toast.show{transform:translate(-50%,0)}
-#toast button{background:none;border:0;color:var(--blue);font:500 14px 'IBM Plex Sans';cursor:pointer}
+#toast button{background:none;border:0;color:var(--blue);font:600 14px 'Chakra Petch';cursor:pointer}
 button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-@media(max-width:600px){.charts{grid-template-columns:1fr}.figs{grid-template-columns:1fr}.fig+.fig{border-left:0;border-top:1px solid var(--line)}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:620px){.charts{grid-template-columns:1fr}.figs{grid-template-columns:1fr}.fig+.fig{border-left:0;border-top:1px solid var(--line)}li{grid-template-columns:1fr auto}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ln{stroke-dashoffset:0}}
 </style>
 </head>
 <body>
+<canvas id="fx"></canvas><div id="scan"></div>
 <div class="wrap">
 <header>
-  <div class="brand"><div id="orb"></div><div>ÔMEGA<small>FINANÇAS · SISTEMA DO CHEF</small></div></div>
+  <div class="brand"><div id="orb"></div><div><b>ÔMEGA</b><small>FINANÇAS // SISTEMA DO CHEF</small></div></div>
   <button id="theme" onclick="flip()" aria-label="Alternar tema"></button>
 </header>
-<nav><button id="t1" class="on" onclick="tab(1)">Resumo</button><button id="t2" onclick="tab(2)">Lançamentos</button></nav>
-<p id="say" aria-live="polite">Diga <em>“Ômega”</em> e depois o comando. Ex.: “Ômega, meu salário foi 4.500”.</p>
+<nav><button id="t1" class="on" onclick="tab(1)">Resumo</button><button id="t2" onclick="tab(2)">Lançamentos</button><button id="t3" onclick="tab(3)">Contatos</button></nav>
+<p id="say" aria-live="polite">Diga <em>“Ômega”</em> e depois o comando, do seu jeito.</p>
 
 <div id="v1">
   <div class="hero"><small>Saldo atual na conta</small><b id="now">R$ 0,00</b></div>
@@ -84,8 +97,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-o
     <div class="fig"><small>Crédito livre</small><b id="cred">—</b><span id="credSub"></span></div>
   </div>
   <section class="charts">
-    <div class="panel"><h2>Por área</h2><div id="pie"></div><div class="leg" id="leg"></div></div>
-    <div class="panel"><h2>Evolução</h2><div id="line"></div><div class="leg"><span><i style="background:var(--in)"></i>Entradas</span><span><i style="background:var(--out)"></i>Gastos</span></div></div>
+    <div class="panel"><h2>Pizza · por área</h2><div id="pie"></div><div class="leg" id="leg"></div></div>
+    <div class="panel"><h2>Colunas · por área</h2><div id="cols"></div></div>
+    <div class="panel wide"><h2>Linhas · evolução por área</h2><div id="line"></div><div class="leg" id="lleg"></div></div>
   </section>
   <button id="tipBtn" class="btn ghost" onclick="tip()">Gerar dica</button>
   <div id="tips" aria-live="polite"></div>
@@ -94,15 +108,25 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-o
 <div id="v2" hidden>
   <section style="margin-top:0"><h2>Lançamentos</h2><ul id="list"></ul></section>
   <form onsubmit="return typed(event)">
-    <input id="cmd" autocomplete="off" placeholder="Digite: gastei 30 em lazer" aria-label="Comando">
+    <input id="cmd" autocomplete="off" placeholder="Fale do seu jeito: gastei 30 em lazer ontem" aria-label="Comando">
     <button>Enviar</button>
   </form>
-  <button class="btn ghost" style="margin-top:14px" onclick="sheet()">Gerar planilha e enviar por e-mail</button>
-  <p class="hint">Toda saída pede: onde, quando e por quê. Áreas: Gastos fixos, Lazer, Investimentos, Projetos, Alimentação, Transporte. Comandos: “recebi 5.000”, “gastei 200 em projetos”, “gastei 80 no cartão”, “meu limite é 3.000”, “remover mercado”, “remover o último”, “desfazer”, “cancelar”, “modo claro”, “dica”, “ocultar valores”, “gerar planilha”.</p>
+  <button class="btn ghost" style="margin-top:14px" onclick="sheet()">Gerar planilha (.xlsx)</button>
+  <p class="hint">Toda saída pede onde, quando e por quê. Exemplos: “recebi 5.000”, “torrei 200 em projetos”, “meu limite é 3.000”, “tira o mercado”, “muda para vermelho”, “modo claro”, “liga pra Maria”, “manda a planilha”, “troca a voz”.</p>
+</div>
+
+<div id="v3" hidden>
+  <section style="margin-top:0"><h2>Contatos do WhatsApp</h2><ul id="clist"></ul></section>
+  <form onsubmit="return addContact(event)">
+    <input id="cn" placeholder="Nome como no WhatsApp" aria-label="Nome">
+    <input id="cp" inputmode="tel" placeholder="DDD + número" aria-label="Telefone">
+    <button>Salvar</button>
+  </form>
+  <p class="hint">Diga “Ômega, liga pra Maria”. O site abre o WhatsApp dela; toque no ícone de chamada. Para ligação comum, diga “liga pra Maria no telefone”.</p>
 </div>
 </div>
 <button id="mic" onclick="toggleVoice()" aria-label="Ligar ou desligar o microfone"><i></i><span id="micTxt">Ativar Ômega</span></button>
-<div id="toast"><span id="toastTxt"></span><button onclick="undo()">Desfazer</button></div>
+<div id="toast"><span id="toastTxt"></span><button id="undoBtn">Desfazer</button></div>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -112,52 +136,87 @@ const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const br=d=>d?d.split('-').reverse().join('/'):'';
+const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
+/* ====== CONFIGURAÇÃO ====== */
 const EMAIL='dossantosmatiasjoaopaulo0@gmail.com',KEY='financas_v3';
-let S={tx:[],limit:0,hide:false},prev=null,tt,P=null,awake=0;
-try{let s=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('financas_v2'));
- if(s&&Array.isArray(s.tx)){s.tx.forEach(t=>{if(t.cat=='Moradia')t.cat='Gastos fixos';if(!t.dt)t.dt=iso(new Date(t.id))});S=s}}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+/* Envio automático de e-mail (opcional): crie conta no EmailJS e preencha. Deixe vazio para usar compartilhar/baixar. */
+const MAILJS={service:'',template:'',key:''};
+let S={tx:[],limit:0,hide:false,contacts:[]},prev=null,tt,P=null,awake=0,FILE=null;
+try{let s=JSON.parse(ls(KEY)||ls('financas_v2'));
+ if(s&&Array.isArray(s.tx)){s.tx.forEach(t=>{if(t.cat=='Moradia')t.cat='Gastos fixos';if(!t.dt)t.dt=iso(new Date(t.id))});S=Object.assign(S,s);S.contacts=S.contacts||[]}}catch(e){}
+function save(){ls(KEY,JSON.stringify(S))}
 function change(fn){prev=JSON.stringify(S);fn();save();render()}
 function undo(){if(!prev)return say('Nada para desfazer, chef.');S=JSON.parse(prev);prev=null;save();render();$('toast').classList.remove('show');say('Desfeito, chef.')}
-function toast(m){$('toastTxt').textContent=m;$('toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>$('toast').classList.remove('show'),8000)}
+function toast(m,lab='Desfazer',fn=undo,ms=8000){$('toastTxt').textContent=m;const b=$('undoBtn');b.textContent=lab;b.onclick=()=>{fn();$('toast').classList.remove('show')};$('toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>$('toast').classList.remove('show'),ms)}
 
-/* ---------- Áreas ---------- */
+/* ====== Cores e tema ====== */
+const ACC={vermelho:['#ff3b4e','#d6243a','#ff8a3d'],neon:['#00e5ff','#0077d9','#8a5cff'],amarelo:['#ffd21f','#a87c00','#ff8a3d'],verde:['#2cff7a','#0a8f4a','#00e5ff'],roxo:['#a66bff','#6a3de8','#ff5cc8']};
+let curAcc=ls('fin_acc')||'neon',ACCC='#00e5ff';
+function accent(name){curAcc=ACC[name]?name:'neon';const a=ACC[curAcc],L=document.documentElement.dataset.theme=='light',c=L?a[1]:a[0],st=document.documentElement.style;
+ const rgb=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)).join(',');
+ st.setProperty('--blue',c);st.setProperty('--vio',a[2]);st.setProperty('--glow',`0 0 18px rgba(${rgb},.4)`);st.setProperty('--onacc',L?'#fff':'#04101c');ACCC=c;ls('fin_acc',curAcc)}
+function theme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t=='light'?'☾':'☀';ls('fin_theme',t);accent(curAcc)}
+function flip(){theme(document.documentElement.dataset.theme=='light'?'dark':'light')}
+
+/* ====== Áreas ====== */
 const CATS=[['Gastos fixos','fixo fixos moradia aluguel condominio luz energia agua internet iptu gas casa plano mensalidade'],['Alimentação','alimentacao mercado supermercado comida padaria feira acougue almoco lanche ifood'],['Transporte','transporte uber gasolina combustivel onibus metro estacionamento pedagio'],['Lazer','lazer restaurante cinema bar jantar festa viagem show streaming netflix jogo'],['Investimentos','investimento investimentos investi tesouro reserva poupanca aporte acoes'],['Projetos','projeto projetos startup negocio curso equipamento ferramenta']];
-const COL={'Gastos fixos':'#ff9f43','Alimentação':'#2cf5b0','Transporte':'#5b8cff','Lazer':'#ff5c7a','Investimentos':'#00e5ff','Projetos':'#8a5cff','Outros':'#7d93b2'};
+const COL={'Gastos fixos':'#ff9f43','Alimentação':'#2cf5b0','Transporte':'#5b8cff','Lazer':'#ff5c7a','Investimentos':'#00e5ff','Projetos':'#a66bff','Outros':'#7d93b2'};
 function totals(){
   const inc=S.tx.filter(t=>t.type=='in').reduce((a,t)=>a+t.a,0),out=S.tx.filter(t=>t.type=='out');
   return{inc,out,acc:out.filter(t=>t.pay!='credito').reduce((a,t)=>a+t.a,0),cre:out.filter(t=>t.pay=='credito').reduce((a,t)=>a+t.a,0)}}
 
-/* ---------- Gráficos ---------- */
+/* ====== Gráficos ====== */
+const short=v=>v>=1000?(v/1000).toFixed(1).replace('.',',')+' mil':String(Math.round(v));
 function pie(rows,tot,m){
   if(!rows.length)return'<p class="empty">Os gastos aparecem aqui.</p>';
   let acc=0;const arcs=rows.map(([c,v])=>{const p=v/tot*100,s=`<circle r="15.9155" cx="21" cy="21" fill="none" stroke="${COL[c]||COL.Outros}" stroke-width="6" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${25-acc}"/>`;acc+=p;return s}).join('');
   return`<svg viewBox="0 0 42 42" style="width:100%;max-width:230px;display:block;margin:auto" role="img" aria-label="Gráfico de pizza por área">${arcs}<text x="21" y="22" text-anchor="middle" style="font-size:4px;fill:var(--ink)">${m(tot)}</text></svg>`}
+function cols(rows){
+  if(!rows.length)return'<p class="empty">Os gastos aparecem aqui.</p>';
+  const W=320,H=210,p=16,mx=rows[0][1],bw=(W-p*2)/rows.length;
+  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%" role="img" aria-label="Gráfico de colunas por área"><line x1="${p}" x2="${W-p}" y1="${H-36}" y2="${H-36}" stroke="var(--line)"/>`+rows.map(([c,v],i)=>{const h=Math.max(3,v/mx*(H-80)),x=p+i*bw+bw*.15,cx=x+bw*.35;
+    return`<rect class="col" x="${x}" y="${H-36-h}" width="${bw*.7}" height="${h}" rx="3" fill="${COL[c]||COL.Outros}" style="animation-delay:${i*.09}s"/><text x="${cx}" y="${H-42-h}" text-anchor="middle">${S.hide?'':short(v)}</text><text x="${cx}" y="${H-20}" text-anchor="middle">${esc(c.slice(0,5))}${c.length>5?'.':''}</text>`}).join('')+'</svg>'}
 function lineChart(){
-  const days=[...new Set(S.tx.map(t=>t.dt))].sort();
-  if(!days.length)return'<p class="empty">A evolução aparece aqui.</p>';
-  let ci=0,co=0;const I=[0],O=[0],L=[''];
-  days.forEach(d=>{S.tx.filter(t=>t.dt==d).forEach(t=>t.type=='in'?ci+=t.a:co+=t.a);I.push(ci);O.push(co);L.push(d)});
-  const W=420,H=190,p=30,mx=Math.max(...I,...O,1),n=L.length-1;
-  const X=i=>p+i*(W-p*2)/n,Y=v=>H-24-v/mx*(H-50);
-  const pts=a=>a.map((v,i)=>X(i)+','+Y(v)).join(' ');
-  const dots=(a,c)=>a.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${c}"/>`).join('');
-  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%" role="img" aria-label="Gráfico de linhas de entradas e gastos"><line x1="${p}" x2="${W-p}" y1="${H-24}" y2="${H-24}" stroke="var(--line)"/><line x1="${p}" x2="${W-p}" y1="${Y(mx)}" y2="${Y(mx)}" stroke="var(--line)" stroke-dasharray="3 4"/><polyline points="${pts(I)}" fill="none" stroke="var(--in)" stroke-width="2.5"/><polyline points="${pts(O)}" fill="none" stroke="var(--out)" stroke-width="2.5"/>${dots(I,'var(--in)')}${dots(O,'var(--out)')}<text x="${p}" y="${H-6}">${br(L[1])}</text><text x="${W-p}" y="${H-6}" text-anchor="end">${br(L[n])}</text><text x="${p}" y="${Y(mx)-6}">${S.hide?'':brl(mx)}</text></svg>`}
+  const out=S.tx.filter(t=>t.type=='out');
+  if(!out.length){$('lleg').innerHTML='';return'<p class="empty">A evolução aparece aqui.</p>'}
+  const days=[...new Set(out.map(t=>t.dt))].sort(),cats=[...new Set(out.map(t=>t.cat))];
+  const ser=cats.map(c=>{let s=0;return[c,[0,...days.map(d=>{out.filter(t=>t.dt==d&&t.cat==c).forEach(t=>s+=t.a);return s})]]});
+  const W=460,H=200,p=30,n=days.length,mx=Math.max(...ser.flatMap(s=>s[1]),1),X=i=>p+i*(W-p*2)/n,Y=v=>H-24-v/mx*(H-50);
+  $('lleg').innerHTML=cats.map(c=>`<span><i style="background:${COL[c]||COL.Outros}"></i>${esc(c)}</span>`).join('');
+  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%" role="img" aria-label="Gráfico de linhas por área"><line x1="${p}" x2="${W-p}" y1="${H-24}" y2="${H-24}" stroke="var(--line)"/><line x1="${p}" x2="${W-p}" y1="${Y(mx)}" y2="${Y(mx)}" stroke="var(--line)" stroke-dasharray="3 4"/>`+
+   ser.map(([c,a])=>{const col=COL[c]||COL.Outros;return`<polyline class="ln" pathLength="1" points="${a.map((v,i)=>X(i)+','+Y(v)).join(' ')}" fill="none" stroke="${col}" stroke-width="2.5"/>`+a.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${col}"/>`).join('')}).join('')+
+   `<text x="${p}" y="${H-6}">${br(days[0])}</text><text x="${W-p}" y="${H-6}" text-anchor="end">${br(days[n-1])}</text><text x="${p}" y="${Y(mx)-6}">${S.hide?'':brl(mx)}</text></svg>`}
 
+function anim(el,to){const from=el._v||0,t0=performance.now();el._v=to;
+  const f=t=>{const k=Math.min(1,(t-t0)/600),e=1-Math.pow(1-k,3);el.textContent=brl(from+(to-from)*e);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
 function render(){
   const m=v=>S.hide?'••••••':brl(v),{inc,out,acc,cre}=totals();
-  $('now').textContent=m(inc-acc);$('inc').textContent=m(inc);$('spent').textContent=m(acc+cre);
+  [['now',inc-acc],['inc',inc],['spent',acc+cre]].forEach(([id,v])=>S.hide?($(id).textContent='••••••'):anim($(id),v));
   if(S.limit>0){$('cred').textContent=m(S.limit-cre);$('credSub').textContent=S.hide?'':'limite '+brl(S.limit)}
   else{$('cred').textContent='—';$('credSub').textContent='Diga: meu limite é 3.000'}
   const by={};out.forEach(t=>by[t.cat]=(by[t.cat]||0)+t.a);
   const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=rows.reduce((a,r)=>a+r[1],0);
-  $('pie').innerHTML=pie(rows,tot,m);
+  $('pie').innerHTML=pie(rows,tot,m);$('cols').innerHTML=cols(rows);$('line').innerHTML=lineChart();
   $('leg').innerHTML=rows.map(([c,v])=>`<span><i style="background:${COL[c]||COL.Outros}"></i>${esc(c)} ${Math.round(v/tot*100)}%</span>`).join('');
-  $('line').innerHTML=lineChart();
-  $('list').innerHTML=S.tx.length?S.tx.slice(0,50).map(t=>`<li><p>${esc(t.t)}<small>${esc(t.cat)}${t.pay=='credito'?' · crédito':''} · ${br(t.dt)}${t.where?'<br>Onde: '+esc(t.where):''}${t.why?'<br>Por quê: '+esc(t.why):''}</small></p><span class="${t.type=='in'?'in':'out'}">${t.type=='in'?'+':'−'} ${m(t.a)}</span><button onclick="rem(${t.id})" aria-label="Remover ${esc(t.t)}">×</button></li>`).join(''):'<p class="empty">Nenhum lançamento ainda.</p>'}
+  $('list').innerHTML=S.tx.length?S.tx.slice(0,50).map(t=>`<li><p>${esc(t.t)}<small>${esc(t.cat)}${t.pay=='credito'?' · crédito':''} · ${br(t.dt)}${t.where?'<br>Onde: '+esc(t.where):''}${t.why?'<br>Por quê: '+esc(t.why):''}</small></p><span class="r ${t.type=='in'?'in':'out'}">${t.type=='in'?'+':'−'} ${m(t.a)}</span><button onclick="rem(${t.id})" aria-label="Remover ${esc(t.t)}">×</button></li>`).join(''):'<p class="empty">Nenhum lançamento ainda.</p>';
+  $('clist').innerHTML=S.contacts.length?S.contacts.map((c,i)=>`<li><p>${esc(c.n)}<small>+${esc(c.p)}</small></p><span class="cb"><button class="btn" onclick="dial(${i},1)">WhatsApp</button><button class="btn ghost" onclick="dial(${i},0)">Ligar</button></span><button onclick="delContact(${i})" aria-label="Remover ${esc(c.n)}">×</button></li>`).join(''):'<p class="empty">Nenhum contato salvo ainda.</p>'}
 function rem(id){const t=S.tx.find(x=>x.id==id);if(!t)return;change(()=>S.tx=S.tx.filter(x=>x.id!=id));toast('Removido: '+t.t+' ('+brl(t.a)+')')}
 
-/* ---------- Interpretação ---------- */
+/* ====== Contatos / WhatsApp ====== */
+const normPhone=s=>{let p=s.replace(/\D/g,'');if(p.length<=11)p='55'+p;return p};
+function addContact(e){e.preventDefault();const n=$('cn').value.trim(),p=normPhone($('cp').value);if(!n||p.length<12)return false;change(()=>S.contacts.push({n,p}));$('cn').value=$('cp').value='';say(`Contato ${n} salvo, chef.`);return false}
+function delContact(i){const c=S.contacts[i];change(()=>S.contacts.splice(i,1));toast('Contato removido: '+c.n)}
+function dial(i,zap){const c=S.contacts[i];say(zap?`Abrindo o WhatsApp de ${c.n}, chef. Toque no ícone de chamada.`:`Ligando para ${c.n}, chef.`);setTimeout(()=>location.href=zap?'https://wa.me/'+c.p:'tel:+'+c.p,1800)}
+function findContact(tk){let best=-1,bs=0;
+  S.contacts.forEach((c,i)=>{const nt=strip(c.n).split(/\s+/).filter(w=>w.length>=3);let s=0;
+    nt.forEach(w=>{if(tk.some(t=>t==w||(w.length>=4&&t.length>=4&&lev(t,w)<=1)))s++});if(s>bs){bs=s;best=i}});return best}
+function saveContactCmd(raw){
+  const ph=(raw.match(/\+?\d[\d\s().-]{7,}\d/)||[''])[0],d=raw.search(/\d/);
+  let nm=(d>0?raw.slice(0,d):raw).replace(/.*contato/i,'').replace(/\b(chamado|chamada|de nome|com o nome|com nome|numero|número|telefone|celular|fone|do|da|é|e)\b/gi,'').replace(/[^\p{L}\s]/gu,'').trim();
+  if(!nm||ph.replace(/\D/g,'').length<10)return say('Para salvar, diga ou digite: salvar contato Maria 11 99999-8888. Ou use a aba Contatos, chef.');
+  nm=nm.split(/\s+/).map(cap).join(' ');change(()=>S.contacts.push({n:nm,p:normPhone(ph)}));say(`Contato ${nm} salvo, chef.`)}
+
+/* ====== Números e valores ====== */
 const NUM={dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,catorze:14,quatorze:14,quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,cem:100,cento:100,duzentos:200,trezentos:300,quatrocentos:400,quinhentos:500,seiscentos:600,setecentos:700,oitocentos:800,novecentos:900};
 const isN=t=>Object.prototype.hasOwnProperty.call(NUM,t);
 function digits(text){
@@ -182,17 +241,17 @@ function amount(text){const n=strip(text);
   return v>0?{v,start:m.index,end:m.index+m[0].length}:null}
 function category(n){let best='Outros',bi=1e9;
   CATS.forEach(([c,ws])=>ws.split(' ').forEach(w=>{const m=n.match(new RegExp('\\b'+w+'\\b'));if(m&&m.index<bi){best=c;bi=m.index}}));return best}
-const STOP=new Set('adicionar adiciona adicione lancar lance registrar registre anotar uma um despesa receita gasto gastei paguei comprei recebi ganhei entrada saida meu minha foi caiu de do da por com em no na r$ reais real omega'.split(' '));
+const STOP=new Set('adicionar adiciona adicione lancar lance registrar registre anotar uma um despesa receita gasto gastei paguei comprei recebi ganhei entrada saida meu minha foi caiu de do da por com em no na r$ reais real omega torrei'.split(' '));
 function describe(text,n,am,fb){
   let a=text.slice(am.end),b=n.slice(am.end);
-  const c=b.search(/\b(categoria|no cartao|no credito|no debito|na conta|porque)\b/);if(c>=0){a=a.slice(0,c);b=b.slice(0,c)}
+  const c=b.search(/\b(categoria|no cartao|no credito|no debito|na conta|porque|ontem|hoje)\b/);if(c>=0){a=a.slice(0,c);b=b.slice(0,c)}
   b=b.replace(/^\s*(r\$|reais|real)?\s*/,x=>{a=a.slice(x.length);return''});
   let m;while((m=b.match(/^(em|com|de|do|da|no|na|nos|nas|para|pra|por|num)\s+/))){a=a.slice(m[0].length);b=b.slice(m[0].length)}
   a=a.replace(/^[\s,.]+|[\s,.]+$/g,'');
   if(a.length<2)a=text.slice(0,am.start).split(/\s+/).filter(t=>t&&!STOP.has(strip(t))).join(' ');
   if(a.length<2)a=fb;return cap(a)}
 
-/* ---------- Justificativa obrigatória: onde, quando, por quê ---------- */
+/* ====== Justificativa obrigatória: onde, quando, por quê ====== */
 const MES='janeiro fevereiro marco abril maio junho julho agosto setembro outubro novembro dezembro'.split(' ');
 function parseWhen(n){const d=new Date();
   if(/\banteontem\b/.test(n)){d.setDate(d.getDate()-2);return iso(d)}
@@ -205,27 +264,27 @@ function parseWhen(n){const d=new Date();
   return null}
 function ask(){say(P.step=='w'?'Onde foi esse gasto, chef?':P.step=='d'?'E quando foi? Diga hoje, ontem ou a data.':'Por que você fez esse gasto, chef? Preciso da justificativa.')}
 function answer(text,n){
-  if(/\b(cancelar|cancela|esquece)\b/.test(n)){P=null;return say('Gasto cancelado, chef.')}
+  if(/\b(cancelar|cancela|esquece|deixa pra la)\b/.test(n)){P=null;return say('Cancelado, chef.')}
+  if(P.step=='v'){const am=amount(text);if(!am)return say('Qual o valor, chef?');const o=P.text;P=null;return handle(o+' '+text)}
   const d=P.d;
-  if(P.step=='w'){if(text.trim().length<2)return ask();d.where=cap(text.trim());P.step='d';return ask()}
+  if(P.step=='w'){if(text.trim().length<2)return ask();d.where=cap(text.trim());P.step=d.dt?'y':'d';return ask()}
   if(P.step=='d'){const w=parseWhen(n);if(!w)return say('Não entendi a data, chef. Diga hoje, ontem, dia 15 ou 15/09.');d.dt=w;P.step='y';return ask()}
   if(text.trim().length<4)return say('Preciso de uma justificativa de verdade, chef. Por que gastou?');
   d.why=cap(text.trim());P=null;
   change(()=>S.tx.unshift({id:Date.now(),t:d.t,a:d.a,type:'out',cat:d.cat,pay:d.pay,where:d.where,dt:d.dt,why:d.why}));
   const msg=`Registrado, chef: ${brl(d.a)} em ${d.t} (${d.cat}${d.pay=='credito'?', crédito':''}), ${br(d.dt)}.`;
   say(msg+' Diga desfazer se estiver errado.');toast(msg)}
-
 function add(type,am,text,n){
   const isSal=/\bsalario\b/.test(n);
   const title=type=='in'&&isSal?'Salário':describe(text,n,am,type=='in'?'Entrada':'Gasto');
   if(type=='out'){
-    P={step:'w',d:{t:title,a:am.v,cat:category(strip(title)+' '+n),pay:/\b(cartao|credito)\b/.test(n)?'credito':'conta'}};
+    const dt=/\b(hoje|ontem|anteontem)\b/.test(n)?parseWhen(n):null;
+    P={step:'w',d:{t:title,a:am.v,dt,cat:category(strip(title)+' '+n),pay:/\b(cartao|credito)\b/.test(n)?'credito':'conta'}};
     say(`Gasto de ${brl(am.v)} em ${title}, área ${P.d.cat}. Para registrar preciso da justificativa. Onde foi esse gasto, chef?`);return}
   const old=isSal?S.tx.find(t=>t.type=='in'&&t.t=='Salário'):null;
   if(old){change(()=>old.a=am.v);const m='Salário atualizado para '+brl(am.v)+', chef.';say(m);toast(m);return}
   change(()=>S.tx.unshift({id:Date.now(),t:title,a:am.v,type:'in',cat:'Entrada',pay:'conta',dt:iso(new Date())}));
   const msg=`Entrada de ${brl(am.v)} registrada, chef: ${title}.`;say(msg+' Diga desfazer se estiver errado.');toast(msg)}
-
 const RSTOP=new Set('remover remova remove apagar apague apaga excluir exclua tirar tira o a os as um uma esse essa gasto gastos lancamento despesa receita entrada de do da no na em por porque pois foi colocado colocada incorretamente errado errada errei lancei ultimo ultima recente que omega'.split(' '));
 function removeCmd(text,n){
   const cut=n.search(/\b(porque|pois|foi colocad|foi lancad)/);
@@ -237,10 +296,7 @@ function removeCmd(text,n){
   if(!hit.length)return say('Não encontrei esse lançamento, chef. Diga o nome ou o valor.');
   if(hit.length>1)return say(`Achei ${hit.length} lançamentos parecidos. Diga também o valor, chef.`);
   rem(hit[0].id);say(`Removi ${hit[0].t}, ${brl(hit[0].a)}. Diga desfazer para voltar.`)}
-
-function theme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t=='light'?'☾':'☀';try{localStorage.setItem('fin_theme',t)}catch(e){}}
-function flip(){theme(document.documentElement.dataset.theme=='light'?'dark':'light')}
-function tab(n){$('v1').hidden=n!=1;$('v2').hidden=n!=2;$('t1').classList.toggle('on',n==1);$('t2').classList.toggle('on',n==2)}
+function tab(n){[1,2,3].forEach(i=>{$('v'+i).hidden=i!=n;$('t'+i).classList.toggle('on',i==n)})}
 function tipText(){
   const{inc,out,acc,cre}=totals();
   if(inc<=0)return['Chef, registre quanto caiu na conta, por exemplo “meu salário foi 4.500”, para eu analisar seus gastos.'];
@@ -248,7 +304,7 @@ function tipText(){
   const by=c=>out.filter(t=>t.cat==c).reduce((a,t)=>a+t.a,0),p=v=>Math.round(v/inc*100);
   const need=by('Gastos fixos')+by('Alimentação')+by('Transporte'),want=by('Lazer'),inv=by('Investimentos'),pj=by('Projetos'),r=[];
   if(inc-acc<0)r.push(`Atenção, chef: seus gastos passaram do que caiu na conta em ${brl(acc-inc)}.`);
-  if(p(want)>30)r.push(`Lazer está em ${p(want)}% da renda (ideal até 30%). Cortar ${brl(want-inc*.3)} equilibra o mês.`);
+  if(p(want)>30)r.push(`Lazer está em ${p(want)}% da renda, o ideal é até 30%. Cortar ${brl(want-inc*.3)} equilibra o mês.`);
   if(p(need)>50)r.push(`Gastos fixos, alimentação e transporte somam ${p(need)}%, acima dos 50% recomendados.`);
   if(p(inv)<20)r.push(`Você investiu ${p(inv)}% da renda. Tente chegar a 20%, cerca de ${brl(inc*.2)} por mês.`);
   if(pj>0)r.push(`Projetos já consumiram ${p(pj)}% da renda. Confira se cada um tem retorno esperado.`);
@@ -257,76 +313,140 @@ function tipText(){
   return r}
 function tip(){const r=tipText();tab(1);$('tips').innerHTML=r.map(x=>'<p>'+esc(x)+'</p>').join('');say(r.join(' '))}
 
-/* ---------- Planilha ---------- */
-function sheet(){
+/* ====== Planilha .xlsx (ExcelJS) ====== */
+const download=f=>{const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();a.remove()};
+async function sheet(){
+  if(!window.ExcelJS)return say('Não consegui carregar o gerador de planilhas, chef. Verifique a internet e tente de novo.');
+  say('Gerando a planilha, chef.');
   const{inc,out,acc,cre}=totals(),by={};out.forEach(t=>by[t.cat]=(by[t.cat]||0)+t.a);
-  const tot=acc+cre,R='style="mso-number-format:\'R\\$ \\#\\,\\#\\#0\\.00\'"',th='style="background:#0b1f3a;color:#00e5ff;font-weight:bold;padding:6px"',td='style="border-bottom:1px solid #d0d9e8;padding:5px"';
-  const rowsC=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<tr><td ${td}>${esc(c)}</td><td ${td} ${R}>${v.toFixed(2)}</td><td ${td}>${Math.round(v/tot*100)}%</td></tr>`).join('');
-  const rowsT=S.tx.map(t=>`<tr><td ${td}>${br(t.dt)}</td><td ${td}>${t.type=='in'?'Entrada':'Saída'}</td><td ${td}>${esc(t.t)}</td><td ${td}>${esc(t.cat)}</td><td ${td}>${t.pay=='credito'?'Crédito':'Conta'}</td><td ${td}>${esc(t.where||'—')}</td><td ${td}>${esc(t.why||'—')}</td><td ${td} ${R}>${(t.type=='in'?t.a:-t.a).toFixed(2)}</td></tr>`).join('');
-  const html=`<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body style="font-family:Calibri,Arial">
-<table><tr><td colspan="8" style="font-size:22px;font-weight:bold;color:#0b1f3a">Ômega · Relatório de Finanças do Chef</td></tr>
-<tr><td colspan="8" style="color:#51627f">Gerado em ${new Date().toLocaleString('pt-BR')}. Como ler: 1) Resumo = visão geral; 2) Por área = onde o dinheiro foi; 3) Lançamentos = cada movimentação com onde, quando e por quê. Valores negativos são saídas.</td></tr><tr><td></td></tr>
-<tr><td colspan="8" style="font-size:15px;font-weight:bold;background:#e6f3ff">1) RESUMO</td></tr>
-<tr><td ${th}>Entradas</td><td ${th}>Gastos na conta</td><td ${th}>Gastos no crédito</td><td ${th}>Saldo na conta</td></tr>
-<tr><td ${R}>${inc.toFixed(2)}</td><td ${R}>${acc.toFixed(2)}</td><td ${R}>${cre.toFixed(2)}</td><td ${R} style="font-weight:bold">${(inc-acc).toFixed(2)}</td></tr><tr><td></td></tr>
-<tr><td colspan="8" style="font-size:15px;font-weight:bold;background:#e6f3ff">2) POR ÁREA</td></tr>
-<tr><td ${th}>Área</td><td ${th}>Total</td><td ${th}>% dos gastos</td></tr>${rowsC||'<tr><td>Sem gastos</td></tr>'}<tr><td></td></tr>
-<tr><td colspan="8" style="font-size:15px;font-weight:bold;background:#e6f3ff">3) LANÇAMENTOS</td></tr>
-<tr><td ${th}>Data</td><td ${th}>Tipo</td><td ${th}>Descrição</td><td ${th}>Área</td><td ${th}>Pagamento</td><td ${th}>Onde</td><td ${th}>Por quê</td><td ${th}>Valor</td></tr>${rowsT}</table></body></html>`;
-  const name='Financas_Omega_'+iso(new Date())+'.xls',a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'}));a.download=name;document.body.appendChild(a);a.click();a.remove();
-  const body=`Chef, segue o resumo.\n\nEntradas: ${brl(inc)}\nGastos: ${brl(tot)}\nSaldo na conta: ${brl(inc-acc)}\n\nAnexe o arquivo ${name} que acabou de ser baixado.`;
-  say('Planilha gerada, chef. Abrindo o e-mail para enviar. Anexe o arquivo baixado.');
-  setTimeout(()=>location.href='mailto:'+EMAIL+'?subject='+encodeURIComponent('Relatório de finanças · '+br(iso(new Date())))+'&body='+encodeURIComponent(body),900)}
+  const wb=new ExcelJS.Workbook();wb.creator='Ômega';
+  const navy='FF0B1F3A',fill=c=>({type:'pattern',pattern:'solid',fgColor:{argb:c}}),money='"R$" #,##0.00;[Red]-"R$" #,##0.00';
+  const ws=wb.addWorksheet('Resumo',{views:[{showGridLines:false}]}),wl=wb.addWorksheet('Lançamentos',{views:[{state:'frozen',ySplit:1}]});
+  wl.columns=[{header:'Data',width:12},{header:'Tipo',width:10},{header:'Descrição',width:26},{header:'Área',width:16},{header:'Pagamento',width:12},{header:'Onde',width:24},{header:'Por quê',width:42},{header:'Valor',width:16}];
+  const sorted=[...S.tx].sort((a,b)=>a.dt<b.dt?-1:1);
+  sorted.forEach(t=>wl.addRow([new Date(t.dt+'T12:00:00'),t.type=='in'?'Entrada':'Saída',t.t,t.cat,t.pay=='credito'?'Crédito':'Conta',t.where||'—',t.why||'—',t.type=='in'?t.a:-t.a]));
+  const hd=(row)=>row.eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill=fill(navy);c.alignment={horizontal:'center',vertical:'middle'}});
+  hd(wl.getRow(1));wl.getRow(1).height=24;
+  wl.eachRow((r,i)=>{if(i>1){r.getCell(1).numFmt='dd/mm/yyyy';r.getCell(8).numFmt=money;r.getCell(7).alignment={wrapText:true,vertical:'top'};if(i%2)r.eachCell(c=>c.fill=fill('FFF1F6FD'))}});
+  wl.autoFilter={from:'A1',to:'H1'};
+  const N=Math.max(sorted.length+1,2),R=c=>`'Lançamentos'!${c}2:${c}${N}`;
+  ws.columns=[{width:26},{width:20},{width:16},{width:34}];
+  ws.mergeCells('A1:D1');ws.getCell('A1').value='Ômega · Relatório de Finanças';ws.getCell('A1').font={size:20,bold:true,color:{argb:navy}};
+  ws.mergeCells('A2:D2');ws.getCell('A2').value='Gerado em '+new Date().toLocaleString('pt-BR')+'. Como ler: o Resumo mostra os totais, “Por área” mostra para onde o dinheiro foi e a aba Lançamentos lista cada movimentação com onde, quando e por quê. Os valores são fórmulas e se atualizam se você editar a aba Lançamentos.';
+  ws.getCell('A2').alignment={wrapText:true,vertical:'top'};ws.getRow(2).height=62;
+  ws.getCell('A4').value='RESUMO';ws.getCell('A4').font={bold:true,size:13,color:{argb:navy}};
+  const K=[['Entradas',`SUMIF(${R('B')},"Entrada",${R('H')})`,inc],['Gastos na conta',`-SUMIFS(${R('H')},${R('B')},"Saída",${R('E')},"Conta")`,acc],['Gastos no crédito',`-SUMIFS(${R('H')},${R('B')},"Saída",${R('E')},"Crédito")`,cre],['Saldo na conta','B5-B6',inc-acc]];
+  K.forEach(([k,f,v],i)=>{const r=5+i;ws.getCell('A'+r).value=k;ws.getCell('A'+r).font={bold:true};ws.getCell('B'+r).value={formula:f,result:v};ws.getCell('B'+r).numFmt=money;ws.getCell('B'+r).font={bold:true,color:{argb:i==3?(inc-acc<0?'FFD6334F':'FF0A9B6F'):navy}};['A','B'].forEach(c=>ws.getCell(c+r).fill=fill('FFE6F3FF'))});
+  ws.getCell('A10').value='POR ÁREA';ws.getCell('A10').font={bold:true,size:13,color:{argb:navy}};
+  ['Área','Total gasto','% dos gastos'].forEach((h,i)=>ws.getCell(11,i+1).value=h);hd(ws.getRow(11));
+  const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=rows.reduce((a,r)=>a+r[1],0),e=11+rows.length;
+  rows.forEach(([c,v],i)=>{const r=12+i;ws.getCell('A'+r).value=c;ws.getCell('B'+r).value={formula:`-SUMIFS(${R('H')},${R('D')},A${r},${R('B')},"Saída")`,result:v};ws.getCell('B'+r).numFmt=money;ws.getCell('C'+r).value={formula:`B${r}/SUM(B$12:B$${e})`,result:v/tot};ws.getCell('C'+r).numFmt='0%'});
+  if(rows.length)try{ws.addConditionalFormatting({ref:`C12:C${e}`,rules:[{type:'dataBar',gradient:true,cfvo:[{type:'num',value:0},{type:'num',value:1}],color:{argb:'FF00B4D8'}}]})}catch(x){}
+  const name='Financas_Omega_'+iso(new Date())+'.xlsx',buf=await wb.xlsx.writeBuffer();
+  FILE=new File([buf],name,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});download(FILE);
+  if(MAILJS.key){try{if(await mailjs(FILE))return say('Planilha enviada para o seu e-mail, chef.')}catch(x){}say('Não consegui enviar automaticamente, chef. A planilha foi baixada.')}
+  else say('Planilha pronta e baixada, chef. Toque em Enviar para mandar por e-mail.');
+  toast('Planilha pronta: '+name,'Enviar',sendFile,30000)}
+async function mailjs(f){const b64=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(f)});
+  const r=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_id:MAILJS.service,template_id:MAILJS.template,user_id:MAILJS.key,template_params:{to_email:EMAIL,subject:'Relatório de finanças · '+br(iso(new Date())),message:'Chef, segue o relatório em anexo.',attachment:b64}})});return r.ok}
+async function sendFile(){const f=FILE;if(!f)return sheet();
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Relatório de finanças',text:'Enviar para '+EMAIL});return}}catch(e){if(e.name=='AbortError')return}
+  location.href='mailto:'+EMAIL+'?subject='+encodeURIComponent('Relatório de finanças · '+br(iso(new Date())))+'&body='+encodeURIComponent('Chef, segue o relatório. Anexe o arquivo '+f.name+' que foi baixado.')}
 
-/* ---------- Conversa e comandos ---------- */
-const PIADAS=['Por que o investidor foi ao médico, chef? Porque estava com os juros altos.','Chef, meu cofrinho me disse que está sem saldo para piadas. Mas aqui vai uma: o que o zero disse ao oito? Belo cinto!'];
-function handle(raw){
-  const text=digits(raw.trim()),n=strip(text),am=amount(text);
-  if(P)return answer(text,n);
-  if(/\b(desfazer|desfaz|voltar atras)\b/.test(n))return undo();
-  if(/\b(planilha|relatorio|exportar)\b/.test(n))return sheet();
-  if(/\b(dica|dicas|conselho)\b/.test(n))return tip();
-  if(/\bmodo (claro|dia)\b|\btema claro\b/.test(n)){theme('light');return say('Modo claro ativado, chef.')}
-  if(/\bmodo (escuro|noite)\b|\btema escuro\b/.test(n)){theme('dark');return say('Modo escuro ativado, chef.')}
-  if(/\b(resumo|inicio|grafico|graficos)\b/.test(n)){tab(1);return say('Mostrando o resumo, chef.')}
-  if(/\blancamentos\b/.test(n)&&!/\b(remov\w*|apag\w*|exclu\w*)\b/.test(n)){tab(2);return say('Mostrando os lançamentos, chef.')}
-  if(/\b(ajuda|comandos)\b/.test(n))return say('Chef, diga: meu salário foi 4.500; gastei 50 em lazer; gastei 200 em projetos; meu limite é 3.000; remover mercado; quanto eu tenho; dica; gerar planilha; modo claro; desfazer.');
-  if(/\b(remov\w*|apag\w*|exclu\w*|tira|tirar)\b/.test(n))return removeCmd(text,n);
-  if(/\b(ocultar|esconder|esconde)\b/.test(n)){change(()=>S.hide=true);return say('Valores ocultos, chef.')}
-  if(/\b(mostrar|exibir|mostra)\b/.test(n)){change(()=>S.hide=false);return say('Valores visíveis, chef.')}
-  if(/\b(tchau|desligar microfone|parar de ouvir|ate logo)\b/.test(n)){say('Até logo, chef. Me chame quando precisar.');return setTimeout(stopVoice,2500)}
-  if(/\b(obrigad\w*|valeu)\b/.test(n))return say('Sempre às ordens, chef.');
-  if(/\b(piada)\b/.test(n))return say(PIADAS[Math.floor(Math.random()*PIADAS.length)]);
-  if(/\bque horas\b/.test(n))return say('Agora são '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+', chef.');
-  if(/\bque dia\b/.test(n))return say('Hoje é '+new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})+', chef.');
-  if(/\b(quem e voce|seu nome|quem voce e)\b/.test(n))return say('Eu sou o Ômega, seu assistente financeiro, chef. Organizo seus gastos e converso com você.');
-  if(/\b(como voce esta|tudo bem|como vai)\b/.test(n))return say('Tudo em ordem por aqui, chef. Sistemas online e pronto para cuidar das suas finanças.');
-  if(/\b(oi|ola|bom dia|boa tarde|boa noite|e ai)\b/.test(n)&&!am){const h=new Date().getHours();return say((h<12?'Bom dia':h<18?'Boa tarde':'Boa noite')+', chef! Em que posso ajudar?')}
-  if(/\blimite\b/.test(n)&&am){change(()=>S.limit=am.v);return say('Limite de crédito definido em '+brl(am.v)+', chef.')}
+/* ====== CÉREBRO DO ÔMEGA: entendimento flexível ====== */
+const lev=(a,b)=>{const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]==b[j-1]?0:1));p=t}}return d[b.length]};
+const hit=(w,k)=>k.endsWith('=')?w==k.slice(0,-1):w.startsWith(k)||(k.length>=5&&w.length>=4&&lev(w.slice(0,k.length),k)<=1);
+const INT={
+ undo:{desfaz:4,volta:2,atras:2},
+ sheet:{planilha:4,relatorio:4,exporta:3,excel:3,xlsx:3,'email=':2,gmail:2,mand:1,envi:1},
+ tip:{dica:4,conselho:4,analis:3,avali:3,economiz:3,orienta:2},
+ remove:{remov:4,apag:4,exclu:4,delet:4,tir:3,retir:3},
+ limit:{limite:4},
+ hide:{ocult:4,escond:4},
+ showv:{mostr:1,exib:1,revel:1,valores:3,'valor=':3},
+ tabR:{resumo:3,inicio:3,grafic:3,painel:3,dashboard:3},
+ tabL:{lancamento:3,extrato:3,historico:3,movimentac:3},
+ tabC:{agenda:3,contatos:3},
+ voice:{voz:3,vozes:3},
+ income:{receb:3,caiu:3,salar:3,ganh:3,entrou:3,deposit:2,pagaram:2,receita:2,rendeu:2,'entrada=':2},
+ expense:{gast:3,pag:2,compr:3,despesa:3,saiu:2,custou:3,torrei:3,investi:3,aplic:2},
+ call:{lig:3,chama:3,telefon:3,zap:2,whats:2,'fal=':2,'fala=':2},
+ saveC:{contato:1,salv:3,cadastr:3,adicion:1}};
+const NAMES={undo:'desfazer',sheet:'gerar a planilha',tip:'dar uma dica',remove:'remover um lançamento',limit:'definir o limite',hide:'ocultar valores',showv:'mostrar valores',voice:'trocar a voz',income:'registrar uma entrada',expense:'registrar um gasto',call:'ligar para um contato',saveC:'salvar um contato'};
+const CN={vermelh:'vermelho',rubro:'vermelho',verde:'verde',amarel:'amarelo',dourad:'amarelo',roxo:'roxo',roxa:'roxo',violet:'roxo',lilas:'roxo',neon:'neon',azul:'neon',cian:'neon',cyan:'neon'};
+const findColor=tk=>{for(const w of tk)for(const k in CN)if(w.startsWith(k)||(k.length>=5&&w.length>=4&&lev(w.slice(0,k.length),k)<=1))return CN[k]};
+const greet=()=>{const h=new Date().getHours();return(h<12?'Bom dia':h<18?'Boa tarde':'Boa noite')+', chef! Em que posso ajudar?'};
+const PIADAS=['Por que o investidor foi ao médico, chef? Porque estava com os juros altos.','O que o zero disse para o oito? Belo cinto, chef!','Chef, meu cofrinho disse que a única coisa que ele guarda melhor que dinheiro é segredo.'];
+const CHAT=[
+ [/\b(quem e voce|seu nome|quem te criou|quem e vc|o que voce e)\b/,()=>'Eu sou o Ômega, seu assistente financeiro, chef. Organizo seus gastos, analiso seu dinheiro e converso com você.'],
+ [/\b(como voce esta|tudo bem|como vai|como esta)\b/,()=>'Tudo em ordem por aqui, chef. Sistemas online e pronto para cuidar das suas finanças.'],
+ [/\b(obrigad\w*|valeu|brigadao)\b/,()=>'Sempre às ordens, chef.'],
+ [/\b(piada|engracad\w*)\b/,()=>PIADAS[Math.floor(Math.random()*PIADAS.length)]],
+ [/\bque horas\b|\bhoras sao\b/,()=>'Agora são '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+', chef.'],
+ [/\bque dia\b|\bdata de hoje\b/,()=>'Hoje é '+new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})+', chef.'],
+ [/\b(ajuda|comandos|o que voce faz|o que voce sabe)\b/,()=>'Chef, eu entendo conversa normal. Posso registrar entradas e gastos, pedir onde, quando e por quê, mostrar gráficos, dar dicas, trocar cores e tema, ligar para contatos, gerar a planilha e conversar com você.'],
+ [/\b(tchau|ate logo|desligar microfone|parar de ouvir|dormir)\b/,()=>{setTimeout(stopVoice,3000);return'Até logo, chef. Me chame quando precisar.'}],
+ [/^(oi|ola|opa|salve|e ai|fala|bom dia|boa tarde|boa noite)\b/,greet,1]];
+function query(n){
   const{inc,acc,cre}=totals();
-  if(/\b(quanto|qual)\b/.test(n)&&!am){
-    if(/\bcredito\b|\blimite\b/.test(n))return say(S.limit>0?`Você ainda tem ${brl(S.limit-cre)} de crédito, chef.`:'Você ainda não definiu o limite, chef. Diga: meu limite é 3.000.');
-    if(/\b(gastei|gasto|gastou)\b/.test(n))return say(`Você gastou ${brl(acc+cre)} no total, chef.`);
-    if(/\b(recebi|caiu|salario|entrou)\b/.test(n))return say(`Caíram ${brl(inc)} na sua conta, chef.`);
-    if(/\b(tenho|saldo|sobrou|conta)\b/.test(n))return say(`Você tem ${brl(inc-acc)} na conta, chef.`)}
-  if(am&&/\b(recebi|caiu|cai|entrou|ganhei|deposit\w*|salario|entrada|receita)\b/.test(n)&&!/\b(gastei|paguei|comprei)\b/.test(n))return add('in',am,text,n);
+  if(/\b(credito|limite)\b/.test(n))return S.limit>0?`Você ainda tem ${brl(S.limit-cre)} de crédito, chef.`:'Você ainda não definiu o limite, chef. Diga: meu limite é 3.000.';
+  if(/\b(gast\w*)\b/.test(n))return `Você gastou ${brl(acc+cre)} no total, chef.`;
+  if(/\b(receb\w*|caiu|salario|entrou|entradas)\b/.test(n))return `Caíram ${brl(inc)} na sua conta, chef.`;
+  return `Você tem ${brl(inc-acc)} na conta, chef.`}
+function handle(raw){
+  const text=digits(raw.trim()),n=strip(text),am=amount(text),tk=n.split(/[^a-z0-9$]+/).filter(Boolean);
+  if(P)return answer(text,n);
+  for(const[re,fn,noAm]of CHAT)if(re.test(n)&&!(noAm&&am))return say(fn());
+  const col=findColor(tk),dk=/\b(escuro|noite|preto)\b/.test(n),lt=/\b(claro|dia|branco)\b/.test(n);
+  if(!am&&(col||dk||lt)&&/\b(cor|tema|modo|fundo|mud\w*|troc\w*|colo\w*|deix\w*|visual|estilo|ativ\w*|quero)\b/.test(n)){
+    if(dk)theme('dark');else if(lt)theme('light');if(col)accent(col);
+    return say(`Pronto, chef.${col?' Cor '+col+'.':''}${dk?' Modo escuro.':lt?' Modo claro.':''}`)}
+  if(!am&&tk.some(w=>/^(quanto|quantos|qual|saldo|sobrou|sobra)/.test(w)))return say(query(n));
+  const sc={};let top='',ts=0;
+  for(const k in INT){let s=0;for(const w in INT[k])if(tk.some(t=>hit(t,w)))s+=INT[k][w];sc[k]=s;if(s>ts){ts=s;top=k}}
+  if(ts>=2){
+    if(['income','expense','limit'].includes(top)&&!am){P={step:'v',text:raw};return say(`Entendi, chef: ${NAMES[top]}. Qual é o valor?`)}
+    switch(top){
+      case'undo':return undo();
+      case'sheet':return sheet();
+      case'tip':return tip();
+      case'remove':return removeCmd(text,n);
+      case'limit':change(()=>S.limit=am.v);return say('Limite de crédito definido em '+brl(am.v)+', chef.');
+      case'hide':change(()=>S.hide=true);return say('Valores ocultos, chef.');
+      case'showv':change(()=>S.hide=false);return say('Valores visíveis, chef.');
+      case'tabR':tab(1);return say('Mostrando o resumo, chef.');
+      case'tabL':tab(2);return say('Mostrando os lançamentos, chef.');
+      case'tabC':tab(3);return say('Mostrando os contatos, chef.');
+      case'voice':return nextVoice();
+      case'income':return add('in',am,text,n);
+      case'expense':return add('out',am,text,n);
+      case'saveC':return saveContactCmd(raw);
+      case'call':{const i=findContact(tk);if(i<0)return say(S.contacts.length?'Não achei esse contato, chef. Qual o nome?':'Você ainda não tem contatos salvos, chef. Cadastre na aba Contatos.');return dial(i,!/\b(telefone|celular|normal|comum)\b/.test(n))}}}
   if(am)return add('out',am,text,n);
-  say('Não entendi, chef. Diga “ajuda” para ver os comandos.')}
+  const alt=Object.entries(sc).sort((a,b)=>b[1]-a[1])[0];
+  say(alt&&alt[1]>0?`Não tenho certeza, chef. Você quis ${NAMES[alt[0]]}? Me diga de outro jeito.`:'Não entendi, chef. Fale do seu jeito, por exemplo: gastei 50 em lazer, ou diga ajuda.')}
 function typed(e){e.preventDefault();const v=$('cmd').value.trim();if(v){handle(v);$('cmd').value=''}return false}
 
-/* ---------- Voz: palavra de ativação “Ômega” ---------- */
+/* ====== Voz: fala natural e palavra de ativação ====== */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let rec=null,active=false,speaking=false;
-function say(msg){$('say').innerHTML='<em>'+esc(msg)+'</em>';speak(msg)}
+let rec=null,active=false,speaking=false,spk=0,VN=ls('fin_voice')||'',tw;
+const vscore=v=>(/natural|neural|online/i.test(v.name)?5:0)+(/google/i.test(v.name)?3:0)+(/francisca|antonio|thalita|luciana|felipe|fernanda|vitoria|camila|microsoft/i.test(v.name)?2:0)+(v.localService?0:1);
+const voices=()=>('speechSynthesis'in window?speechSynthesis.getVoices():[]).filter(v=>/^pt[-_]BR/i.test(v.lang)).sort((a,b)=>vscore(b)-vscore(a));
+const curVoice=()=>{const l=voices();return l.find(v=>v.name==VN)||l[0]||null};
+function nextVoice(){const l=voices();if(!l.length)return say('Não encontrei outras vozes em português neste aparelho, chef.');
+  const i=l.indexOf(curVoice()),v=l[(i+1)%l.length];VN=v.name;ls('fin_voice',VN);say('Esta é a minha nova voz, chef. Gostou?')}
+if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=()=>{};
+const clean=s=>s.replace(/R\$\s?([\d.]+),(\d\d)/g,(_,a,b)=>a+(a=='1'?' real':' reais')+(b=='00'?'':' e '+(+b)+' centavos')).replace(/[•“”"]/g,'').replace(/\s+/g,' ');
+function say(msg){clearInterval(tw);const e=document.createElement('em');$('say').replaceChildren(e);let i=0;
+  tw=setInterval(()=>{e.textContent=msg.slice(0,++i);if(i>=msg.length)clearInterval(tw)},14);speak(msg)}
 function speak(msg){
   if(!active||!('speechSynthesis'in window))return;
-  speechSynthesis.cancel();speaking=true;try{rec.stop()}catch(e){}
-  const u=new SpeechSynthesisUtterance(msg);u.lang='pt-BR';
-  const done=()=>{speaking=false;if(active)go()};u.onend=done;u.onerror=done;speechSynthesis.speak(u)}
+  const id=++spk;speechSynthesis.cancel();speaking=true;try{rec.stop()}catch(e){}
+  const done=()=>{if(id!=spk)return;speaking=false;if(active)go()},v=curVoice(),parts=clean(msg).match(/[^.!?]+[.!?]*/g)||[msg];
+  parts.forEach((t,i)=>{const u=new SpeechSynthesisUtterance(t.trim());u.lang='pt-BR';if(v)u.voice=v;u.rate=1.03;u.pitch=1;if(i==parts.length-1){u.onend=done;u.onerror=done}speechSynthesis.speak(u)})}
 function go(){try{rec.start()}catch(e){}}
 function heard(raw){
-  const n=strip(raw),m=n.match(/(^|\s)(o\s)?(omega|mega)\b/);
+  const n=strip(raw),m=n.match(/(^|\s)(h?o\s)?(omega|mega|omeca|omeja)\b/);
   if(m){awake=Date.now()+30000;const i=m.index+(m[1]?1:0),rest=(raw.slice(0,i)+' '+raw.slice(m.index+m[0].length)).replace(/^[\s,.!?]+/,'').trim();
     return rest?handle(rest):say('Pois não, chef? Estou ouvindo.')}
   if(P||Date.now()<awake){awake=Date.now()+30000;return handle(raw)}
@@ -340,9 +460,20 @@ function startVoice(){
     rec.onerror=ev=>{if(/not-allowed|service-not-allowed/.test(ev.error)){stopVoice();say('Microfone bloqueado, chef. Libere o acesso nas configurações do navegador.')}else if(ev.error=='audio-capture'){stopVoice();say('Não encontrei um microfone.')}else if(ev.error=='network'){stopVoice();say('Sem conexão com o serviço de voz.')}};
     rec.onend=()=>{if(active&&!speaking)setTimeout(go,250)}}
   $('say').innerHTML='Ômega em espera. Diga <em>“Ômega”</em> e o comando.';go()}
-function stopVoice(){active=false;speaking=false;try{rec&&rec.stop()}catch(e){}
+function stopVoice(){active=false;speaking=false;spk++;try{rec&&rec.stop()}catch(e){}
   if('speechSynthesis'in window)speechSynthesis.cancel();$('mic').classList.remove('on');$('orb').classList.remove('on');$('micTxt').textContent='Ativar Ômega'}
-let th='dark';try{th=localStorage.getItem('fin_theme')||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}catch(e){}
+
+/* ====== Efeito: rede de partículas ====== */
+const cv=$('fx'),cx=cv.getContext('2d');let pts=[],W,H;
+function size(){W=cv.width=innerWidth;H=cv.height=innerHeight;pts=Array.from({length:Math.min(55,W/16|0)},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35}))}
+function loop(){cx.clearRect(0,0,W,H);cx.fillStyle=cx.strokeStyle=ACCC;
+  pts.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;cx.globalAlpha=.5;cx.beginPath();cx.arc(p.x,p.y,1.6,0,7);cx.fill();
+    for(let j=i+1;j<pts.length;j++){const q=pts[j],d=Math.hypot(p.x-q.x,p.y-q.y);if(d<120){cx.globalAlpha=(1-d/120)*.22;cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke()}}});
+  requestAnimationFrame(loop)}
+addEventListener('resize',size);size();
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches)loop();
+
+let th=ls('fin_theme');if(!th){try{th=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}catch(e){th='dark'}}
 theme(th);render();
 if(SR)try{startVoice()}catch(e){}
 </script>
